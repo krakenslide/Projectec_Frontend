@@ -8,6 +8,7 @@ const FONTS =
   "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap";
 
 export default function RegisterPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,9 +37,9 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const data = await register(email, password);
+      const data = await register(name, email, password);
       localStorage.setItem("access_token", data.access_token);
-      navigate("/projects");
+      navigate("/organisations");
     } catch (err: unknown) {
       setError(getErrorMessage(err));
     } finally {
@@ -142,6 +143,32 @@ export default function RegisterPage() {
 
           <form className="flex flex-col gap-9" onSubmit={handleSubmit}>
             {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-[11px] block text-[10px] uppercase tracking-[0.22em] text-[#555555]"
+              >
+                Name
+              </label>
+
+              <input
+                id="name"
+                autoComplete="Name"
+                autoFocus
+                onChange={(e) => setName(e.target.value)}
+                placeholder="you@example.com"
+                required
+                type="name"
+                value={name}
+                className={[
+                  "w-full border-0 border-b border-[#2a2a2a] bg-transparent px-0 py-[11px]",
+                  "font-['DM_Mono','Courier_New',monospace] text-[14px] text-[#f0ede6]",
+                  "rounded-none outline-none transition-colors duration-200",
+                  "placeholder:text-[#2e2e2e]",
+                  "focus:border-[#f0ede6]",
+                ].join(" ")}
+              />
+            </div>
             <div>
               <label
                 htmlFor="email"

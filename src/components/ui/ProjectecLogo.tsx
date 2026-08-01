@@ -8,6 +8,7 @@ interface ProjectecLogoProps {
     className?: string;
     animate?: boolean;
     enableHover?: boolean;
+    loader?: boolean;
 }
 
 const WORD = "PROJECTEC";
@@ -19,6 +20,7 @@ export function ProjectecLogo({
     className = "",
     animate = true,
     enableHover = true,
+    loader = false,
 }: ProjectecLogoProps) {
     const [revealedCount, setRevealedCount] = useState(
         animate ? 0 : WORD.length
@@ -59,6 +61,7 @@ export function ProjectecLogo({
                 delay={delay}
                 animate={animate}
                 enableHover={enableHover}
+                loader={loader}
             />
 
             {showWordmark ? (

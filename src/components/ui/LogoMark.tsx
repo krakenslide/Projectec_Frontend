@@ -6,6 +6,7 @@ interface LogoMarkProps {
     className?: string;
     animate?: boolean;
     enableHover?: boolean;
+    loader?: boolean;
 }
 
 const fills = ["#9a9a9a", "#9a9a9a", "#9a9a9a", "#5a5a5a"];
@@ -16,6 +17,7 @@ export function LogoMark({
     className = "",
     animate = true,
     enableHover = true,
+    loader = false,
 }: LogoMarkProps) {
     const [steps, setSteps] = useState<boolean[]>([
         !animate,
@@ -93,6 +95,8 @@ export function LogoMark({
                                     ? "0 0 12px rgba(240,240,240,0.12)"
                                     : "0 0 8px rgba(240,240,240,0.06)"
                                 : "none",
+                            animation: loader ? "pj-logo-loader 1.35s ease-in-out infinite" : undefined,
+                            animationDelay: loader ? `${index * 220}ms` : undefined,
                         }}
                     />
                 );

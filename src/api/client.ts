@@ -1,4 +1,18 @@
 const BASE_URL = "http://127.0.0.1:8000/v1";
+export const getApiRoot = () => fetch("http://127.0.0.1:8000/").then(response => response.json() as Promise<{ status: string }>);
+
+export interface ApiResponse<T> {
+  success: boolean;
+  status_code: number;
+  message: string;
+  data: T | null;
+}
+
+export function responseData<T>(response: ApiResponse<T>): T {
+  if (!response.success) throw new Error(response.message || "The request was not successful");
+  if (response.data === null) throw new Error(response.message || "The server returned no data");
+  return response.data;
+}
 
 export async function apiRequest<T>(
   path: string,

@@ -6,5 +6,6 @@ export interface AuthResponse {
 export interface User {
   id: string;
   email: string;
+  name: string;
   is_active: boolean;
 }

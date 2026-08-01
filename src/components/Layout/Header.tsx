@@ -1,27 +1,17 @@
-import {
-    LogOut,
-    Menu,
-    PanelLeftClose,
-    PanelLeftOpen,
-    X,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 
 import { ProjectecLogo } from "../ui/ProjectecLogo";
 
 interface HeaderProps {
-    sidebarOpen: boolean;
-    isMobile: boolean;
     pageLabel: string;
-    onToggleSidebar: () => void;
     onLogout: () => void;
+    loading: boolean;
 }
 
 export default function Header({
-    sidebarOpen,
-    isMobile,
     pageLabel,
-    onToggleSidebar,
     onLogout,
+    loading,
 }: HeaderProps) {
     const iconButtonBaseClass = [
         "inline-flex h-9 w-9 items-center justify-center",
@@ -39,7 +29,7 @@ export default function Header({
     return (
         <header className="sticky top-0 z-30 h-16 shrink-0 border-b border-white/10 bg-[#080808]/95 backdrop-blur-xl">
             <div className="relative flex h-full items-center justify-between gap-4 px-4 sm:px-6">
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-emerald-400/25 to-transparent" />
+                <div className={`pj-header-progress pointer-events-none absolute bottom-0 h-px bg-gradient-to-r from-transparent via-emerald-300/80 to-transparent transition-[left,width,opacity] duration-500 ${loading ? "left-0 w-1/3 animate-[pj-header-sweep_1.2s_ease-in-out_infinite]" : "left-1/4 w-1/2 opacity-60"}`} />
 
                 <div className="flex min-w-0 items-center gap-3">
 

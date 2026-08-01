@@ -147,6 +147,39 @@
     }
   }
 
+  @keyframes pj-logo-loader {
+
+    0%,
+    100% {
+      opacity: 0.28;
+      transform: scale(0.72);
+      box-shadow: 0 0 0 rgba(240, 240, 240, 0);
+    }
+
+    35% {
+      opacity: 1;
+      transform: scale(1);
+      box-shadow: 0 0 12px rgba(240, 240, 240, 0.34);
+    }
+  }
+
+  @keyframes pj-header-sweep {
+    0% {
+      transform: translateX(-8%);
+      opacity: 0.25;
+    }
+
+    50% {
+      transform: translateX(105%);
+      opacity: 1;
+    }
+
+    100% {
+      transform: translateX(220%);
+      opacity: 0.25;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
 
     *,
@@ -161,6 +194,28 @@
 }
 
 @layer components {
+  .pj-scrollbar {
+    scrollbar-color: #3a3a3a transparent;
+    scrollbar-width: thin;
+  }
+
+  .pj-scrollbar::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .pj-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .pj-scrollbar::-webkit-scrollbar-thumb {
+    background: #3a3a3a;
+    border-radius: 999px;
+  }
+
+  .pj-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #686868;
+  }
+
   .pj-page {
     min-height: 100vh;
     background: var(--pj-bg);

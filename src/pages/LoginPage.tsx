@@ -38,7 +38,7 @@ export default function LoginPage() {
     try {
       const data = await login(email, password);
       localStorage.setItem("access_token", data.access_token);
-      navigate("/projects");
+      navigate("/organisations");
     } catch (err: unknown) {
       setError(getErrorMessage(err));
     } finally {
