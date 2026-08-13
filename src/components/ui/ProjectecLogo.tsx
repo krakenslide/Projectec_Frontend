@@ -67,7 +67,7 @@ export function ProjectecLogo({
             {showWordmark ? (
                 <span
                     className={[
-                        "flex select-none font-['DM_Mono','Courier_New',monospace]",
+                        "flex select-none font-['Inter',ui-sans-serif,sans-serif]",
                         "text-[11px] uppercase tracking-[0.2em]",
                     ].join(" ")}
                 >
@@ -77,8 +77,8 @@ export function ProjectecLogo({
                             className={[
                                 "inline-block w-[0.74em] transition-colors duration-200",
                                 index < revealedCount
-                                    ? "text-[#c2c2c2] group-hover:text-[#f0ede6]"
-                                    : "text-[#3a3a3a]",
+                                    ? "text-[#52525b] dark:text-[#c2c2c2] group-hover:text-[#171717] dark:group-hover:text-[#f5f3ee]"
+                                    : "text-[#a1a1aa] dark:text-[#71717a]",
                             ].join(" ")}
                         >
                             {char}

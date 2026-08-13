@@ -1,3 +1,5 @@
+import { useAuthErrorStore } from "../store/authErrorStore";
+
 const BASE_URL = "http://127.0.0.1:8000/v1";
 export const getApiRoot = () => fetch("http://127.0.0.1:8000/").then(response => response.json() as Promise<{ status: string }>);
 
@@ -30,6 +32,14 @@ export async function apiRequest<T>(
   }
 
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+
+  if (res.status === 401) {
+    // Surface a full-page notice instead of a silent failure: a 401 here
+    // most often means the account's email hasn't been verified yet
+    // (or the session has expired), so let the UI explain that rather
+    // than just showing a generic "request failed" error.
+    useAuthErrorStore.getState().trigger(path);
+  }
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({}));

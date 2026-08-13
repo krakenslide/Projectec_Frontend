@@ -15,6 +15,7 @@ export interface Ticket {
   created_at: string;
   updated_at: string;
   parent_ticket_id?: string | null;
+  milestone_id?: string | null;
   assigned_to?: string | null;
   difficulty?: number | null;
   expected_start_date?: string | null;

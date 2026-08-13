@@ -34,9 +34,9 @@ export function useToast() {
 
 function Toast({ toast, onClose }: { toast: ToastItem; onClose: () => void }) {
     const success = toast.tone === "success";
-    return <div className={`pointer-events-auto flex items-start gap-3 border bg-[#101010] px-4 py-3 shadow-[0_12px_35px_rgba(0,0,0,.35)] ${success ? "border-emerald-400/45" : "border-red-400/50"}`}>
+    return <div className={`pointer-events-auto flex items-start gap-3 border bg-[#f4f4f5] dark:bg-[#101010] px-4 py-3 shadow-[0_12px_35px_rgba(0,0,0,.35)] ${success ? "border-emerald-400/45" : "border-red-400/50"}`}>
         <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border ${success ? "border-emerald-400/50 text-emerald-300" : "border-red-400/50 text-red-300"}`}>{success ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}</span>
-        <p className="flex-1 text-xs leading-5 text-zinc-200">{toast.message}</p>
-        <button aria-label="Dismiss notification" className="text-zinc-600 transition-colors hover:text-white" onClick={onClose} type="button"><X className="h-3.5 w-3.5" /></button>
+        <p className="flex-1 text-xs leading-5 text-zinc-700 dark:text-zinc-200">{toast.message}</p>
+        <button aria-label="Dismiss notification" className="text-zinc-600 dark:text-zinc-300 transition-colors hover:text-zinc-900 dark:hover:text-white" onClick={onClose} type="button"><X className="h-3.5 w-3.5" /></button>
     </div>;
 }
