@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api/auth";
 import { getErrorMessage } from "../api/client";
 import { ProjectecLogo } from "../components/ui/ProjectecLogo";
+import ThemeToggle from "../components/ui/ThemeToggle";
 
 const FONTS =
-  "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap";
+  "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -49,14 +50,18 @@ export default function LoginPage() {
   return (
     <main
       className={[
-        "flex min-h-screen bg-[#080808] text-[#f0ede6]",
-        "font-['DM_Mono','Courier_New',monospace]",
+        "flex min-h-screen bg-[var(--pj-bg)] text-[var(--pj-text)]",
+        "font-['Inter',ui-sans-serif,sans-serif]",
         "transition-opacity duration-[550ms] ease-in",
         visible ? "opacity-100" : "opacity-0",
       ].join(" ")}
     >
+      <div className="fixed right-5 top-5 z-10">
+        <ThemeToggle />
+      </div>
+
       {/* LEFT PANEL */}
-      <aside className="hidden min-h-screen w-[44%] flex-col justify-between border-r border-[#1e1e1e] px-[52px] py-[44px] md:flex">
+      <aside className="hidden min-h-screen w-[44%] flex-col justify-between border-r border-[var(--pj-border)] px-[52px] py-[44px] md:flex">
         {/* Brand lockup */}
         <div className="flex items-center gap-[11px]">
           <ProjectecLogo
@@ -69,20 +74,20 @@ export default function LoginPage() {
 
         {/* Editorial headline */}
         <div>
-          <p className="mb-8 text-[10px] uppercase tracking-[0.22em] text-[#555555]">
+          <p className="mb-8 text-[10px] uppercase tracking-[0.22em] text-[var(--pj-muted)]">
             01 — Operations
           </p>
 
           <h1 className="mb-11 font-['Instrument_Serif',Georgia,serif] text-[clamp(52px,5.5vw,84px)] font-normal leading-[0.92] tracking-[-0.01em]">
             Project
             <br />
-            <em className="font-normal italic text-[#555555]">work</em>
+            <em className="font-normal italic text-[var(--pj-muted)]">work</em>
             <br />
             done right.
           </h1>
 
-          <div className="border-t border-[#1e1e1e] pt-8">
-            <p className="m-0 max-w-[270px] text-[12px] leading-[1.85] text-[#555555]">
+          <div className="border-t border-[var(--pj-border)] pt-8">
+            <p className="m-0 max-w-[270px] text-[12px] leading-[1.85] text-[var(--pj-muted)]">
               A workspace for teams who ship. Manage projects, track issues,
               and deliver without friction.
             </p>
@@ -91,10 +96,10 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="flex items-center justify-between">
-          <span className="text-[11px] tracking-[0.06em] text-[#252525]">
+          <span className="text-[11px] tracking-[0.06em] text-[var(--pj-dim)]">
             v2.4.1
           </span>
-          <span className="text-[11px] tracking-[0.06em] text-[#252525]">
+          <span className="text-[11px] tracking-[0.06em] text-[var(--pj-dim)]">
             © 2025
           </span>
         </div>
@@ -105,21 +110,21 @@ export default function LoginPage() {
         <div className="w-full max-w-[352px]">
           {/* Heading */}
           <div className="mb-[52px]">
-            <p className="mb-[18px] text-[10px] uppercase tracking-[0.22em] text-[#555555]">
+            <p className="mb-[18px] text-[10px] uppercase tracking-[0.22em] text-[var(--pj-muted)]">
               Sign in
             </p>
 
             <h2 className="m-0 font-['Instrument_Serif',Georgia,serif] text-[36px] font-normal leading-[1.05]">
               Welcome
               <br />
-              <em className="font-normal italic text-[#555555]">back.</em>
+              <em className="font-normal italic text-[var(--pj-muted)]">back.</em>
             </h2>
           </div>
 
           {/* Error */}
           {error ? (
-            <div className="mb-8 border-y border-[#b53a3a] py-3">
-              <p className="m-0 font-['DM_Mono','Courier_New',monospace] text-[11px] leading-[1.6] tracking-[0.05em] text-[#b53a3a]">
+            <div className="mb-8 border-y border-[var(--pj-error)] py-3">
+              <p className="m-0 font-['Inter',ui-sans-serif,sans-serif] text-[11px] leading-[1.6] tracking-[0.05em] text-[var(--pj-error)]">
                 {error}
               </p>
             </div>
@@ -130,7 +135,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="mb-[11px] block text-[10px] uppercase tracking-[0.22em] text-[#555555]"
+                className="mb-[11px] block text-[10px] uppercase tracking-[0.22em] text-[var(--pj-muted)]"
               >
                 Email address
               </label>
@@ -144,11 +149,11 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 className={[
-                  "w-full border-0 border-b border-[#2a2a2a] bg-transparent px-0 py-[11px]",
-                  "font-['DM_Mono','Courier_New',monospace] text-[14px] text-[#f0ede6]",
+                  "w-full border-0 border-b border-[var(--pj-input-border)] bg-transparent px-0 py-[11px]",
+                  "font-['Inter',ui-sans-serif,sans-serif] text-[14px] text-[var(--pj-text)]",
                   "rounded-none outline-none transition-colors duration-200",
-                  "placeholder:text-[#2e2e2e]",
-                  "focus:border-[#f0ede6]",
+                  "placeholder:text-[var(--pj-placeholder)]",
+                  "focus:border-[var(--pj-text)]",
                 ].join(" ")}
               />
             </div>
@@ -158,14 +163,14 @@ export default function LoginPage() {
               <div className="mb-[11px] flex items-baseline justify-between">
                 <label
                   htmlFor="password"
-                  className="block text-[10px] uppercase tracking-[0.22em] text-[#555555]"
+                  className="block text-[10px] uppercase tracking-[0.22em] text-[var(--pj-muted)]"
                 >
                   Password
                 </label>
 
                 <Link
                   to="/forgot-password"
-                  className="text-[10px] uppercase tracking-[0.16em] text-[#555555] no-underline transition-colors duration-200 hover:text-[#f0ede6]"
+                  className="text-[10px] uppercase tracking-[0.16em] text-[var(--pj-muted)] no-underline transition-colors duration-200 hover:text-[var(--pj-text)]"
                 >
                   Forgot?
                 </Link>
@@ -181,11 +186,11 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   className={[
-                    "w-full border-0 border-b border-[#2a2a2a] bg-transparent py-[11px] pl-0 pr-12",
-                    "font-['DM_Mono','Courier_New',monospace] text-[14px] text-[#f0ede6]",
+                    "w-full border-0 border-b border-[var(--pj-input-border)] bg-transparent py-[11px] pl-0 pr-12",
+                    "font-['Inter',ui-sans-serif,sans-serif] text-[14px] text-[var(--pj-text)]",
                     "rounded-none outline-none transition-colors duration-200",
-                    "placeholder:text-[#2e2e2e]",
-                    "focus:border-[#f0ede6]",
+                    "placeholder:text-[var(--pj-placeholder)]",
+                    "focus:border-[var(--pj-text)]",
                   ].join(" ")}
                 />
 
@@ -195,9 +200,9 @@ export default function LoginPage() {
                   type="button"
                   className={[
                     "absolute right-0 top-1/2 -translate-y-1/2 bg-transparent px-0 py-1",
-                    "border-0 font-['DM_Mono','Courier_New',monospace]",
-                    "text-[10px] uppercase tracking-[0.14em] text-[#555555]",
-                    "cursor-pointer transition-colors duration-200 hover:text-[#f0ede6]",
+                    "border-0 font-['Inter',ui-sans-serif,sans-serif]",
+                    "text-[10px] uppercase tracking-[0.14em] text-[var(--pj-muted)]",
+                    "cursor-pointer transition-colors duration-200 hover:text-[var(--pj-text)]",
                   ].join(" ")}
                 >
                   {showPassword ? "Hide" : "Show"}
@@ -211,17 +216,17 @@ export default function LoginPage() {
               type="submit"
               className={[
                 "flex w-full items-center justify-center gap-[14px] border px-6 py-4",
-                "rounded-none font-['DM_Mono','Courier_New',monospace]",
+                "rounded-none font-['Inter',ui-sans-serif,sans-serif]",
                 "text-[11px] uppercase tracking-[0.22em]",
                 "transition-all duration-200",
                 loading
-                  ? "cursor-wait border-[#252525] bg-[#1c1c1c] text-[#555555]"
-                  : "cursor-pointer border-[#f0ede6] bg-[#f0ede6] text-[#080808] hover:bg-[#d8d5ce]",
+                  ? "cursor-wait border-[var(--pj-dim)] bg-[var(--pj-disabled-bg)] text-[var(--pj-muted)]"
+                  : "cursor-pointer border-[var(--pj-text)] bg-[var(--pj-text)] text-[var(--pj-bg)] hover:bg-[var(--pj-button-hover)]",
               ].join(" ")}
             >
               {loading ? (
                 <>
-                  <span className="inline-block h-[10px] w-[10px] animate-spin rounded-full border border-[#444] border-t-[#555555]" />
+                  <span className="inline-block h-[10px] w-[10px] animate-spin rounded-full border border-[var(--pj-input-border)] border-t-[var(--pj-muted)]" />
                   Signing in
                 </>
               ) : (
@@ -231,17 +236,17 @@ export default function LoginPage() {
           </form>
 
           {/* Register */}
-          <div className="mt-[52px] flex items-center justify-between gap-[18px] border-t border-[#1e1e1e] pt-8">
-            <span className="text-[11px] text-[#555555]">
+          <div className="mt-[52px] flex items-center justify-between gap-[18px] border-t border-[var(--pj-border)] pt-8">
+            <span className="text-[11px] text-[var(--pj-muted)]">
               New to Projectec?
             </span>
 
             <Link
               to="/register"
               className={[
-                "border-b border-[#252525] pb-0.5 text-[11px] uppercase tracking-[0.14em]",
-                "text-[#f0ede6] no-underline transition-colors duration-200",
-                "hover:border-[#555555]",
+                "border-b border-[var(--pj-dim)] pb-0.5 text-[11px] uppercase tracking-[0.14em]",
+                "text-[var(--pj-text)] no-underline transition-colors duration-200",
+                "hover:border-[var(--pj-muted)]",
                 "whitespace-nowrap",
               ].join(" ")}
             >

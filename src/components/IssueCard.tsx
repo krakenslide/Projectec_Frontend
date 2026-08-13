@@ -71,8 +71,8 @@ function IconButton({
         "inline-flex h-8 w-8 items-center justify-center border border-transparent bg-transparent",
         "rounded-none transition-all duration-200",
         danger
-          ? "text-[#9a9a9a] hover:border-[#d36b6b] hover:bg-[#1a0d0d] hover:text-[#ffb3b3]"
-          : "text-[#b8b8b8] hover:border-[#8a8a8a] hover:bg-[#111111] hover:text-[#ffffff]",
+          ? "text-[#52525b] dark:text-[#9a9a9a] hover:border-[#b91c1c] dark:hover:border-[#f2867d] hover:bg-[#fef2f2] dark:hover:bg-[#1a0d0d] hover:text-[#b91c1c] dark:hover:text-[#ffb3b3]"
+          : "text-[#52525b] dark:text-[#b8b8b8] hover:border-[#52525b] dark:hover:border-[#8a8a8a] hover:bg-[#f4f4f5] dark:hover:bg-[#111111] hover:text-[#171717] dark:hover:text-[#ffffff]",
         dragProps?.className ?? "",
       ].join(" ")}
       onClick={onClick}
@@ -102,12 +102,12 @@ function PrimaryButton({
       type={type}
       className={[
         "inline-flex min-h-10 items-center justify-center gap-2 border px-4 py-2.5",
-        "rounded-none font-['DM_Mono','Courier_New',monospace]",
+        "rounded-none font-['Inter',ui-sans-serif,sans-serif]",
         "text-[11px] uppercase tracking-[0.22em]",
         "transition-all duration-200",
         disabled
-          ? "cursor-wait border-[#4a4a4a] bg-[#1c1c1c] text-[#7a7a7a]"
-          : "border-[#f0ede6] bg-[#f0ede6] text-[#080808] hover:bg-[#ffffff]",
+          ? "cursor-wait border-[#a1a1aa] dark:border-[#71717a] bg-[#e4e4e7] dark:bg-[#1c1c1c] text-[#52525b] dark:text-[#8a8a8a]"
+          : "border-[#171717] dark:border-[#f5f3ee] bg-[#171717] dark:bg-[#f5f3ee] text-[#ffffff] dark:text-[#080808] hover:bg-[#171717] dark:hover:bg-[#ffffff]",
       ].join(" ")}
     >
       {children}
@@ -132,10 +132,10 @@ function SecondaryButton({
       onClick={onClick}
       type={type}
       className={[
-        "inline-flex min-h-10 items-center justify-center gap-2 border border-[#4a4a4a] px-4 py-2.5",
-        "rounded-none bg-transparent font-['DM_Mono','Courier_New',monospace]",
-        "text-[11px] uppercase tracking-[0.18em] text-[#d8d5ce]",
-        "transition-all duration-200 hover:border-[#8a8a8a] hover:bg-[#111111] hover:text-[#ffffff]",
+        "inline-flex min-h-10 items-center justify-center gap-2 border border-[#a1a1aa] dark:border-[#71717a] px-4 py-2.5",
+        "rounded-none bg-transparent font-['Inter',ui-sans-serif,sans-serif]",
+        "text-[11px] uppercase tracking-[0.18em] text-[#27272a] dark:text-[#d8d5ce]",
+        "transition-all duration-200 hover:border-[#52525b] dark:hover:border-[#8a8a8a] hover:bg-[#f4f4f5] dark:hover:bg-[#111111] hover:text-[#171717] dark:hover:text-[#ffffff]",
         disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
       ].join(" ")}
     >
@@ -165,21 +165,21 @@ function OptionButton({
     <button
       className={[
         "inline-flex min-h-9 items-center gap-2 border px-3",
-        "rounded-none bg-transparent font-['DM_Mono','Courier_New',monospace]",
+        "rounded-none bg-transparent font-['Inter',ui-sans-serif,sans-serif]",
         "text-[10px] uppercase tracking-[0.18em]",
         "transition-all duration-200",
         selected && tone
           ? [tone.borderClass, tone.textClass, tone.bgClass].join(" ")
           : selected
-            ? "border-[#f0ede6] text-[#ffffff]"
+            ? "border-[#171717] dark:border-[#f5f3ee] text-[#171717] dark:text-[#ffffff]"
             : tone
               ? [
-                "border-[#4a4a4a] text-[#b8b8b8]",
-                "hover:bg-[#111111]",
+                "border-[#a1a1aa] dark:border-[#71717a] text-[#52525b] dark:text-[#b8b8b8]",
+                "hover:bg-[#f4f4f5] dark:hover:bg-[#111111]",
                 tone.hoverBorderClass,
                 tone.hoverTextClass,
               ].join(" ")
-              : "border-[#4a4a4a] text-[#b8b8b8] hover:border-[#8a8a8a] hover:bg-[#111111] hover:text-[#ffffff]",
+              : "border-[#a1a1aa] dark:border-[#71717a] text-[#52525b] dark:text-[#b8b8b8] hover:border-[#52525b] dark:hover:border-[#8a8a8a] hover:bg-[#f4f4f5] dark:hover:bg-[#111111] hover:text-[#171717] dark:hover:text-[#ffffff]",
       ].join(" ")}
       onClick={onClick}
       type="button"
@@ -191,8 +191,8 @@ function OptionButton({
 
 function ErrorRule({ message }: { message: string }) {
   return (
-    <div className="border-y border-[#d36b6b] py-3">
-      <p className="m-0 text-[11px] leading-[1.6] tracking-[0.05em] text-[#ffb3b3]">
+    <div className="border-y border-[#b91c1c] dark:border-[#f2867d] py-3">
+      <p className="m-0 text-[11px] leading-[1.6] tracking-[0.05em] text-[#b91c1c] dark:text-[#ffb3b3]">
         {message}
       </p>
     </div>
@@ -298,12 +298,12 @@ export default function IssueCard({
       style={style}
       className={[
         "group border bg-transparent p-4",
-        "font-['DM_Mono','Courier_New',monospace]",
+        "font-['Inter',ui-sans-serif,sans-serif]",
         "transition-all duration-200",
         priorityMeta.borderClass,
         isDragging
           ? "z-50 opacity-80"
-          : "hover:border-[#8a8a8a] hover:bg-[#101010]",
+          : "hover:border-[#52525b] dark:hover:border-[#8a8a8a] hover:bg-[#f4f4f5] dark:hover:bg-[#101010]",
       ].join(" ")}
     >
       <div className="mb-4 flex items-center justify-between gap-2">
@@ -350,7 +350,7 @@ export default function IssueCard({
           <div>
             <label
               htmlFor={`issue-title-${issue.id}`}
-              className="mb-[11px] block text-[10px] uppercase tracking-[0.22em] text-[#9a9a9a]"
+              className="mb-[11px] block text-[10px] uppercase tracking-[0.22em] text-[#52525b] dark:text-[#9a9a9a]"
             >
               Title
             </label>
@@ -358,7 +358,7 @@ export default function IssueCard({
             <input
               id={`issue-title-${issue.id}`}
               autoFocus
-              className="w-full rounded-none border-0 border-b border-[#5a5a5a] bg-transparent px-0 py-[11px] text-[14px] text-[#ffffff] outline-none transition-colors duration-200 placeholder:text-[#5a5a5a] focus:border-[#ffffff]"
+              className="w-full rounded-none border-0 border-b border-[#52525b] dark:border-[#8a8a8a] bg-transparent px-0 py-[11px] text-[14px] text-[#171717] dark:text-[#ffffff] outline-none transition-colors duration-200 placeholder:text-[#52525b] dark:text-[#8a8a8a] focus:border-[#171717] dark:focus:border-[#ffffff]"
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Issue title"
               required
@@ -369,14 +369,14 @@ export default function IssueCard({
           <div>
             <label
               htmlFor={`issue-description-${issue.id}`}
-              className="mb-[11px] block text-[10px] uppercase tracking-[0.22em] text-[#9a9a9a]"
+              className="mb-[11px] block text-[10px] uppercase tracking-[0.22em] text-[#52525b] dark:text-[#9a9a9a]"
             >
               Description
             </label>
 
             <textarea
               id={`issue-description-${issue.id}`}
-              className="min-h-24 w-full resize-none rounded-none border-0 border-b border-[#5a5a5a] bg-transparent px-0 py-[11px] text-[14px] leading-[1.7] text-[#f0ede6] outline-none transition-colors duration-200 placeholder:text-[#5a5a5a] focus:border-[#ffffff]"
+              className="min-h-24 w-full resize-none rounded-none border-0 border-b border-[#52525b] dark:border-[#8a8a8a] bg-transparent px-0 py-[11px] text-[14px] leading-[1.7] text-[#171717] dark:text-[#f5f3ee] outline-none transition-colors duration-200 placeholder:text-[#52525b] dark:text-[#8a8a8a] focus:border-[#171717] dark:focus:border-[#ffffff]"
               onChange={(event) => setDescription(event.target.value)}
               placeholder="Description"
               rows={3}
@@ -385,7 +385,7 @@ export default function IssueCard({
           </div>
 
           <div>
-            <div className="mb-[11px] text-[10px] uppercase tracking-[0.22em] text-[#9a9a9a]">
+            <div className="mb-[11px] text-[10px] uppercase tracking-[0.22em] text-[#52525b] dark:text-[#9a9a9a]">
               Priority
             </div>
 
@@ -415,7 +415,7 @@ export default function IssueCard({
           </div>
 
           <div>
-            <div className="mb-[11px] text-[10px] uppercase tracking-[0.22em] text-[#9a9a9a]">
+            <div className="mb-[11px] text-[10px] uppercase tracking-[0.22em] text-[#52525b] dark:text-[#9a9a9a]">
               Status
             </div>
 
@@ -455,17 +455,17 @@ export default function IssueCard({
         </form>
       ) : (
         <>
-          <p className="pr-2 text-[14px] font-normal leading-[1.6] text-[#ffffff]">
+          <p className="pr-2 text-[14px] font-normal leading-[1.6] text-[#171717] dark:text-[#ffffff]">
             {issue.title}
           </p>
 
           {issue.description ? (
-            <p className="mt-3 line-clamp-3 text-[12px] leading-[1.85] text-[#9a9a9a]">
+            <p className="mt-3 line-clamp-3 text-[12px] leading-[1.85] text-[#52525b] dark:text-[#9a9a9a]">
               {issue.description}
             </p>
           ) : null}
 
-          <div className="mt-5 border-t border-[#3a3a3a] pt-4">
+          <div className="mt-5 border-t border-[#a1a1aa] dark:border-[#71717a] pt-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span
                 className={[
@@ -497,8 +497,8 @@ export default function IssueCard({
                       className={[
                         "inline-flex min-h-8 items-center gap-1.5 border border-transparent px-2",
                         "rounded-none bg-transparent text-[10px] uppercase tracking-[0.16em]",
-                        "text-[#b8b8b8] transition-colors duration-200",
-                        "hover:border-[#8a8a8a] hover:bg-[#111111] hover:text-[#ffffff]",
+                        "text-[#52525b] dark:text-[#b8b8b8] transition-colors duration-200",
+                        "hover:border-[#52525b] dark:hover:border-[#8a8a8a] hover:bg-[#f4f4f5] dark:hover:bg-[#111111] hover:text-[#171717] dark:hover:text-[#ffffff]",
                       ].join(" ")}
                       key={m.status}
                       onClick={() => handleMove(m.status)}

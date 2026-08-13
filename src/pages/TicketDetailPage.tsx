@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Clock3, Edit3, Loader2, MessageSquare, Save, Send, Trash2, X } from "lucide-react";
-import { createComment, deleteComment, listComments, updateComment, type Comment } from "../api/comments";
+import { createComment, deleteComment, listComments, updateComment, type Comment, type TaggedUser } from "../api/comments";
 import { deleteTicket, getTicket, updateTicket } from "../api/tickets";
 import { getErrorMessage } from "../api/client";
 import type { Ticket, TicketPriority, TicketStatus, TicketType } from "../types/ticket";
@@ -11,6 +11,7 @@ import ConfirmModal from "../components/ui/ConfirmModal";
 import AssigneePicker from "../components/ui/AssigneePicker";
 import type { ProjectMember } from "../types/project";
 import { listProjectMembers } from "../api/projects";
+import { getMe } from "../api/auth";
 
 const statuses: TicketStatus[] = ["To Do", "In Progress", "In Review", "Testing", "Done", "Closed"];
 const types: TicketType[] = ["Feature", "Bug", "Task", "Improvement"];
@@ -18,20 +19,24 @@ const priorities: TicketPriority[] = ["P0", "P1", "P2", "P3", "P4"];
 const dateValue = (value: string | null | undefined) => value ? value.slice(0, 16) : "";
 const optional = (value: string) => value.trim() || null;
 
-const priorityTone: Record<TicketPriority, string> = { P0: "border-red-400/50 bg-red-950/20 text-red-300", P1: "border-orange-300/50 bg-orange-950/20 text-orange-200", P2: "border-amber-300/50 bg-amber-950/20 text-amber-200", P3: "border-sky-300/50 bg-sky-950/20 text-sky-200", P4: "border-zinc-700 bg-zinc-950/30 text-zinc-400" };
-const statusTone: Record<TicketStatus, string> = { "To Do": "border-zinc-700 text-zinc-400", "In Progress": "border-emerald-400/50 text-emerald-300", "In Review": "border-sky-400/50 text-sky-300", Testing: "border-violet-400/50 text-violet-300", Done: "border-green-400/50 text-green-300", Closed: "border-zinc-700 text-zinc-600" };
+const priorityTone: Record<TicketPriority, string> = { P0: "border-red-400/50 bg-red-950/20 text-red-300", P1: "border-orange-300/50 bg-orange-950/20 text-orange-200", P2: "border-amber-300/50 bg-amber-950/20 text-amber-200", P3: "border-sky-300/50 bg-sky-950/20 text-sky-200", P4: "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950/30 text-zinc-600 dark:text-zinc-300" };
+const statusTone: Record<TicketStatus, string> = { "To Do": "border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300", "In Progress": "border-emerald-400/50 text-emerald-300", "In Review": "border-sky-400/50 text-sky-300", Testing: "border-violet-400/50 text-violet-300", Done: "border-green-400/50 text-green-300", Closed: "border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300" };
 
 export default function TicketDetailPage() {
     const { organizationId, projectId, ticketId } = useParams<{ organizationId: string; projectId: string; ticketId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const { showToast } = useToast();
     const [ticket, setTicket] = useState<Ticket | null>(null);
     const [original, setOriginal] = useState<Ticket | null>(null);
     const [members, setMembers] = useState<ProjectMember[]>([]);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
     const [commentText, setCommentText] = useState("");
+    const [taggedUserIds, setTaggedUserIds] = useState<string[]>([]);
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editingText, setEditingText] = useState("");
+    const [editingTaggedUserIds, setEditingTaggedUserIds] = useState<string[]>([]);
     const [loadingComments, setLoadingComments] = useState(true);
     const [commentBusy, setCommentBusy] = useState(false);
     const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
@@ -52,9 +57,19 @@ export default function TicketDetailPage() {
     }, [projectId]);
 
     useEffect(() => {
+        void getMe().then((user) => setCurrentUserId(user.id)).catch(() => setCurrentUserId(null));
+    }, []);
+
+    useEffect(() => {
         if (!ticketId) return;
         void listComments(ticketId).then(setComments).catch((err: unknown) => setError(`Ticket loaded, but comments could not be loaded: ${getErrorMessage(err)}`)).finally(() => setLoadingComments(false));
     }, [ticketId]);
+
+    useEffect(() => {
+        const commentId = location.hash.replace("#comment-", "");
+        if (!commentId || !comments.some((comment) => comment.id === commentId)) return;
+        window.requestAnimationFrame(() => document.getElementById(`comment-${commentId}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    }, [comments, location.hash]);
 
     const validation = useMemo(() => {
         if (!ticket) return "";
@@ -79,8 +94,8 @@ export default function TicketDetailPage() {
         if (!ticketId || !commentText.trim() || commentBusy) return;
         setCommentBusy(true); setError("");
         try {
-            const created = await createComment(ticketId, commentText.trim());
-            setComments((items) => [...items, created]); setCommentText(""); showToast("Comment added");
+            const created = await createComment(ticketId, commentText.trim(), taggedUserIds);
+            setComments((items) => [...items, { ...created, tagged_users: created.tagged_users ?? taggedUserIds }]); setCommentText(""); setTaggedUserIds([]); showToast("Comment added");
         } catch (err: unknown) { setError(getErrorMessage(err)); } finally { setCommentBusy(false); }
     };
 
@@ -88,8 +103,8 @@ export default function TicketDetailPage() {
         if (!ticketId || !editingText.trim() || commentBusy) return;
         setCommentBusy(true); setError("");
         try {
-            const updated = await updateComment(ticketId, comment.id, editingText.trim());
-            setComments((items) => items.map((item) => item.id === comment.id ? updated : item)); setEditingCommentId(null); setEditingText(""); showToast("Comment updated");
+            const updated = await updateComment(ticketId, comment.id, editingText.trim(), editingTaggedUserIds);
+            setComments((items) => items.map((item) => item.id === comment.id ? { ...updated, tagged_users: updated.tagged_users ?? editingTaggedUserIds } : item)); setEditingCommentId(null); setEditingText(""); setEditingTaggedUserIds([]); showToast("Comment updated");
         } catch (err: unknown) { setError(getErrorMessage(err)); } finally { setCommentBusy(false); }
     };
 
@@ -112,17 +127,17 @@ export default function TicketDetailPage() {
     const updateTicketField = <K extends keyof Ticket>(key: K, value: Ticket[K]) => setTicket((current) => current ? { ...current, [key]: value } : current);
     const changed = JSON.stringify(ticket) !== JSON.stringify(original);
 
-    if (!ticket) return <div className="space-y-7"><Link className="text-xs uppercase tracking-[.16em] text-zinc-400 hover:text-white" to={`/organisations/${organizationId}/projects/${projectId}/tickets`}>← Tickets</Link><ProjectecLoader /></div>;
+    if (!ticket) return <div className="space-y-7 font-['Inter',ui-sans-serif,sans-serif]"><Link className="text-xs uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white" to={`/organisations/${organizationId}/projects/${projectId}/tickets`}>← Tickets</Link><ProjectecLoader /></div>;
 
-    return <div className="max-w-6xl space-y-7">
-        <Link className="text-xs uppercase tracking-[.16em] text-zinc-500 transition-colors hover:text-white" to={`/organisations/${organizationId}/projects/${projectId}/tickets`}>← Back to tickets</Link>
+    return <div className="max-w-6xl space-y-7 font-['Inter',ui-sans-serif,sans-serif]">
+        <Link className="text-xs uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white" to={`/organisations/${organizationId}/projects/${projectId}/tickets`}>← Back to tickets</Link>
         {error && <p className="border-y border-red-400/50 py-3 text-sm text-red-300">{error}</p>}
-        <header className="border-b border-zinc-800 pb-7"><div className="flex flex-wrap items-center gap-2"><span className="text-[10px] uppercase tracking-[.18em] text-zinc-600">{ticket.ticket_number}</span><span className={`border px-2 py-1 text-[10px] uppercase tracking-[.12em] ${priorityTone[ticket.priority]}`}>{ticket.priority}</span><span className={`border px-2 py-1 text-[10px] uppercase tracking-[.12em] ${statusTone[ticket.status]}`}>{ticket.status}</span></div><input className="mt-4 w-full bg-transparent font-['Instrument_Serif',Georgia,serif] text-5xl leading-none text-white outline-none focus:border-b focus:border-white" maxLength={255} value={ticket.title} onChange={(event) => updateTicketField("title", event.target.value)} /><p className="mt-4 text-xs text-zinc-600">{ticket.type} · Updated {formatDate(ticket.updated_at)}</p></header>
+        <header className="border-b border-zinc-200 dark:border-zinc-800 pb-7"><div className="flex flex-wrap items-center gap-2"><span className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-300">{ticket.ticket_number}</span><span className={`border px-2 py-1 text-[10px] uppercase tracking-[.12em] ${priorityTone[ticket.priority]}`}>{ticket.priority}</span><span className={`border px-2 py-1 text-[10px] uppercase tracking-[.12em] ${statusTone[ticket.status]}`}>{ticket.status}</span></div><input className="mt-4 w-full bg-transparent font-['Instrument_Serif',Georgia,serif] text-5xl leading-none text-zinc-900 dark:text-white outline-none focus:border-b focus:border-zinc-900 dark:focus:border-white" maxLength={255} value={ticket.title} onChange={(event) => updateTicketField("title", event.target.value)} /><p className="mt-4 text-xs text-zinc-600 dark:text-zinc-300">{ticket.type} · Updated {formatDate(ticket.updated_at)}</p></header>
         <div className="flex min-w-[900px] items-start gap-6">
-            <section className="min-w-0 flex-1 space-y-5 border border-zinc-800 bg-zinc-950/25 p-5"><div className="flex items-center justify-between border-b border-zinc-800 pb-4"><div><p className="text-[10px] uppercase tracking-[.18em] text-zinc-600">Ticket workspace</p><h2 className="mt-2 text-lg text-zinc-100">Details</h2></div><button className="inline-flex min-h-9 items-center gap-2 border border-zinc-700 px-3 text-[10px] uppercase tracking-[.12em] text-zinc-400 hover:border-white hover:text-white" disabled={!changed || Boolean(validation) || ticketSaving} onClick={() => void saveTicket()} type="button">{ticketSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}{ticketSaving ? "Saving" : "Save"}</button></div><Field label="Description"><textarea className="min-h-36 w-full bg-transparent text-sm leading-6 text-zinc-200 outline-none" value={ticket.description ?? ""} onChange={(event) => updateTicketField("description", optional(event.target.value))} placeholder="Describe the work behind this ticket" /></Field><div className="grid gap-4 md:grid-cols-2"><SelectField label="Status" value={ticket.status} options={statuses} onChange={(value) => updateTicketField("status", value as TicketStatus)} /><SelectField label="Type" value={ticket.type} options={types} onChange={(value) => updateTicketField("type", value as TicketType)} /><SelectField label="Priority" value={ticket.priority} options={priorities} onChange={(value) => updateTicketField("priority", value as TicketPriority)} /><Field label="Difficulty (1-100)"><input className="w-full bg-transparent text-white" max={100} min={1} type="number" value={ticket.difficulty ?? ""} onChange={(event) => updateTicketField("difficulty", event.target.value ? Number(event.target.value) : null)} /></Field><Field label="Hours logged"><input className="w-full bg-transparent text-white" min={0} type="number" value={ticket.hours_logged ?? 0} onChange={(event) => updateTicketField("hours_logged", Number(event.target.value))} /></Field><AssigneePicker label="Assignee" members={members} value={ticket.assigned_to} onChange={(value) => updateTicketField("assigned_to", value)} /><Field label="Expected start"><input className="w-full bg-transparent text-white" type="datetime-local" value={dateValue(ticket.expected_start_date)} onChange={(event) => updateTicketField("expected_start_date", optional(event.target.value))} /></Field><Field label="Expected end"><input className="w-full bg-transparent text-white" type="datetime-local" value={dateValue(ticket.expected_end_date)} onChange={(event) => updateTicketField("expected_end_date", optional(event.target.value))} /></Field></div><Field label="Reason for delay"><textarea className="min-h-20 w-full bg-transparent text-zinc-200 outline-none" maxLength={1000} value={ticket.reason_for_delay ?? ""} onChange={(event) => updateTicketField("reason_for_delay", optional(event.target.value))} /></Field>{validation && <p className="text-sm text-red-300">{validation}</p>}</section>
-            <aside className="w-[22rem] shrink-0"><section className="border border-zinc-800 bg-zinc-950/25 p-5"><h2 className="text-[10px] uppercase tracking-[.18em] text-zinc-500">Ticket data</h2><div className="mt-5 space-y-4"><Meta label="Ticket ID" value={ticket.id} /><Meta label="Project ID" value={ticket.project_id} /><Meta label="Created" value={formatDate(ticket.created_at)} /><Meta label="Updated" value={formatDate(ticket.updated_at)} /></div><button className="mt-6 inline-flex min-h-9 items-center gap-2 border border-red-400/60 px-3 text-[10px] uppercase tracking-[.12em] text-red-200 hover:bg-red-950/20" disabled={deletingTicket} onClick={() => setTicketDeleteOpen(true)} type="button">{deletingTicket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}Delete ticket</button></section></aside>
+            <section className="min-w-0 flex-1 space-y-5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/25 p-5"><div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4"><div><p className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-300">Ticket workspace</p><h2 className="mt-2 text-lg text-zinc-800 dark:text-zinc-100">Details</h2></div><button className="inline-flex min-h-9 items-center gap-2 border border-zinc-300 dark:border-zinc-700 px-3 text-[10px] uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-300 hover:border-zinc-900 dark:hover:border-white hover:text-zinc-900 dark:hover:text-white" disabled={!changed || Boolean(validation) || ticketSaving} onClick={() => void saveTicket()} type="button">{ticketSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}{ticketSaving ? "Saving" : "Save"}</button></div><Field label="Description"><textarea className="min-h-36 w-full bg-transparent text-sm leading-6 text-zinc-700 dark:text-zinc-200 outline-none" value={ticket.description ?? ""} onChange={(event) => updateTicketField("description", optional(event.target.value))} placeholder="Describe the work behind this ticket" /></Field><div className="grid gap-4 md:grid-cols-2"><SelectField label="Status" value={ticket.status} options={statuses} onChange={(value) => updateTicketField("status", value as TicketStatus)} /><SelectField label="Type" value={ticket.type} options={types} onChange={(value) => updateTicketField("type", value as TicketType)} /><SelectField label="Priority" value={ticket.priority} options={priorities} onChange={(value) => updateTicketField("priority", value as TicketPriority)} /><Field label="Difficulty (1-100)"><input className="w-full bg-transparent text-zinc-900 dark:text-white" max={100} min={1} type="number" value={ticket.difficulty ?? ""} onChange={(event) => updateTicketField("difficulty", event.target.value ? Number(event.target.value) : null)} /></Field><Field label="Hours logged"><input className="w-full bg-transparent text-zinc-900 dark:text-white" min={0} type="number" value={ticket.hours_logged ?? 0} onChange={(event) => updateTicketField("hours_logged", Number(event.target.value))} /></Field><AssigneePicker label="Assignee" members={members} value={ticket.assigned_to} onChange={(value) => updateTicketField("assigned_to", value)} /><Field label="Expected start"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.expected_start_date)} onChange={(event) => updateTicketField("expected_start_date", optional(event.target.value))} /></Field><Field label="Expected end"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.expected_end_date)} onChange={(event) => updateTicketField("expected_end_date", optional(event.target.value))} /></Field></div><Field label="Reason for delay"><textarea className="min-h-20 w-full bg-transparent text-zinc-700 dark:text-zinc-200 outline-none" maxLength={1000} value={ticket.reason_for_delay ?? ""} onChange={(event) => updateTicketField("reason_for_delay", optional(event.target.value))} /></Field>{validation && <p className="text-sm text-red-300">{validation}</p>}</section>
+            <aside className="w-[22rem] shrink-0"><section className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/25 p-5"><h2 className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-400">Ticket data</h2><div className="mt-5 space-y-4"><Meta label="Ticket ID" value={ticket.id} /><Meta label="Project ID" value={ticket.project_id} /><Meta label="Created" value={formatDate(ticket.created_at)} /><Meta label="Updated" value={formatDate(ticket.updated_at)} /></div><button className="mt-6 inline-flex min-h-9 items-center gap-2 border border-red-400/60 px-3 text-[10px] uppercase tracking-[.12em] text-red-200 hover:bg-red-950/20" disabled={deletingTicket} onClick={() => setTicketDeleteOpen(true)} type="button">{deletingTicket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}Delete ticket</button></section></aside>
         </div>
-        <CommentsPanel comments={comments} commentBusy={commentBusy} commentText={commentText} deletingCommentId={deletingCommentId} editingCommentId={editingCommentId} editingText={editingText} loading={loadingComments} onAdd={addComment} onCancelEdit={() => { setEditingCommentId(null); setEditingText(""); }} onDelete={(id) => { setDeletingCommentId(id); setCommentDeleteOpen(true); }} onEdit={(comment) => { setEditingCommentId(comment.id); setEditingText(comment.description); }} onSave={saveComment} onTextChange={setCommentText} onEditTextChange={setEditingText} />
+        <CommentsPanel comments={comments} commentBusy={commentBusy} commentText={commentText} currentUserId={currentUserId} deletingCommentId={deletingCommentId} editingCommentId={editingCommentId} editingText={editingText} editingTaggedUserIds={editingTaggedUserIds} loading={loadingComments} members={members} taggedUserIds={taggedUserIds} onAdd={addComment} onCancelEdit={() => { setEditingCommentId(null); setEditingText(""); setEditingTaggedUserIds([]); }} onDelete={(id) => { setDeletingCommentId(id); setCommentDeleteOpen(true); }} onEdit={(comment) => { setEditingCommentId(comment.id); setEditingText(comment.description); setEditingTaggedUserIds(getTaggedUserIds(comment)); }} onSave={saveComment} onTextChange={setCommentText} onTaggedUsersChange={setTaggedUserIds} onEditingTaggedUsersChange={setEditingTaggedUserIds} onEditTextChange={setEditingText} />
         <ConfirmModal busy={deletingTicket} confirmLabel="Delete ticket" description="This permanently deletes the ticket and its associated work history." onCancel={() => setTicketDeleteOpen(false)} onConfirm={() => void removeTicket()} open={ticketDeleteOpen} title="Delete ticket?" />
         <ConfirmModal busy={commentBusy} confirmLabel="Delete comment" description="This removes the comment from the ticket activity." onCancel={() => { setCommentDeleteOpen(false); setDeletingCommentId(null); }} onConfirm={() => void removeComment()} open={commentDeleteOpen} title="Delete comment?" />
     </div>;
@@ -132,45 +147,57 @@ function CommentsPanel({
     comments,
     commentBusy,
     commentText,
+    currentUserId,
     deletingCommentId,
     editingCommentId,
     editingText,
+    editingTaggedUserIds,
     loading,
+    members,
+    taggedUserIds,
     onAdd,
     onCancelEdit,
     onDelete,
     onEdit,
     onSave,
     onTextChange,
+    onTaggedUsersChange,
+    onEditingTaggedUsersChange,
     onEditTextChange,
 }: {
     comments: Comment[];
     commentBusy: boolean;
     commentText: string;
+    currentUserId: string | null;
     deletingCommentId: string | null;
     editingCommentId: string | null;
     editingText: string;
+    editingTaggedUserIds: string[];
     loading: boolean;
+    members: ProjectMember[];
+    taggedUserIds: string[];
     onAdd: (event: React.FormEvent) => void;
     onCancelEdit: () => void;
     onDelete: (id: string) => void;
     onEdit: (comment: Comment) => void;
     onSave: (comment: Comment) => Promise<void>;
     onTextChange: (value: string) => void;
+    onTaggedUsersChange: (ids: string[]) => void;
+    onEditingTaggedUsersChange: (ids: string[]) => void;
     onEditTextChange: (value: string) => void;
 }) {
     return (
-        <section className="flex flex-col border border-zinc-800 bg-zinc-950/30">
+        <section className="flex flex-col border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/30">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-zinc-800 px-5 py-4">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 px-5 py-4">
                 <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-zinc-400" />
-                    <h2 className="text-sm font-medium uppercase tracking-[.14em] text-zinc-200">
+                    <MessageSquare className="h-4 w-4 text-zinc-600 dark:text-zinc-300" />
+                    <h2 className="text-sm font-medium uppercase tracking-[.14em] text-zinc-700 dark:text-zinc-200">
                         Comments
                     </h2>
                 </div>
 
-                <span className="text-xs text-zinc-500">
+                <span className="text-xs text-zinc-600 dark:text-zinc-400">
                     {comments.length} {comments.length === 1 ? "comment" : "comments"}
                 </span>
             </div>
@@ -178,12 +205,12 @@ function CommentsPanel({
             {/* Comments */}
             <div className="flex-1 p-4">
                 {loading ? (
-                    <div className="flex min-h-24 items-center justify-center text-sm text-zinc-500">
+                    <div className="flex min-h-24 items-center justify-center text-sm text-zinc-600 dark:text-zinc-400">
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Loading comments...
                     </div>
                 ) : comments.length === 0 ? (
-                    <div className="rounded-lg border border-dashed border-zinc-800 p-8 text-center text-sm text-zinc-500">
+                    <div className="border border-dashed border-zinc-200 dark:border-zinc-800 p-8 text-center text-sm text-zinc-600 dark:text-zinc-400">
                         No comments yet.
                     </div>
                 ) : (
@@ -197,15 +224,17 @@ function CommentsPanel({
                                 .toUpperCase();
 
                             const editing = editingCommentId === comment.id;
+                            const canManage = currentUserId !== null && comment.created_by === currentUserId;
 
                             return (
                                 <article
                                     key={comment.id}
-                                    className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4 transition-colors hover:border-zinc-700"
+                                    id={`comment-${comment.id}`}
+                                    className={`scroll-mt-24 border bg-white p-4 transition-colors hover:border-zinc-300 dark:bg-zinc-950 dark:hover:border-zinc-700 ${location.hash === `#comment-${comment.id}` ? "border-sky-400 ring-2 ring-sky-400/20 dark:border-sky-400" : "border-zinc-200 dark:border-zinc-800"}`}
                                 >
                                     <div className="flex gap-4">
                                         {/* Avatar */}
-                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-xs font-semibold text-zinc-200">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
                                             {initials}
                                         </div>
 
@@ -213,18 +242,18 @@ function CommentsPanel({
                                             {/* Header */}
                                             <div className="flex items-start justify-between gap-4">
                                                 <div className="min-w-0">
-                                                    <p className="truncate font-medium text-zinc-100">
+                                                    <p className="truncate font-medium text-zinc-800 dark:text-zinc-100">
                                                         {comment.name || "Team member"}
                                                     </p>
 
                                                     {comment.email && (
-                                                        <p className="truncate text-xs text-zinc-500">
+                                                        <p className="truncate text-xs text-zinc-600 dark:text-zinc-400">
                                                             {comment.email}
                                                         </p>
                                                     )}
                                                 </div>
 
-                                                <div className="flex shrink-0 items-center gap-1 text-[11px] text-zinc-500">
+                                                <div className="flex shrink-0 items-center gap-1 text-[11px] text-zinc-600 dark:text-zinc-400">
                                                     <Clock3 className="h-3 w-3" />
                                                     {formatDate(
                                                         comment.updated_at || comment.created_at
@@ -235,19 +264,13 @@ function CommentsPanel({
                                             {/* Body */}
                                             {editing ? (
                                                 <>
-                                                    <textarea
-                                                        className="mt-4 min-h-28 w-full resize-y rounded-md border border-zinc-700 bg-zinc-950 p-3 text-sm leading-6 text-zinc-200 outline-none transition-colors focus:border-white"
-                                                        value={editingText}
-                                                        onChange={(e) =>
-                                                            onEditTextChange(e.target.value)
-                                                        }
-                                                    />
+                                                    <div className="mt-4"><MentionComposer disabled={commentBusy} members={members} taggedUserIds={editingTaggedUserIds} value={editingText} onChange={onEditTextChange} onTaggedUsersChange={onEditingTaggedUsersChange} /></div>
 
                                                     <div className="mt-3 flex justify-end gap-3">
                                                         <button
                                                             type="button"
                                                             onClick={onCancelEdit}
-                                                            className="inline-flex items-center gap-1 text-xs uppercase tracking-[.12em] text-zinc-500 transition-colors hover:text-white"
+                                                            className="inline-flex items-center gap-1 text-xs uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white"
                                                         >
                                                             <X className="h-3.5 w-3.5" />
                                                             Cancel
@@ -259,7 +282,7 @@ function CommentsPanel({
                                                                 commentBusy || !editingText.trim()
                                                             }
                                                             onClick={() => void onSave(comment)}
-                                                            className="inline-flex items-center gap-1 rounded border border-white px-3 py-1.5 text-xs uppercase tracking-[.12em] text-white disabled:opacity-40"
+                                                            className="inline-flex items-center gap-1 rounded border border-zinc-900 dark:border-white px-3 py-1.5 text-xs uppercase tracking-[.12em] text-zinc-900 dark:text-white disabled:opacity-40"
                                                         >
                                                             <Save className="h-3.5 w-3.5" />
                                                             Save
@@ -268,15 +291,16 @@ function CommentsPanel({
                                                 </>
                                             ) : (
                                                 <>
-                                                    <div className="mt-4 max-w-prose whitespace-pre-wrap text-sm leading-7 text-zinc-300">
+                                                    <div className="mt-4 max-w-prose whitespace-pre-wrap text-sm leading-7 text-zinc-700 dark:text-zinc-300">
                                                         {comment.description}
                                                     </div>
+                                                    <TaggedUsers users={comment.tagged_users} members={members} />
 
-                                                    <div className="mt-4 flex gap-5">
+                                                    {canManage && <div className="mt-4 flex gap-5">
                                                         <button
                                                             type="button"
                                                             onClick={() => onEdit(comment)}
-                                                            className="inline-flex items-center gap-1 text-xs uppercase tracking-[.12em] text-zinc-500 transition-colors hover:text-white"
+                                                            className="inline-flex items-center gap-1 text-xs uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-400 transition-colors hover:text-zinc-900 dark:hover:text-white"
                                                         >
                                                             <Edit3 className="h-3.5 w-3.5" />
                                                             Edit
@@ -288,12 +312,12 @@ function CommentsPanel({
                                                                 deletingCommentId === comment.id
                                                             }
                                                             onClick={() => onDelete(comment.id)}
-                                                            className="inline-flex items-center gap-1 text-xs uppercase tracking-[.12em] text-zinc-500 transition-colors hover:text-red-400 disabled:opacity-40"
+                                                            className="inline-flex items-center gap-1 text-xs uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-400 transition-colors hover:text-red-400 disabled:opacity-40"
                                                         >
                                                             <Trash2 className="h-3.5 w-3.5" />
                                                             Delete
                                                         </button>
-                                                    </div>
+                                                    </div>}
                                                 </>
                                             )}
                                         </div>
@@ -308,22 +332,15 @@ function CommentsPanel({
             {/* Composer */}
             <form
                 onSubmit={onAdd}
-                className="border-t border-zinc-800 bg-zinc-950/40 p-4"
+                className="border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/40 p-4"
             >
-                <textarea
-                    disabled={commentBusy}
-                    value={commentText}
-                    maxLength={5000}
-                    onChange={(e) => onTextChange(e.target.value)}
-                    placeholder="Leave a note for the team..."
-                    className="min-h-28 w-full resize-y rounded-md border border-zinc-800 bg-zinc-900 p-3 text-sm leading-6 text-zinc-200 outline-none transition-colors placeholder:text-zinc-600 focus:border-zinc-600"
-                />
+                <MentionComposer disabled={commentBusy} members={members} taggedUserIds={taggedUserIds} value={commentText} onChange={onTextChange} onTaggedUsersChange={onTaggedUsersChange} />
 
                 <div className="mt-3 flex justify-end">
                     <button
                         type="submit"
                         disabled={commentBusy || !commentText.trim()}
-                        className="inline-flex items-center gap-2 rounded border border-white px-4 py-2 text-xs font-medium uppercase tracking-[.12em] text-white transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+                        className="inline-flex items-center gap-2 rounded border border-zinc-900 dark:border-white px-4 py-2 text-xs font-medium uppercase tracking-[.12em] text-zinc-900 dark:text-white transition-colors hover:bg-white dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         {commentBusy ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -338,7 +355,49 @@ function CommentsPanel({
     );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="block text-xs uppercase tracking-[.14em] text-zinc-400"><span className="mb-2 block">{label}</span><div className="border border-zinc-700 bg-zinc-950 p-3 transition-colors hover:border-zinc-500 focus-within:border-white focus-within:ring-2 focus-within:ring-white/15">{children}</div></label>; }
-function SelectField({ label, value, options, onChange }: { label: string; value: string; options: readonly string[]; onChange: (value: string) => void }) { return <Field label={label}><select className="w-full bg-zinc-950 text-white outline-none [color-scheme:dark]" value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option className="bg-zinc-950 text-white" key={option}>{option}</option>)}</select></Field>; }
-function Meta({ label, value }: { label: string; value: string }) { return <div><p className="text-[10px] uppercase tracking-[.14em] text-zinc-600">{label}</p><p className="mt-1 break-all text-xs text-zinc-300">{value}</p></div>; }
+function MentionComposer({ disabled, members, taggedUserIds, value, onChange, onTaggedUsersChange }: { disabled: boolean; members: ProjectMember[]; taggedUserIds: string[]; value: string; onChange: (value: string) => void; onTaggedUsersChange: (ids: string[]) => void }) {
+    const match = /(^|\s)@([^\s@]*)$/.exec(value);
+    const query = match?.[2].toLowerCase() ?? null;
+    const suggestions = query === null ? [] : members.filter((member) => !taggedUserIds.includes(member.user_id) && `${member.name} ${member.email}`.toLowerCase().includes(query)).slice(0, 6);
+    const mentionLabel = (member: ProjectMember) => `@${member.name || member.email}`;
+    const handleChange = (nextValue: string) => {
+        onChange(nextValue);
+        onTaggedUsersChange(taggedUserIds.filter((id) => {
+            const member = members.find((item) => item.user_id === id);
+            return member ? nextValue.includes(mentionLabel(member)) : false;
+        }));
+    };
+    const selectMember = (member: ProjectMember) => {
+        if (!match) return;
+        const prefix = value.slice(0, match.index + match[1].length);
+        const nextValue = `${prefix}${mentionLabel(member)} `;
+        onChange(nextValue);
+        onTaggedUsersChange([...taggedUserIds, member.user_id]);
+    };
+    return <div className="relative">
+        <textarea disabled={disabled} value={value} maxLength={5000} onChange={(event) => handleChange(event.target.value)} placeholder="Leave a note for the team... Type @ to mention someone." className="min-h-28 w-full resize-y rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 p-3 text-sm leading-6 text-zinc-700 dark:text-zinc-200 outline-none transition-colors placeholder:text-zinc-600 dark:text-zinc-300 focus:border-zinc-900 dark:focus:border-white focus:ring-2 focus:ring-white/15" />
+        {suggestions.length > 0 && <div className="absolute bottom-full left-0 z-20 mb-2 w-full max-w-sm overflow-hidden border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 shadow-lg"><p className="border-b border-zinc-200 dark:border-zinc-800 px-3 py-2 text-[10px] uppercase tracking-[.14em] text-zinc-600 dark:text-zinc-400">Mention a project member</p>{suggestions.map((member) => <button className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-900 focus-visible:bg-zinc-100 dark:focus-visible:bg-zinc-900 focus-visible:outline-none" key={member.user_id} onMouseDown={(event) => { event.preventDefault(); selectMember(member); }} type="button"><span className="flex h-7 w-7 items-center justify-center rounded-full border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-[10px] font-medium text-zinc-700 dark:text-zinc-200">{(member.name || member.email).slice(0, 2).toUpperCase()}</span><span className="min-w-0"><span className="block truncate text-sm text-zinc-800 dark:text-zinc-100">{member.name || member.email}</span><span className="block truncate text-xs text-zinc-600 dark:text-zinc-400">{member.email}</span></span></button>)}</div>}
+    </div>;
+}
+
+function TaggedUsers({ users, members }: { users: Comment["tagged_users"]; members: ProjectMember[] }) {
+    const tagged = (users ?? []).map((user) => {
+        if (typeof user === "string") return members.find((member) => member.user_id === user) ?? { user_id: user };
+        const userId = user.user_id ?? user.id;
+        return members.find((member) => member.user_id === userId) ?? user;
+    });
+    if (!tagged.length) return null;
+    return <div className="mt-3 flex flex-wrap gap-1.5">{tagged.map((user, index) => { const taggedUser = user as ProjectMember | TaggedUser; const label = taggedUser.name || taggedUser.email || "Mentioned member"; return <span className="border border-sky-400/35 bg-sky-50 px-2 py-1 text-xs text-sky-800 dark:bg-sky-950/30 dark:text-sky-200" key={(taggedUser.user_id ?? taggedUser.id ?? "tagged") + index}>@{label}</span>; })}</div>;
+}
+
+function getTaggedUserIds(comment: Comment) {
+    return (comment.tagged_users ?? []).flatMap((user) => {
+        const id = typeof user === "string" ? user : user.user_id ?? user.id;
+        return id ? [id] : [];
+    });
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="block text-xs uppercase tracking-[.14em] text-zinc-600 dark:text-zinc-300"><span className="mb-2 block">{label}</span><div className="border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 p-3 transition-colors hover:border-zinc-400 dark:hover:border-zinc-500 focus-within:border-zinc-900 dark:border-white focus-within:ring-2 focus-within:ring-white/15">{children}</div></label>; }
+function SelectField({ label, value, options, onChange }: { label: string; value: string; options: readonly string[]; onChange: (value: string) => void }) { return <Field label={label}><select className="w-full bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white outline-none [color-scheme:dark]" value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white" key={option}>{option}</option>)}</select></Field>; }
+function Meta({ label, value }: { label: string; value: string }) { return <div><p className="text-[10px] uppercase tracking-[.14em] text-zinc-600 dark:text-zinc-300">{label}</p><p className="mt-1 break-all text-xs text-zinc-700 dark:text-zinc-300">{value}</p></div>; }
 function formatDate(value: string | null | undefined) { if (!value) return "Unknown date"; const date = new Date(value); return Number.isNaN(date.getTime()) ? "Unknown date" : date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }

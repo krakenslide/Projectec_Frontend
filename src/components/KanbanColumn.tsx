@@ -53,18 +53,18 @@ export default function KanbanColumn({
       ref={setNodeRef}
       className={[
         "flex min-h-72 flex-col self-start border bg-transparent",
-        "rounded-none font-['DM_Mono','Courier_New',monospace]",
+        "rounded-none font-['Inter',ui-sans-serif,sans-serif]",
         "transition-all duration-200",
         isOver
-          ? "border-[#f0ede6] bg-[#111111]"
-          : "border-[#4a4a4a] hover:border-[#8a8a8a] hover:bg-[#101010]",
+          ? "border-[#171717] dark:border-[#f5f3ee] bg-[#f4f4f5] dark:bg-[#111111]"
+          : "border-[#a1a1aa] dark:border-[#71717a] hover:border-[#52525b] dark:hover:border-[#8a8a8a] hover:bg-[#f4f4f5] dark:hover:bg-[#101010]",
       ].join(" ")}
     >
       {/* Header */}
       <div
         className={[
           "border-b px-4 py-4 transition-all duration-200",
-          isOver ? "border-[#8a8a8a]" : "border-[#4a4a4a]",
+          isOver ? "border-[#52525b] dark:border-[#8a8a8a]" : "border-[#a1a1aa] dark:border-[#71717a]",
         ].join(" ")}
       >
         <div className="flex items-center gap-3">
@@ -72,7 +72,7 @@ export default function KanbanColumn({
           <span
             className={[
               "text-[10px] uppercase tracking-[0.22em]",
-              "text-[#9a9a9a]",
+              "text-[#52525b] dark:text-[#9a9a9a]",
             ].join(" ")}
           >
             {cfg.section}
@@ -83,7 +83,7 @@ export default function KanbanColumn({
             className={[
               "h-3.5 w-3.5 shrink-0 transition-colors duration-200",
               status === "IN_PROGRESS" ? "animate-spin" : "",
-              isOver ? "text-[#ffffff]" : "text-[#b8b8b8]",
+              isOver ? "text-[#171717] dark:text-[#ffffff]" : "text-[#52525b] dark:text-[#b8b8b8]",
             ].join(" ")}
           />
 
@@ -92,7 +92,7 @@ export default function KanbanColumn({
             className={[
               "text-[11px] font-normal uppercase tracking-[0.22em]",
               "transition-colors duration-200",
-              isOver ? "text-[#ffffff]" : "text-[#d8d5ce]",
+              isOver ? "text-[#171717] dark:text-[#ffffff]" : "text-[#27272a] dark:text-[#d8d5ce]",
             ].join(" ")}
           >
             {title || cfg.label}
@@ -105,8 +105,8 @@ export default function KanbanColumn({
               "tabular-nums tracking-[0.08em]",
               "transition-all duration-200",
               isOver
-                ? "border-[#d8d5ce] text-[#ffffff] bg-[#151515]"
-                : "border-[#5a5a5a] text-[#b8b8b8]",
+                ? "border-[#27272a] dark:border-[#d8d5ce] text-[#171717] dark:text-[#ffffff] bg-[#f4f4f5] dark:bg-[#151515]"
+                : "border-[#52525b] dark:border-[#8a8a8a] text-[#52525b] dark:text-[#b8b8b8]",
             ].join(" ")}
           >
             {issues.length}
@@ -134,8 +134,8 @@ export default function KanbanColumn({
               "rounded-none bg-transparent",
               "transition-all duration-200",
               isOver
-                ? "border-[#f0ede6] bg-[#111111]"
-                : "border-[#5a5a5a] hover:border-[#8a8a8a]",
+                ? "border-[#171717] dark:border-[#f5f3ee] bg-[#f4f4f5] dark:bg-[#111111]"
+                : "border-[#52525b] dark:border-[#8a8a8a] hover:border-[#52525b] dark:hover:border-[#8a8a8a]",
             ].join(" ")}
           >
             {/* Empty Icon */}
@@ -145,15 +145,15 @@ export default function KanbanColumn({
                 "rounded-none bg-transparent",
                 "transition-all duration-200",
                 isOver
-                  ? "border-[#f0ede6] bg-[#151515]"
-                  : "border-[#5a5a5a]",
+                  ? "border-[#171717] dark:border-[#f5f3ee] bg-[#f4f4f5] dark:bg-[#151515]"
+                  : "border-[#52525b] dark:border-[#8a8a8a]",
               ].join(" ")}
             >
               <Icon
                 className={[
                   "h-3.5 w-3.5 transition-colors duration-200",
                   status === "IN_PROGRESS" ? "animate-spin" : "",
-                  isOver ? "text-[#ffffff]" : "text-[#b8b8b8]",
+                  isOver ? "text-[#171717] dark:text-[#ffffff]" : "text-[#52525b] dark:text-[#b8b8b8]",
                 ].join(" ")}
               />
             </div>
@@ -163,7 +163,7 @@ export default function KanbanColumn({
               className={[
                 "text-[11px] uppercase tracking-[0.16em]",
                 "transition-colors duration-200",
-                isOver ? "text-[#ffffff]" : "text-[#b8b8b8]",
+                isOver ? "text-[#171717] dark:text-[#ffffff]" : "text-[#52525b] dark:text-[#b8b8b8]",
               ].join(" ")}
             >
               {isOver ? "Drop issue here" : "No issues"}

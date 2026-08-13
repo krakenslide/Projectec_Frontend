@@ -59,9 +59,9 @@ export function LogoMark({
         <div
             aria-hidden="true"
             className={[
-                "grid grid-cols-2 grid-rows-2 gap-[1px] border border-[#4a4a4a] p-[1px]",
+                "grid grid-cols-2 grid-rows-2 gap-[1px] border border-[#a1a1aa] dark:border-[#71717a] p-[1px]",
                 "transition-colors duration-200",
-                enableHover ? "hover:border-[#8a8a8a]" : "",
+                enableHover ? "hover:border-[#52525b] dark:hover:border-[#8a8a8a]" : "",
                 className,
             ].join(" ")}
             onMouseEnter={() => {

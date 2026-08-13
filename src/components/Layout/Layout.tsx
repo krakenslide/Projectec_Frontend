@@ -7,6 +7,7 @@ import { ToastProvider } from "../ui/Toast";
 function getPageLabel(pathname: string) {
   if (pathname === "/organisations") return "Organisations";
   if (pathname.includes("/dashboard")) return "Dashboard";
+  if (pathname.includes("/standup")) return "Standup";
   if (pathname.includes("/board")) return "Kanban board";
   if (pathname.includes("/settings")) return "Project settings";
   if (pathname.includes("/members")) return "Members";
@@ -70,15 +71,15 @@ export default function Layout() {
     <ToastProvider>
       <div
         className={[
-          "min-h-screen bg-[#080808] text-[#f0ede6]",
-          "font-['DM_Mono','Courier_New',monospace]",
+          "min-h-screen bg-white text-zinc-900 dark:bg-[#080808] dark:text-[#f5f3ee]",
+          "font-['Inter',ui-sans-serif,sans-serif]",
           "animate-[pj-fade-in_220ms_ease_both]",
         ].join(" ")}
       >
         {sidebarOpen && isMobile ? (
           <button
             aria-label="Close navigation"
-            className="fixed inset-0 z-40 cursor-default bg-black/70 transition-opacity duration-200"
+            className="fixed inset-0 z-40 cursor-default bg-white dark:bg-black/70 transition-opacity duration-200"
             onClick={closeSidebar}
             type="button"
           />
@@ -103,7 +104,7 @@ export default function Layout() {
             />
 
             <main className="relative flex-1 px-4 py-6 sm:px-6 lg:px-8">
-              <div className="mx-auto w-full max-w-7xl">
+              <div className={`mx-auto w-full ${location.pathname.includes("/standup") ? "max-w-none" : "max-w-7xl"}`}>
                 <Outlet />
               </div>
             </main>
