@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { BarChart3, Building2, ChevronDown, ChevronLeft, ChevronRight, FolderKanban, LayoutDashboard, ListTodo, LogOut, Settings, Users, X, ClipboardList, type LucideIcon } from "lucide-react";
+import { BarChart3, Building2, ChevronDown, ChevronLeft, ChevronRight, FolderKanban, LayoutDashboard, ListTodo, LogOut, Settings, Users, X, ClipboardList, Flag, type LucideIcon } from "lucide-react";
 import { ProjectecLogo } from "../ui/ProjectecLogo";
 import { listOrganisations } from "../../api/organisation";
 import { getProject } from "../../api/projects";
@@ -16,6 +16,7 @@ function SidebarItem({
     collapsed,
     pathname,
     onCloseSidebar,
+    exact = false,
 }: {
     to: string;
     label: string;
@@ -23,8 +24,11 @@ function SidebarItem({
     collapsed: boolean;
     pathname: string;
     onCloseSidebar: () => void;
+    exact?: boolean;
 }) {
-    const active = pathname === to || pathname.startsWith(`${to}/`);
+    const active = exact
+        ? pathname === to || pathname === `${to}/`
+        : pathname === to || pathname.startsWith(`${to}/`);
 
     return (
         <Link
@@ -161,7 +165,7 @@ export default function Sidebar({
                     Workspace
                 </p>
                 <div className="space-y-1">
-                    <SidebarItem collapsed={collapsed} onCloseSidebar={onCloseSidebar} pathname={pathname} to="/organisations" label="Organisations" icon={Building2} />
+                    <SidebarItem collapsed={collapsed} exact onCloseSidebar={onCloseSidebar} pathname={pathname} to="/organisations" label="Organisations" icon={Building2} />
                 </div>
 
                 {orgId && (
@@ -172,7 +176,7 @@ export default function Sidebar({
                             {orgName}
                         </p>
                         <div className="space-y-1">
-                            <SidebarItem collapsed={collapsed} onCloseSidebar={onCloseSidebar} pathname={pathname} to={`${orgBase}/projects`} label="Projects" icon={FolderKanban} />
+                            <SidebarItem collapsed={collapsed} exact onCloseSidebar={onCloseSidebar} pathname={pathname} to={`${orgBase}/projects`} label="Projects" icon={FolderKanban} />
                             <SidebarItem collapsed={collapsed} onCloseSidebar={onCloseSidebar} pathname={pathname} to={`${orgBase}/members`} label="Members" icon={Users} />
                             <SidebarItem collapsed={collapsed} onCloseSidebar={onCloseSidebar} pathname={pathname} to={`${projectBase}/standup`} label="Standup" icon={ClipboardList} />
                         </div>
@@ -190,6 +194,7 @@ export default function Sidebar({
                             <SidebarItem collapsed={collapsed} onCloseSidebar={onCloseSidebar} pathname={pathname} to={`${projectBase}/dashboard`} label="Dashboard" icon={LayoutDashboard} />
                             <SidebarItem collapsed={collapsed} onCloseSidebar={onCloseSidebar} pathname={pathname} to={`${projectBase}/tickets`} label="Tickets" icon={ListTodo} />
                             <SidebarItem collapsed={collapsed} onCloseSidebar={onCloseSidebar} pathname={pathname} to={`${projectBase}/board`} label="Kanban board" icon={BarChart3} />
+                            <SidebarItem collapsed={collapsed} onCloseSidebar={onCloseSidebar} pathname={pathname} to={`${projectBase}/milestones`} label="Milestones" icon={Flag} />
                             <SidebarItem collapsed={collapsed} onCloseSidebar={onCloseSidebar} pathname={pathname} to={`${projectBase}/members`} label="Project members" icon={Users} />
                             <SidebarItem collapsed={collapsed} onCloseSidebar={onCloseSidebar} pathname={pathname} to={`${projectBase}/settings`} label="Project settings" icon={Settings} />
                         </div>

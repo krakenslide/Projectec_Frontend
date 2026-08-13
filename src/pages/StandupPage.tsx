@@ -14,8 +14,8 @@ import {
   type DeveloperDailySummary,
 } from "../api/analytics";
 import { getErrorMessage } from "../api/client";
-import { listProjectMembers } from "../api/projects";
-import type { ProjectMember } from "../types/project";
+import { listOrganisationMembers } from "../api/organisation";
+import type { OrganisationMember } from "../types/organisation";
 import ProjectecLoader from "../components/ui/ProjectecLoader";
 
 const statusConfig: Record<string, { dot: string; badge: string }> = {
@@ -51,25 +51,34 @@ const statusConfig: Record<string, { dot: string; badge: string }> = {
   },
 };
 
+const statusBorderColors: Record<string, string> = {
+  "To Do": "border-l-zinc-500",
+  "In Progress": "border-l-emerald-500",
+  "In Review": "border-l-sky-500",
+  Testing: "border-l-violet-500",
+  Done: "border-l-green-500",
+  Closed: "border-l-zinc-400",
+};
+
 export default function StandupPage() {
-  const { organizationId, projectId } = useParams<{
+  const { organizationId } = useParams<{
     organizationId: string;
     projectId: string;
   }>();
-  const [members, setMembers] = useState<ProjectMember[]>([]);
+  const [members, setMembers] = useState<OrganisationMember[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [summary, setSummary] = useState<DeveloperDailySummary | null>(null);
   const [loadingMembers, setLoadingMembers] = useState(true);
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("All");
-  const [statusChangeFilter, setStatusChangeFilter] = useState<
-    "all" | "changed" | "unchanged"
-  >("all");
+  const [selectedStatus, setSelectedStatus] = useState("All statuses");
+  const [selectedProject, setSelectedProject] = useState("All projects");
+  const [changedOnly, setChangedOnly] = useState(true);
+
   useEffect(() => {
-    if (!projectId) return;
-    void listProjectMembers(projectId)
+    if (!organizationId) return;
+    void listOrganisationMembers(organizationId)
       .then((items) => {
         setMembers(items);
         setSelectedUserId((current) =>
@@ -80,7 +89,8 @@ export default function StandupPage() {
       })
       .catch((err: unknown) => setError(getErrorMessage(err)))
       .finally(() => setLoadingMembers(false));
-  }, [projectId]);
+  }, [organizationId]);
+
   const loadSummary = () => {
     if (!organizationId || !selectedUserId) return;
     setLoadingSummary(true);
@@ -93,42 +103,93 @@ export default function StandupPage() {
       })
       .finally(() => setLoadingSummary(false));
   };
+
   useEffect(() => {
     loadSummary();
+    setQuery("");
+    setSelectedStatus("All statuses");
+    setSelectedProject("All projects");
+    // setChangedOnly(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId, selectedUserId]);
+
   const selectedMember = members.find(
     (member) => member.user_id === selectedUserId,
   );
+
+  const projectNames = useMemo(
+    () =>
+      Array.from(
+        new Set(summary?.tickets.map((ticket) => ticket.project_name) ?? []),
+      ),
+    [summary],
+  );
+
+  useEffect(() => {
+    if (
+      selectedProject !== "All projects" &&
+      !projectNames.includes(selectedProject)
+    ) {
+      setSelectedProject("All projects");
+    }
+  }, [projectNames, selectedProject]);
+
+  const projectScopedTickets = useMemo(
+    () =>
+      summary?.tickets.filter(
+        (ticket) =>
+          selectedProject === "All projects" ||
+          ticket.project_name === selectedProject,
+      ) ?? [],
+    [selectedProject, summary],
+  );
+
   const statusCounts = useMemo(
     () =>
-      summary?.tickets.reduce<Record<string, number>>(
+      projectScopedTickets.reduce<Record<string, number>>(
         (counts, ticket) => ({
           ...counts,
           [ticket.current_status]: (counts[ticket.current_status] ?? 0) + 1,
         }),
         {},
-      ) ?? {},
-    [summary],
+      ),
+    [projectScopedTickets],
   );
   const statuses = Object.keys(statusCounts);
+
   const tickets = useMemo(
     () =>
-      summary?.tickets.filter(
+      projectScopedTickets.filter(
         (ticket) =>
-          (selectedStatus === "All" ||
+          (selectedStatus === "All statuses" ||
             ticket.current_status === selectedStatus) &&
-          (statusChangeFilter === "all" ||
-            (statusChangeFilter === "changed"
-              ? ticket.status_changed
-              : !ticket.status_changed)) &&
+          (!changedOnly || ticket.status_changed) &&
           `${ticket.ticket_name} ${ticket.project_name} ${ticket.comments.map((comment) => comment.description).join(" ")}`
             .toLowerCase()
             .includes(query.trim().toLowerCase()),
-      ) ?? [],
-    [query, selectedStatus, statusChangeFilter, summary],
+      ),
+    [changedOnly, projectScopedTickets, query, selectedStatus],
   );
+
+  const changedCount = projectScopedTickets.filter(
+    (t) => t.status_changed,
+  ).length;
+  const filtersActive =
+    query.trim() !== "" ||
+    selectedStatus !== "All statuses" ||
+    selectedProject !== "All projects" ||
+    changedOnly;
+
+  const clearFilters = () => {
+    setQuery("");
+    setSelectedStatus("All statuses");
+    setSelectedProject("All projects");
+    setChangedOnly(true);
+  };
+
   return (
     <div className="pj-standup w-full space-y-5 font-['Inter',ui-sans-serif,sans-serif]">
+      {/* Header */}
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-zinc-200 pb-5 dark:border-zinc-800">
         <div>
           <p className="text-[10px] uppercase tracking-[.2em] text-zinc-600 dark:text-zinc-400">
@@ -150,16 +211,19 @@ export default function StandupPage() {
           Refresh
         </button>
       </header>
+
       {error && (
         <p className="border-y border-red-300 py-3 text-sm text-red-700 dark:border-red-400/50 dark:text-red-300">
           {error}
         </p>
       )}
+
       <div className="grid min-h-[34rem] gap-5 lg:grid-cols-[minmax(15rem,24%)_minmax(0,1fr)]">
+        {/* Members sidebar */}
         <aside className="self-start border border-zinc-200 bg-zinc-50/70 lg:sticky lg:top-20 dark:border-zinc-800 dark:bg-zinc-950/30">
           <div className="border-b border-zinc-200 px-4 py-4 dark:border-zinc-800">
             <p className="text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400">
-              Project members
+              Organisation members
             </p>
             <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
               Choose a teammate
@@ -171,7 +235,10 @@ export default function StandupPage() {
             <div className="p-2">
               {members.map((member) => (
                 <button
-                  className={`flex w-full items-center gap-3 px-3 py-3 text-left transition-colors ${member.user_id === selectedUserId ? "bg-white shadow-sm dark:bg-zinc-900" : "hover:bg-white/70 dark:hover:bg-zinc-900/60"}`}
+                  className={`flex w-full items-center gap-3 px-3 py-3 text-left transition-colors ${member.user_id === selectedUserId
+                    ? "bg-white shadow-sm dark:bg-zinc-900"
+                    : "hover:bg-white/70 dark:hover:bg-zinc-900/60"
+                    }`}
                   key={member.user_id}
                   onClick={() => setSelectedUserId(member.user_id)}
                   type="button"
@@ -182,7 +249,7 @@ export default function StandupPage() {
                       {member.name || member.email}
                     </span>
                     <span className="mt-1 block truncate text-[10px] uppercase tracking-[.1em] text-zinc-600 dark:text-zinc-400">
-                      {member.role}
+                      {member.role_name}
                     </span>
                   </span>
                 </button>
@@ -190,6 +257,8 @@ export default function StandupPage() {
             </div>
           )}
         </aside>
+
+        {/* Main content */}
         <section className="min-w-0 border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950/20">
           {loadingSummary ? (
             <div className="flex min-h-[30rem] items-center justify-center">
@@ -197,6 +266,7 @@ export default function StandupPage() {
             </div>
           ) : summary ? (
             <>
+              {/* Identity + metrics */}
               <div className="border-b border-zinc-200 px-5 py-5 dark:border-zinc-800">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
@@ -215,6 +285,7 @@ export default function StandupPage() {
                     in today’s report
                   </p>
                 </div>
+
                 <div className="mt-5 grid gap-px border border-zinc-200 bg-zinc-200 sm:grid-cols-3 dark:border-zinc-800 dark:bg-zinc-800">
                   <Metric
                     icon={CircleDot}
@@ -233,57 +304,28 @@ export default function StandupPage() {
                   />
                 </div>
               </div>
-              <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_13rem]">
-                <div>
-                  <div className="border-b border-zinc-200 pb-3 dark:border-zinc-800">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <h3 className="text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400">
-                        Work today
-                      </h3>
-                      <span className="text-xs text-zinc-600 dark:text-zinc-400">
-                        {tickets.length} of {summary.total_tickets} tickets
-                      </span>
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <button
-                        className={`border px-2 py-1 text-[10px] uppercase tracking-[.1em] ${selectedStatus === "All" ? "border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-zinc-900" : "border-zinc-300 text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"}`}
-                        onClick={() => setSelectedStatus("All")}
-                        type="button"
-                      >
-                        All
-                      </button>
-                      {statuses.map((status) => (
-                        <button
-                          className={`inline-flex items-center gap-1.5 border px-2 py-1 text-[10px] uppercase tracking-[.1em] ${statusConfig[status]?.badge ?? statusConfig["To Do"].badge} ${selectedStatus === status ? "ring-1 ring-zinc-900 dark:ring-white" : ""}`}
-                          key={status}
-                          onClick={() => setSelectedStatus(status)}
-                          type="button"
-                        >
-                          <span
-                            className={`h-1.5 w-1.5 rounded-full ${statusConfig[status]?.dot ?? "bg-zinc-500"}`}
-                          />
-                          {status}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <span className="mr-1 text-[10px] uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-400">
-                        Status change
-                      </span>
-                      {(["all", "changed", "unchanged"] as const).map(
-                        (filter) => (
-                          <button
-                            className={`border px-2 py-1 text-[10px] uppercase tracking-[.1em] ${statusChangeFilter === filter ? "border-emerald-700 bg-emerald-50 text-emerald-800 dark:border-emerald-400 dark:bg-emerald-950/30 dark:text-emerald-300" : "border-zinc-300 text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"}`}
-                            key={filter}
-                            onClick={() => setStatusChangeFilter(filter)}
-                            type="button"
-                          >
-                            {filter}
-                          </button>
-                        ),
-                      )}
-                    </div>
-                    <div className="relative mt-3">
+
+              <div className="space-y-5 p-5">
+                {/* Status distribution bar */}
+                <StatusDistribution
+                  counts={statusCounts}
+                  selected={selectedStatus}
+                  onSelect={setSelectedStatus}
+                />
+
+                {/* Filter toolbar */}
+                <div className="border-b border-zinc-200 pb-4 dark:border-zinc-800">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400">
+                      Work today
+                    </h3>
+                    <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                      {tickets.length} of {projectScopedTickets.length} shown
+                    </span>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2.5">
+                    <div className="relative min-w-[11rem] flex-1">
                       <Search className="pointer-events-none absolute left-0 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-500" />
                       <input
                         className="w-full border-b border-zinc-300 bg-transparent py-2 pl-6 pr-7 text-xs text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-zinc-900 dark:border-zinc-700 dark:text-white dark:focus:border-white"
@@ -302,91 +344,64 @@ export default function StandupPage() {
                         </button>
                       )}
                     </div>
-                  </div>
-                  <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                    {tickets.map((ticket, index) => (
-                      <article
-                        className="py-4"
-                        key={`${ticket.project_name}-${ticket.ticket_name}-${index}`}
+
+                    <FilterSelect
+                      onChange={setSelectedProject}
+                      options={["All projects", ...projectNames]}
+                      value={selectedProject}
+                    />
+
+                    <FilterSelect
+                      onChange={setSelectedStatus}
+                      options={["All statuses", ...statuses]}
+                      value={selectedStatus}
+                    />
+
+                    <button
+                      aria-pressed={changedOnly}
+                      className={`inline-flex min-h-8 shrink-0 items-center gap-1.5 border px-2.5 py-1.5 text-[10px] uppercase tracking-[.1em] transition-colors ${changedOnly
+                        ? "border-emerald-700 bg-emerald-50 text-emerald-800 dark:border-emerald-400 dark:bg-emerald-950/30 dark:text-emerald-300"
+                        : "border-zinc-300 text-zinc-600 hover:border-zinc-500 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500"
+                        }`}
+                      onClick={() => setChangedOnly((value) => !value)}
+                      title="Show only tickets whose status changed today"
+                      type="button"
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${changedOnly ? "bg-emerald-500" : "bg-zinc-400"}`}
+                      />
+                      Changed today
+                      {changedCount > 0 && (
+                        <span className="opacity-70">({changedCount})</span>
+                      )}
+                    </button>
+
+                    {filtersActive && (
+                      <button
+                        className="text-[10px] uppercase tracking-[.1em] text-zinc-500 underline-offset-4 hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-white"
+                        onClick={clearFilters}
+                        type="button"
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-400">
-                              {ticket.project_name}
-                            </p>
-                            <h4 className="mt-1 text-sm text-zinc-800 dark:text-zinc-100">
-                              {ticket.ticket_name}
-                            </h4>
-                          </div>
-                          <span
-                            className={`inline-flex items-center gap-1.5 border px-2 py-1 text-[10px] uppercase tracking-[.1em] ${statusConfig[ticket.current_status]?.badge ?? statusConfig["To Do"].badge}`}
-                          >
-                            <span
-                              className={`h-1.5 w-1.5 rounded-full ${statusConfig[ticket.current_status]?.dot ?? "bg-zinc-500"}`}
-                            />
-                            {ticket.current_status}
-                          </span>
-                        </div>
-                        <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-zinc-600 dark:text-zinc-400">
-                          <span>{ticket.hours_logged}h logged</span>
-                          {ticket.status_changed && (
-                            <span className="text-emerald-700 dark:text-emerald-300">
-                              Status changed
-                            </span>
-                          )}
-                          {ticket.finished && (
-                            <span className="text-emerald-700 dark:text-emerald-300">
-                              Finished
-                            </span>
-                          )}
-                        </div>
-                        {ticket.comments.length > 0 && (
-                          <div className="mt-3 space-y-2 border-l-2 border-zinc-200 pl-3 dark:border-zinc-800">
-                            {ticket.comments.map((comment) => (
-                              <p
-                                className="text-xs leading-5 text-zinc-600 dark:text-zinc-300"
-                                key={comment.id}
-                              >
-                                <MessageSquare className="mr-1 inline h-3 w-3" />
-                                {comment.description}
-                              </p>
-                            ))}
-                          </div>
-                        )}
-                      </article>
-                    ))}
-                    {!tickets.length && (
-                      <p className="py-10 text-center text-sm text-zinc-600 dark:text-zinc-400">
-                        No work items match the active filters.
-                      </p>
+                        Clear
+                      </button>
                     )}
                   </div>
                 </div>
-                <aside className="border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950/40">
-                  <p className="text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400">
-                    Status mix
-                  </p>
-                  <div className="mt-4 space-y-3">
-                    {Object.entries(statusCounts).map(([status, count]) => (
-                      <button
-                        className="flex w-full items-center justify-between text-left text-xs"
-                        key={status}
-                        onClick={() => setSelectedStatus(status)}
-                        type="button"
-                      >
-                        <span className="inline-flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-                          <span
-                            className={`h-1.5 w-1.5 rounded-full ${statusConfig[status]?.dot ?? "bg-zinc-500"}`}
-                          />
-                          {status}
-                        </span>
-                        <span className="font-medium text-zinc-900 dark:text-white">
-                          {count}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </aside>
+
+                {/* Tickets */}
+                <div className="space-y-3">
+                  {tickets.map((ticket, index) => (
+                    <TicketCard
+                      key={`${ticket.project_name}-${ticket.ticket_name}-${index}`}
+                      ticket={ticket}
+                    />
+                  ))}
+                  {!tickets.length && (
+                    <p className="border border-dashed border-zinc-300 py-10 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+                      No work items match the active filters.
+                    </p>
+                  )}
+                </div>
               </div>
             </>
           ) : (
@@ -401,7 +416,38 @@ export default function StandupPage() {
     </div>
   );
 }
-function Avatar({ member }: { member: ProjectMember }) {
+
+/* ─── Sub-components ─── */
+
+function FilterSelect({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
+  const active = value !== options[0];
+  return (
+    <select
+      className={`min-h-8 shrink-0 border bg-white px-2 py-1.5 text-[10px] uppercase tracking-[.1em] outline-none transition-colors dark:bg-zinc-950 ${active
+        ? "border-zinc-900 text-zinc-900 dark:border-white dark:text-white"
+        : "border-zinc-300 text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
+        }`}
+      onChange={(event) => onChange(event.target.value)}
+      value={value}
+    >
+      {options.map((option) => (
+        <option key={option} value={option}>
+          {option}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function Avatar({ member }: { member: OrganisationMember }) {
   const initials = (member.name || member.email)
     .split(" ")
     .map((part) => part[0])
@@ -414,6 +460,7 @@ function Avatar({ member }: { member: ProjectMember }) {
     </span>
   );
 }
+
 function Metric({
   icon: Icon,
   label,
@@ -435,6 +482,147 @@ function Metric({
     </div>
   );
 }
+
+function StatusDistribution({
+  counts,
+  selected,
+  onSelect,
+}: {
+  counts: Record<string, number>;
+  selected: string;
+  onSelect: (status: string) => void;
+}) {
+  const entries = Object.entries(counts);
+  const total = entries.reduce((sum, [, c]) => sum + c, 0);
+  if (total === 0) return null;
+
+  return (
+    <div className="space-y-3">
+      <p className="text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400">
+        Status mix
+      </p>
+      <div className="flex h-2 border border-zinc-200 dark:border-zinc-800">
+        {entries.map(([status, count]) => (
+          <button
+            key={status}
+            className={`transition-all hover:opacity-80 ${selected !== "All statuses" && selected !== status
+              ? "opacity-30"
+              : "opacity-100"
+              } ${statusConfig[status]?.dot ?? "bg-zinc-500"}`}
+            onClick={() =>
+              onSelect(selected === status ? "All statuses" : status)
+            }
+            style={{ width: `${(count / total) * 100}%` }}
+            title={`${status}: ${count} (${Math.round((count / total) * 100)}%)`}
+            type="button"
+          />
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-x-4 gap-y-1">
+        {entries.map(([status, count]) => (
+          <button
+            key={status}
+            className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${selected !== "All statuses" && selected !== status
+              ? "opacity-40"
+              : ""
+              }`}
+            onClick={() =>
+              onSelect(selected === status ? "All statuses" : status)
+            }
+            type="button"
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${statusConfig[status]?.dot ?? "bg-zinc-500"}`}
+            />
+            <span className="text-zinc-600 dark:text-zinc-400">{status}</span>
+            <span className="font-medium text-zinc-900 dark:text-white">
+              {count}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const cfg = statusConfig[status];
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 border px-2 py-1 text-[10px] uppercase tracking-[.1em] ${cfg?.badge ?? statusConfig["To Do"].badge}`}
+    >
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${cfg?.dot ?? "bg-zinc-500"}`}
+      />
+      {status}
+    </span>
+  );
+}
+
+function TicketCard({
+  ticket,
+}: {
+  ticket: DeveloperDailySummary["tickets"][number];
+}) {
+  return (
+    <article
+      className={`border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950/20 ${statusBorderColors[ticket.current_status] ?? "border-l-zinc-500"
+        } border-l-4`}
+    >
+      <div className="p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-400">
+              {ticket.project_name}
+            </p>
+            <h4 className="mt-1 text-sm text-zinc-800 dark:text-zinc-100">
+              {ticket.ticket_name}
+            </h4>
+          </div>
+          <StatusBadge status={ticket.current_status} />
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-zinc-600 dark:text-zinc-400">
+          <span>{ticket.hours_logged}h logged</span>
+          {ticket.status_changed && (
+            <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
+              {ticket.previous_status && (
+                <>
+                  <span className="line-through opacity-70">
+                    {ticket.previous_status}
+                  </span>
+                  <span>→</span>
+                  <span>{ticket.current_status}</span>
+                </>
+              )}
+            </span>
+          )}
+          {ticket.finished && (
+            <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-300">
+              <CheckCircle2 className="h-3 w-3" />
+              Finished
+            </span>
+          )}
+        </div>
+
+        {ticket.comments.length > 0 && (
+          <div className="mt-3 space-y-2 border-l-2 border-zinc-200 pl-3 dark:border-zinc-800">
+            {ticket.comments.map((comment) => (
+              <p
+                className="text-xs leading-5 text-zinc-600 dark:text-zinc-300"
+                key={comment.id}
+              >
+                <MessageSquare className="mr-1 inline h-3 w-3" />
+                {comment.description}
+              </p>
+            ))}
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
 function formatRange(start: string, end: string) {
   const options: Intl.DateTimeFormatOptions = {
     month: "short",

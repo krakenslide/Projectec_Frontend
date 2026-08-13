@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { Clock3, Edit3, Loader2, MessageSquare, Save, Send, Trash2, X } from "lucide-react";
+import { Activity, Clock3, Edit3, Loader2, MessageSquare, Save, Send, Trash2, X } from "lucide-react";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { createComment, deleteComment, listComments, updateComment, type Comment, type TaggedUser } from "../api/comments";
 import { deleteTicket, getTicket, updateTicket } from "../api/tickets";
+import { listTicketActivities, type TicketActivity } from "../api/activities";
 import { getErrorMessage } from "../api/client";
 import type { Ticket, TicketPriority, TicketStatus, TicketType } from "../types/ticket";
 import { useToast } from "../components/ui/Toast";
@@ -45,6 +47,8 @@ export default function TicketDetailPage() {
     const [ticketDeleteOpen, setTicketDeleteOpen] = useState(false);
     const [commentDeleteOpen, setCommentDeleteOpen] = useState(false);
     const [error, setError] = useState("");
+    const [activities, setActivities] = useState<TicketActivity[]>([]);
+    const [loadingActivities, setLoadingActivities] = useState(true);
 
     useEffect(() => {
         if (!ticketId) return;
@@ -63,6 +67,12 @@ export default function TicketDetailPage() {
     useEffect(() => {
         if (!ticketId) return;
         void listComments(ticketId).then(setComments).catch((err: unknown) => setError(`Ticket loaded, but comments could not be loaded: ${getErrorMessage(err)}`)).finally(() => setLoadingComments(false));
+    }, [ticketId]);
+
+    useEffect(() => {
+        if (!ticketId) return;
+        setLoadingActivities(true);
+        void listTicketActivities(ticketId).then(setActivities).catch(() => undefined).finally(() => setLoadingActivities(false));
     }, [ticketId]);
 
     useEffect(() => {
@@ -134,13 +144,74 @@ export default function TicketDetailPage() {
         {error && <p className="border-y border-red-400/50 py-3 text-sm text-red-300">{error}</p>}
         <header className="border-b border-zinc-200 dark:border-zinc-800 pb-7"><div className="flex flex-wrap items-center gap-2"><span className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-300">{ticket.ticket_number}</span><span className={`border px-2 py-1 text-[10px] uppercase tracking-[.12em] ${priorityTone[ticket.priority]}`}>{ticket.priority}</span><span className={`border px-2 py-1 text-[10px] uppercase tracking-[.12em] ${statusTone[ticket.status]}`}>{ticket.status}</span></div><input className="mt-4 w-full bg-transparent font-['Instrument_Serif',Georgia,serif] text-5xl leading-none text-zinc-900 dark:text-white outline-none focus:border-b focus:border-zinc-900 dark:focus:border-white" maxLength={255} value={ticket.title} onChange={(event) => updateTicketField("title", event.target.value)} /><p className="mt-4 text-xs text-zinc-600 dark:text-zinc-300">{ticket.type} · Updated {formatDate(ticket.updated_at)}</p></header>
         <div className="flex min-w-[900px] items-start gap-6">
-            <section className="min-w-0 flex-1 space-y-5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/25 p-5"><div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4"><div><p className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-300">Ticket workspace</p><h2 className="mt-2 text-lg text-zinc-800 dark:text-zinc-100">Details</h2></div><button className="inline-flex min-h-9 items-center gap-2 border border-zinc-300 dark:border-zinc-700 px-3 text-[10px] uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-300 hover:border-zinc-900 dark:hover:border-white hover:text-zinc-900 dark:hover:text-white" disabled={!changed || Boolean(validation) || ticketSaving} onClick={() => void saveTicket()} type="button">{ticketSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}{ticketSaving ? "Saving" : "Save"}</button></div><Field label="Description"><textarea className="min-h-36 w-full bg-transparent text-sm leading-6 text-zinc-700 dark:text-zinc-200 outline-none" value={ticket.description ?? ""} onChange={(event) => updateTicketField("description", optional(event.target.value))} placeholder="Describe the work behind this ticket" /></Field><div className="grid gap-4 md:grid-cols-2"><SelectField label="Status" value={ticket.status} options={statuses} onChange={(value) => updateTicketField("status", value as TicketStatus)} /><SelectField label="Type" value={ticket.type} options={types} onChange={(value) => updateTicketField("type", value as TicketType)} /><SelectField label="Priority" value={ticket.priority} options={priorities} onChange={(value) => updateTicketField("priority", value as TicketPriority)} /><Field label="Difficulty (1-100)"><input className="w-full bg-transparent text-zinc-900 dark:text-white" max={100} min={1} type="number" value={ticket.difficulty ?? ""} onChange={(event) => updateTicketField("difficulty", event.target.value ? Number(event.target.value) : null)} /></Field><Field label="Hours logged"><input className="w-full bg-transparent text-zinc-900 dark:text-white" min={0} type="number" value={ticket.hours_logged ?? 0} onChange={(event) => updateTicketField("hours_logged", Number(event.target.value))} /></Field><AssigneePicker label="Assignee" members={members} value={ticket.assigned_to} onChange={(value) => updateTicketField("assigned_to", value)} /><Field label="Expected start"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.expected_start_date)} onChange={(event) => updateTicketField("expected_start_date", optional(event.target.value))} /></Field><Field label="Expected end"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.expected_end_date)} onChange={(event) => updateTicketField("expected_end_date", optional(event.target.value))} /></Field></div><Field label="Reason for delay"><textarea className="min-h-20 w-full bg-transparent text-zinc-700 dark:text-zinc-200 outline-none" maxLength={1000} value={ticket.reason_for_delay ?? ""} onChange={(event) => updateTicketField("reason_for_delay", optional(event.target.value))} /></Field>{validation && <p className="text-sm text-red-300">{validation}</p>}</section>
-            <aside className="w-[22rem] shrink-0"><section className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/25 p-5"><h2 className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-400">Ticket data</h2><div className="mt-5 space-y-4"><Meta label="Ticket ID" value={ticket.id} /><Meta label="Project ID" value={ticket.project_id} /><Meta label="Created" value={formatDate(ticket.created_at)} /><Meta label="Updated" value={formatDate(ticket.updated_at)} /></div><button className="mt-6 inline-flex min-h-9 items-center gap-2 border border-red-400/60 px-3 text-[10px] uppercase tracking-[.12em] text-red-200 hover:bg-red-950/20" disabled={deletingTicket} onClick={() => setTicketDeleteOpen(true)} type="button">{deletingTicket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}Delete ticket</button></section></aside>
+            <section className="min-w-0 flex-1 space-y-5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/25 p-5"><div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4"><div><p className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-300">Ticket workspace</p><h2 className="mt-2 text-lg text-zinc-800 dark:text-zinc-100">Details</h2></div><button className="inline-flex min-h-9 items-center gap-2 border border-zinc-300 dark:border-zinc-700 px-3 text-[10px] uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-300 hover:border-zinc-900 dark:hover:border-white hover:text-zinc-900 dark:hover:text-white" disabled={!changed || Boolean(validation) || ticketSaving} onClick={() => void saveTicket()} type="button">{ticketSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}{ticketSaving ? "Saving" : "Save"}</button></div><Field label="Description"><textarea className="min-h-36 w-full bg-transparent text-sm leading-6 text-zinc-700 dark:text-zinc-200 outline-none" value={ticket.description ?? ""} onChange={(event) => updateTicketField("description", optional(event.target.value))} placeholder="Describe the work behind this ticket" /></Field><div className="grid gap-4 md:grid-cols-2"><SelectField label="Status" value={ticket.status} options={statuses} onChange={(value) => updateTicketField("status", value as TicketStatus)} /><SelectField label="Type" value={ticket.type} options={types} onChange={(value) => updateTicketField("type", value as TicketType)} /><SelectField label="Priority" value={ticket.priority} options={priorities} onChange={(value) => updateTicketField("priority", value as TicketPriority)} /><Field label="Difficulty (1-100)"><input className="w-full bg-transparent text-zinc-900 dark:text-white" max={100} min={1} type="number" value={ticket.difficulty ?? ""} onChange={(event) => updateTicketField("difficulty", event.target.value ? Number(event.target.value) : null)} /></Field><Field label="Hours logged"><input className="w-full bg-transparent text-zinc-900 dark:text-white" min={0} type="number" value={ticket.hours_logged ?? 0} onChange={(event) => updateTicketField("hours_logged", Number(event.target.value))} /></Field><AssigneePicker label="Assignee" members={members} value={ticket.assigned_to} onChange={(value) => updateTicketField("assigned_to", value)} /><Field label="Expected start"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.expected_start_date)} onChange={(event) => updateTicketField("expected_start_date", optional(event.target.value))} /></Field><Field label="Expected end"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.expected_end_date)} onChange={(event) => updateTicketField("expected_end_date", optional(event.target.value))} /></Field><Field label="Actual start"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.actual_start_date)} onChange={(event) => updateTicketField("actual_start_date", optional(event.target.value))} /></Field><Field label="Actual end"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.actual_end_date)} onChange={(event) => updateTicketField("actual_end_date", optional(event.target.value))} /></Field></div><Field label="Reason for delay"><textarea className="min-h-20 w-full bg-transparent text-zinc-700 dark:text-zinc-200 outline-none" maxLength={1000} value={ticket.reason_for_delay ?? ""} onChange={(event) => updateTicketField("reason_for_delay", optional(event.target.value))} /></Field>{validation && <p className="text-sm text-red-300">{validation}</p>}</section>
+            <aside className="w-[22rem] shrink-0 space-y-5"><section className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/25 p-5"><h2 className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-400">Ticket data</h2><div className="mt-5 space-y-4"><Meta label="Ticket ID" value={ticket.id} /><Meta label="Project ID" value={ticket.project_id} /><Meta label="Created" value={formatDate(ticket.created_at)} /><Meta label="Updated" value={formatDate(ticket.updated_at)} /></div><button className="mt-6 inline-flex min-h-9 items-center gap-2 border border-red-400/60 px-3 text-[10px] uppercase tracking-[.12em] text-red-200 hover:bg-red-950/20" disabled={deletingTicket} onClick={() => setTicketDeleteOpen(true)} type="button">{deletingTicket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}Delete ticket</button></section><ActivityPanel activities={activities} loading={loadingActivities} /></aside>
         </div>
         <CommentsPanel comments={comments} commentBusy={commentBusy} commentText={commentText} currentUserId={currentUserId} deletingCommentId={deletingCommentId} editingCommentId={editingCommentId} editingText={editingText} editingTaggedUserIds={editingTaggedUserIds} loading={loadingComments} members={members} taggedUserIds={taggedUserIds} onAdd={addComment} onCancelEdit={() => { setEditingCommentId(null); setEditingText(""); setEditingTaggedUserIds([]); }} onDelete={(id) => { setDeletingCommentId(id); setCommentDeleteOpen(true); }} onEdit={(comment) => { setEditingCommentId(comment.id); setEditingText(comment.description); setEditingTaggedUserIds(getTaggedUserIds(comment)); }} onSave={saveComment} onTextChange={setCommentText} onTaggedUsersChange={setTaggedUserIds} onEditingTaggedUsersChange={setEditingTaggedUserIds} onEditTextChange={setEditingText} />
         <ConfirmModal busy={deletingTicket} confirmLabel="Delete ticket" description="This permanently deletes the ticket and its associated work history." onCancel={() => setTicketDeleteOpen(false)} onConfirm={() => void removeTicket()} open={ticketDeleteOpen} title="Delete ticket?" />
         <ConfirmModal busy={commentBusy} confirmLabel="Delete comment" description="This removes the comment from the ticket activity." onCancel={() => { setCommentDeleteOpen(false); setDeletingCommentId(null); }} onConfirm={() => void removeComment()} open={commentDeleteOpen} title="Delete comment?" />
     </div>;
+}
+
+function ActivityPanel({ activities, loading }: { activities: TicketActivity[]; loading: boolean }) {
+    const chartData = useMemo(() => {
+        const counts = new Map<string, number>();
+        activities.forEach((activity) => {
+            const day = new Date(activity.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            counts.set(day, (counts.get(day) ?? 0) + 1);
+        });
+        return Array.from(counts.entries()).map(([day, count]) => ({ day, count }));
+    }, [activities]);
+
+    return (
+        <section className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/30">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 px-5 py-4">
+                <div className="flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-zinc-600 dark:text-zinc-300" />
+                    <h2 className="text-sm font-medium uppercase tracking-[.14em] text-zinc-700 dark:text-zinc-200">Activity</h2>
+                </div>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400">{activities.length} {activities.length === 1 ? "event" : "events"}</span>
+            </div>
+            {loading ? (
+                <div className="flex min-h-24 items-center justify-center text-sm text-zinc-600 dark:text-zinc-400"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading activity...</div>
+            ) : activities.length === 0 ? (
+                <div className="border border-dashed border-zinc-200 dark:border-zinc-800 m-4 p-8 text-center text-sm text-zinc-600 dark:text-zinc-400">No recorded activity yet.</div>
+            ) : (
+                <div className="space-y-6 p-5">
+                    <div>
+                        <p className="mb-3 text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400">Events per day</p>
+                        <div className="h-44 w-full">
+                            <ResponsiveContainer height="100%" width="100%">
+                                <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                                    <CartesianGrid stroke="currentColor" strokeOpacity={0.1} vertical={false} />
+                                    <XAxis dataKey="day" fontSize={11} stroke="currentColor" strokeOpacity={0.5} tickLine={false} />
+                                    <YAxis allowDecimals={false} fontSize={11} stroke="currentColor" strokeOpacity={0.5} tickLine={false} />
+                                    <Tooltip contentStyle={{ background: "#111", border: "1px solid #333", fontSize: 12 }} />
+                                    <Line dataKey="count" dot={{ r: 3 }} stroke="#10b981" strokeWidth={2} type="monotone" />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                    <div>
+                        <p className="mb-3 text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400">Timeline</p>
+                        <ol className="max-h-56 space-y-4 overflow-y-auto border-l border-zinc-200 pl-4 dark:border-zinc-800">
+                            {[...activities].sort((a, b) => b.created_at.localeCompare(a.created_at)).map((activity) => (
+                                <li className="relative" key={activity.id}>
+                                    <span className="absolute -left-[1.32rem] top-1.5 h-2 w-2 rounded-full bg-emerald-500" />
+                                    <p className="text-xs text-zinc-700 dark:text-zinc-300">
+                                        Changed <span className="font-medium">{activity.field_name}</span> from{" "}
+                                        <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] line-through opacity-70 dark:bg-zinc-900">{activity.old_value ?? "—"}</span>{" "}
+                                        to <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[11px] text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300">{activity.new_value ?? "—"}</span>
+                                    </p>
+                                    <p className="mt-1 text-[10px] uppercase tracking-[.1em] text-zinc-500 dark:text-zinc-500">{formatDate(activity.created_at)}</p>
+                                </li>
+                            ))}
+                        </ol>
+                    </div>
+                </div>
+            )}
+        </section>
+    );
 }
 
 function CommentsPanel({
