@@ -15,6 +15,7 @@ import ProjectMembersPage from "./pages/ProjectMembersPage";
 import AuthErrorOverlay from "./components/AuthErrorOverlay";
 import { NotificationProvider } from "./context/NotificationContext";
 import StandupPage from "./pages/StandupPage";
+import MilestonesPage from "./pages/MilestonesPage";
 
 export default function App() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/organisations/:organizationId/projects/:projectId/dashboard" element={<ProjectInsightsPage mode="dashboard" />} />
           <Route path="/organisations/:organizationId/projects/:projectId/standup" element={<StandupPage />} />
           <Route path="/organisations/:organizationId/projects/:projectId/board" element={<ProjectInsightsPage mode="board" />} />
+          <Route path="/organisations/:organizationId/projects/:projectId/milestones" element={<MilestonesPage />} />
           <Route path="/organisations/:organizationId/projects/:projectId/tickets/:ticketId" element={<TicketDetailPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />

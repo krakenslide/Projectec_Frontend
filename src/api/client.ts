@@ -1,6 +1,7 @@
 import { useAuthErrorStore } from "../store/authErrorStore";
 
 const BASE_URL = "http://127.0.0.1:8000/v1";
+export { BASE_URL };
 export const getApiRoot = () => fetch("http://127.0.0.1:8000/").then(response => response.json() as Promise<{ status: string }>);
 
 export interface ApiResponse<T> {
@@ -55,6 +56,37 @@ export async function apiRequest<T>(
 
   if (res.status === 204) return {} as T;
   return res.json();
+}
+
+// Fetches a binary/file response (e.g. Excel exports) instead of JSON.
+export async function apiBlobRequest(
+  path: string,
+  options: RequestInit = {}
+): Promise<{ blob: Blob; filename: string | null }> {
+  const token = localStorage.getItem("access_token");
+  const headers: Record<string, string> = { ...(options.headers as Record<string, string>) };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+
+  if (res.status === 401) {
+    useAuthErrorStore.getState().trigger(path);
+  }
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    const message =
+      typeof error.detail === "string"
+        ? error.detail
+        : Array.isArray(error.detail)
+          ? error.detail.map((d: { msg: string }) => d.msg).join(", ")
+          : "Something went wrong";
+    throw new Error(message);
+  }
+
+  const disposition = res.headers.get("Content-Disposition") ?? "";
+  const match = /filename="?([^";]+)"?/i.exec(disposition);
+  return { blob: await res.blob(), filename: match?.[1] ?? null };
 }
 
 // Use this in every catch block instead of err: any
