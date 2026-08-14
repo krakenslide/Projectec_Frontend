@@ -18,7 +18,7 @@ export default function AuthErrorOverlay() {
 
   if (!active) return null;
 
-  const projectName = activeOrg?.name ?? "Projectec";
+  const projectName = activeOrg?.name ?? "FlowBase";
 
   const handleBackToLogin = () => {
     localStorage.removeItem("access_token");
