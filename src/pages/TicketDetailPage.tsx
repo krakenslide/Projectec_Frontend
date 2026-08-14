@@ -273,6 +273,46 @@ function ActivityPanel({ activities, loading }: { activities: TicketActivity[]; 
     );
 }
 
+function renderMentions(
+    text: string,
+    members: ProjectMember[],
+) {
+    const names = members
+        .map((member) => member.name?.trim())
+        .filter((name): name is string => Boolean(name))
+        .sort((a, b) => b.length - a.length);
+
+    if (!names.length) {
+        return text;
+    }
+
+    const escapedNames = names.map((name) =>
+        name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+    );
+
+    const regex = new RegExp(
+        `(@(?:${escapedNames.join("|")}))(?=\\s|$|[.,!?;:])`,
+        "g",
+    );
+
+    return text.split(regex).map((part, index) => {
+        const isMention = names.some(
+            (name) => part === `@${name}`,
+        );
+
+        return isMention ? (
+            <span
+                key={index}
+                className="mx-0.5 rounded bg-sky-100 px-1 font-medium text-sky-700 dark:bg-sky-950/50 dark:text-sky-300"
+            >
+                {part}
+            </span>
+        ) : (
+            <span key={index}>{part}</span>
+        );
+    });
+}
+
 function CommentsPanel({
     comments,
     commentBusy,
@@ -422,7 +462,7 @@ function CommentsPanel({
                                             ) : (
                                                 <>
                                                     <div className="mt-4 max-w-prose whitespace-pre-wrap text-sm leading-7 text-zinc-700 dark:text-zinc-300">
-                                                        {comment.description}
+                                                        {renderMentions(comment.description, members)}
                                                     </div>
                                                     <TaggedUsers users={comment.tagged_users} members={members} />
 

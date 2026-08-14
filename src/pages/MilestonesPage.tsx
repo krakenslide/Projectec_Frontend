@@ -194,29 +194,50 @@ function MilestoneRow({
         type="button"
       >
         <Flag className="h-4 w-4 shrink-0 text-zinc-600 dark:text-zinc-300" />
+
+        {/* Milestone info */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h2 className="truncate text-lg text-zinc-900 dark:text-white">{milestone.name}</h2>
+            <h2 className="truncate text-lg text-zinc-900 dark:text-white">
+              {milestone.name}
+            </h2>
+
             <span className="shrink-0 text-[10px] uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-400">
               {milestone.completed_tickets}/{milestone.total_tickets} tickets
             </span>
           </div>
-          <div className="mt-2 flex items-center gap-3">
-            <div className="h-1.5 w-full max-w-md flex-1 bg-zinc-100 dark:bg-zinc-900">
-              <div
-                className={`h-full transition-all duration-500 ${progressColor(milestone.progress_percentage)}`}
-                style={{ width: `${milestone.progress_percentage}%` }}
-              />
-            </div>
-            <span className="w-10 shrink-0 text-right text-xs tabular-nums text-zinc-700 dark:text-zinc-300">
-              {milestone.progress_percentage}%
-            </span>
-          </div>
-          <p className="mt-2 text-[11px] text-zinc-600 dark:text-zinc-400">
-            {formatWindow(milestone.expected_start_date, milestone.expected_end_date)}
+
+          <p className="mt-1 text-[11px] text-zinc-700 dark:text-zinc-400">
+            {formatWindow(
+              milestone.expected_start_date,
+              milestone.expected_end_date,
+            )}
           </p>
         </div>
-        <ChevronDown className={`h-4 w-4 shrink-0 text-zinc-600 transition-transform dark:text-zinc-300 ${open ? "rotate-180" : ""}`} />
+
+        {/* Progress */}
+        <div className="flex w-full max-w-sm shrink-0 items-center gap-3 sm:w-72">
+          <div className="h-1.5 flex-1 bg-zinc-200 dark:bg-zinc-700">
+            <div
+              className={`h-full transition-all duration-500 ${progressColor(
+                milestone.progress_percentage,
+              )}`}
+              style={{
+                width: `${milestone.progress_percentage}%`,
+              }}
+            />
+          </div>
+
+          <span className="w-10 shrink-0 text-right text-xs tabular-nums text-zinc-700 dark:text-zinc-300">
+            {milestone.progress_percentage}%
+          </span>
+        </div>
+
+        {/* Expand */}
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-zinc-600 transition-transform dark:text-zinc-300 ${open ? "rotate-180" : ""
+            }`}
+        />
       </button>
       {open && (
         <div className="border-t border-zinc-200 p-5 dark:border-zinc-800">
