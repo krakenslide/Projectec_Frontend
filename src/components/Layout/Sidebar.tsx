@@ -37,7 +37,7 @@ function SidebarItem({
                 "flex min-h-11 items-center gap-3 border-l-2 px-3 text-[11px] uppercase tracking-[.14em] transition-colors",
                 "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-white",
                 active
-                    ? "border-l-white bg-zinc-50 dark:bg-zinc-900/90 text-zinc-900 dark:text-white"
+                    ? "border-l-zinc-900 bg-zinc-200 text-zinc-950 dark:border-l-white dark:bg-zinc-900/90 dark:text-white"
                     : "border-l-transparent text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900/60 hover:text-zinc-800 dark:hover:text-zinc-100",
                 collapsed ? "justify-center" : "",
             ].join(" ")}
