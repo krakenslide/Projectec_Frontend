@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { Activity, Clock3, Edit3, Loader2, MessageSquare, Save, Send, Trash2, X } from "lucide-react";
+import { Activity, Clock3, Edit3, Link2, Loader2, MessageSquare, Save, Send, Trash2, X } from "lucide-react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { createComment, deleteComment, listComments, updateComment, type Comment, type TaggedUser } from "../api/comments";
 import { deleteTicket, getTicket, updateTicket } from "../api/tickets";
@@ -90,6 +90,13 @@ export default function TicketDetailPage() {
         return "";
     }, [ticket]);
 
+    const refreshComments = async () => {
+        if (!ticketId) return;
+
+        const latestComments = await listComments(ticketId);
+        setComments(latestComments);
+    };
+
     const saveTicket = async () => {
         if (!ticketId || !ticket || validation || ticketSaving) return;
         setTicketSaving(true); setError("");
@@ -103,9 +110,22 @@ export default function TicketDetailPage() {
         event.preventDefault();
         if (!ticketId || !commentText.trim() || commentBusy) return;
         setCommentBusy(true); setError("");
+        const finalTaggedUserIds = members
+            .filter((member) => {
+                const mention = `@${member.name || member.email}`;
+
+                return (
+                    taggedUserIds.includes(member.user_id) &&
+                    commentText.includes(mention)
+                );
+            })
+            .map((member) => member.user_id);
         try {
-            const created = await createComment(ticketId, commentText.trim(), taggedUserIds);
-            setComments((items) => [...items, { ...created, tagged_users: created.tagged_users ?? taggedUserIds }]); setCommentText(""); setTaggedUserIds([]); showToast("Comment added");
+            await createComment(ticketId, commentText.trim(), Array.from(new Set(finalTaggedUserIds)));
+            await refreshComments();
+            setCommentText("");
+            setTaggedUserIds([]);
+            showToast("Comment added");
         } catch (err: unknown) { setError(getErrorMessage(err)); } finally { setCommentBusy(false); }
     };
 
@@ -113,8 +133,12 @@ export default function TicketDetailPage() {
         if (!ticketId || !editingText.trim() || commentBusy) return;
         setCommentBusy(true); setError("");
         try {
-            const updated = await updateComment(ticketId, comment.id, editingText.trim(), editingTaggedUserIds);
-            setComments((items) => items.map((item) => item.id === comment.id ? { ...updated, tagged_users: updated.tagged_users ?? editingTaggedUserIds } : item)); setEditingCommentId(null); setEditingText(""); setEditingTaggedUserIds([]); showToast("Comment updated");
+            await updateComment(ticketId, comment.id, editingText.trim(), editingTaggedUserIds);
+            await refreshComments();
+            setEditingCommentId(null);
+            setEditingText("");
+            setEditingTaggedUserIds([]);
+            showToast("Comment updated");
         } catch (err: unknown) { setError(getErrorMessage(err)); } finally { setCommentBusy(false); }
     };
 
@@ -123,7 +147,8 @@ export default function TicketDetailPage() {
         setCommentBusy(true); setError("");
         try {
             await deleteComment(ticketId, deletingCommentId);
-            setComments((items) => items.filter((item) => item.id !== deletingCommentId)); setCommentDeleteOpen(false); showToast("Comment deleted");
+            await refreshComments();
+            setCommentDeleteOpen(false); showToast("Comment deleted");
         } catch (err: unknown) { setError(getErrorMessage(err)); } finally { setCommentBusy(false); setDeletingCommentId(null); }
     };
 
@@ -144,8 +169,42 @@ export default function TicketDetailPage() {
         {error && <p className="border-y border-red-400/50 py-3 text-sm text-red-300">{error}</p>}
         <header className="border-b border-zinc-200 dark:border-zinc-800 pb-7"><div className="flex flex-wrap items-center gap-2"><span className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-300">{ticket.ticket_number}</span><span className={`border px-2 py-1 text-[10px] uppercase tracking-[.12em] ${priorityTone[ticket.priority]}`}>{ticket.priority}</span><span className={`border px-2 py-1 text-[10px] uppercase tracking-[.12em] ${statusTone[ticket.status]}`}>{ticket.status}</span></div><input className="mt-4 w-full bg-transparent font-['Instrument_Serif',Georgia,serif] text-5xl leading-none text-zinc-900 dark:text-white outline-none focus:border-b focus:border-zinc-900 dark:focus:border-white" maxLength={255} value={ticket.title} onChange={(event) => updateTicketField("title", event.target.value)} /><p className="mt-4 text-xs text-zinc-600 dark:text-zinc-300">{ticket.type} · Updated {formatDate(ticket.updated_at)}</p></header>
         <div className="flex min-w-[900px] items-start gap-6">
-            <section className="min-w-0 flex-1 space-y-5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/25 p-5"><div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4"><div><p className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-300">Ticket workspace</p><h2 className="mt-2 text-lg text-zinc-800 dark:text-zinc-100">Details</h2></div><button className="inline-flex min-h-9 items-center gap-2 border border-zinc-300 dark:border-zinc-700 px-3 text-[10px] uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-300 hover:border-zinc-900 dark:hover:border-white hover:text-zinc-900 dark:hover:text-white" disabled={!changed || Boolean(validation) || ticketSaving} onClick={() => void saveTicket()} type="button">{ticketSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}{ticketSaving ? "Saving" : "Save"}</button></div><Field label="Description"><textarea className="min-h-36 w-full bg-transparent text-sm leading-6 text-zinc-700 dark:text-zinc-200 outline-none" value={ticket.description ?? ""} onChange={(event) => updateTicketField("description", optional(event.target.value))} placeholder="Describe the work behind this ticket" /></Field><div className="grid gap-4 md:grid-cols-2"><SelectField label="Status" value={ticket.status} options={statuses} onChange={(value) => updateTicketField("status", value as TicketStatus)} /><SelectField label="Type" value={ticket.type} options={types} onChange={(value) => updateTicketField("type", value as TicketType)} /><SelectField label="Priority" value={ticket.priority} options={priorities} onChange={(value) => updateTicketField("priority", value as TicketPriority)} /><Field label="Difficulty (1-100)"><input className="w-full bg-transparent text-zinc-900 dark:text-white" max={100} min={1} type="number" value={ticket.difficulty ?? ""} onChange={(event) => updateTicketField("difficulty", event.target.value ? Number(event.target.value) : null)} /></Field><Field label="Hours logged"><input className="w-full bg-transparent text-zinc-900 dark:text-white" min={0} type="number" value={ticket.hours_logged ?? 0} onChange={(event) => updateTicketField("hours_logged", Number(event.target.value))} /></Field><AssigneePicker label="Assignee" members={members} value={ticket.assigned_to} onChange={(value) => updateTicketField("assigned_to", value)} /><Field label="Expected start"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.expected_start_date)} onChange={(event) => updateTicketField("expected_start_date", optional(event.target.value))} /></Field><Field label="Expected end"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.expected_end_date)} onChange={(event) => updateTicketField("expected_end_date", optional(event.target.value))} /></Field><Field label="Actual start"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.actual_start_date)} onChange={(event) => updateTicketField("actual_start_date", optional(event.target.value))} /></Field><Field label="Actual end"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.actual_end_date)} onChange={(event) => updateTicketField("actual_end_date", optional(event.target.value))} /></Field></div><Field label="Reason for delay"><textarea className="min-h-20 w-full bg-transparent text-zinc-700 dark:text-zinc-200 outline-none" maxLength={1000} value={ticket.reason_for_delay ?? ""} onChange={(event) => updateTicketField("reason_for_delay", optional(event.target.value))} /></Field>{validation && <p className="text-sm text-red-300">{validation}</p>}</section>
-            <aside className="w-[22rem] shrink-0 space-y-5"><section className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/25 p-5"><h2 className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-400">Ticket data</h2><div className="mt-5 space-y-4"><Meta label="Ticket ID" value={ticket.id} /><Meta label="Project ID" value={ticket.project_id} /><Meta label="Created" value={formatDate(ticket.created_at)} /><Meta label="Updated" value={formatDate(ticket.updated_at)} /></div><button className="mt-6 inline-flex min-h-9 items-center gap-2 border border-red-400/60 px-3 text-[10px] uppercase tracking-[.12em] text-red-200 hover:bg-red-950/20" disabled={deletingTicket} onClick={() => setTicketDeleteOpen(true)} type="button">{deletingTicket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}Delete ticket</button></section><ActivityPanel activities={activities} loading={loadingActivities} /></aside>
+            <section className="min-w-0 flex-1 space-y-5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/25 p-5"><div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4"><div><p className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-300">Ticket workspace</p><h2 className="mt-2 text-lg text-zinc-800 dark:text-zinc-100">Details</h2></div><button className="inline-flex min-h-9 items-center gap-2 border border-zinc-300 dark:border-zinc-700 px-3 text-[10px] uppercase tracking-[.12em] text-zinc-600 dark:text-zinc-300 hover:border-zinc-900 dark:hover:border-white hover:text-zinc-900 dark:hover:text-white" disabled={!changed || Boolean(validation) || ticketSaving} onClick={() => void saveTicket()} type="button">{ticketSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}{ticketSaving ? "Saving" : "Save"}</button></div><Field label="Description"><textarea className="min-h-36 w-full bg-transparent text-sm leading-6 text-zinc-700 dark:text-zinc-200 outline-none" value={ticket.description ?? ""} onChange={(event) => updateTicketField("description", optional(event.target.value))} placeholder="Describe the work behind this ticket" /></Field><div className="grid gap-4 md:grid-cols-2"><SelectField label="Status" value={ticket.status} options={statuses} onChange={(value) => updateTicketField("status", value as TicketStatus)} /><SelectField label="Type" value={ticket.type} options={types} onChange={(value) => updateTicketField("type", value as TicketType)} /><SelectField label="Priority" value={ticket.priority} options={priorities} onChange={(value) => updateTicketField("priority", value as TicketPriority)} /><Field label="Difficulty (1-100)"><input className="w-full bg-transparent text-zinc-900 dark:text-white" max={100} min={1} type="number" value={ticket.difficulty ?? ""} onChange={(event) => updateTicketField("difficulty", event.target.value ? Number(event.target.value) : null)} /></Field><Field label="Hours logged"><input className="w-full bg-transparent text-zinc-900 dark:text-white" min={0} type="number" value={ticket.hours_logged ?? 0} onChange={(event) => updateTicketField("hours_logged", Number(event.target.value))} /></Field><AssigneePicker label="Assignee" members={members} value={ticket.assigned_to} onChange={(value) => updateTicketField("assigned_to", value)} /><Field label="Expected start"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.expected_start_date)} onChange={(event) => updateTicketField("expected_start_date", optional(event.target.value))} /></Field><Field label="Expected end"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.expected_end_date)} onChange={(event) => updateTicketField("expected_end_date", optional(event.target.value))} /></Field><Field label="Actual start"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.actual_start_date)} onChange={(event) => updateTicketField("actual_start_date", optional(event.target.value))} /></Field><Field label="Actual end"><input className="w-full bg-transparent text-zinc-900 dark:text-white" type="datetime-local" value={dateValue(ticket.actual_end_date)} onChange={(event) => updateTicketField("actual_end_date", optional(event.target.value))} /></Field></div><Field label="Reason for delay"><textarea className="min-h-20 w-full bg-transparent text-zinc-700 dark:text-zinc-200 outline-none" maxLength={1000} value={ticket.reason_for_delay ?? ""} onChange={(event) => updateTicketField("reason_for_delay", optional(event.target.value))} /></Field>
+                <Field label="Demo link">
+                    <input
+                        className="w-full bg-transparent text-zinc-900 dark:text-white outline-none"
+                        type="url"
+                        placeholder="https://..."
+                        value={ticket.demo_link ?? ""}
+                        onChange={(event) =>
+                            updateTicketField(
+                                "demo_link",
+                                optional(event.target.value)
+                            )
+                        }
+                    />
+                </Field>
+                {validation && <p className="text-sm text-red-300">{validation}</p>}</section>
+            <aside className="w-[22rem] shrink-0 space-y-5"><section className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/25 p-5"><h2 className="text-[10px] uppercase tracking-[.18em] text-zinc-600 dark:text-zinc-400">Ticket data</h2><div className="mt-5 space-y-4"><Meta label="Ticket ID" value={ticket.id} /><Meta label="Project ID" value={ticket.project_id} /><Meta label="Created" value={formatDate(ticket.created_at)} /><Meta label="Updated" value={formatDate(ticket.updated_at)} />
+                {ticket.demo_link && (
+                    <div>
+                        <p className="text-[10px] uppercase tracking-[.14em] text-zinc-600 dark:text-zinc-300">
+                            Demo
+                        </p>
+
+                        <a
+                            className="mt-1 inline-flex items-center gap-1.5 text-xs text-zinc-600 underline underline-offset-4 hover:text-sky-900 dark:text-sky-300 dark:hover:text-sky-200"
+                            href={ticket.demo_link}
+                            onClick={(event) => event.stopPropagation()}
+                            rel="noreferrer"
+                            target="_blank"
+                        >
+                            <Link2 className="h-3.5 w-3.5" />
+                            Open demo
+                        </a>
+                    </div>
+                )}
+            </div><button className="mt-6 inline-flex min-h-9 items-center gap-2 border border-red-400/60 px-3 text-[10px] uppercase tracking-[.12em] text-red-700 hover:bg-red-950/20" disabled={deletingTicket} onClick={() => setTicketDeleteOpen(true)} type="button">{deletingTicket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}Delete ticket</button></section><ActivityPanel activities={activities} loading={loadingActivities} /></aside>
         </div>
         <CommentsPanel comments={comments} commentBusy={commentBusy} commentText={commentText} currentUserId={currentUserId} deletingCommentId={deletingCommentId} editingCommentId={editingCommentId} editingText={editingText} editingTaggedUserIds={editingTaggedUserIds} loading={loadingComments} members={members} taggedUserIds={taggedUserIds} onAdd={addComment} onCancelEdit={() => { setEditingCommentId(null); setEditingText(""); setEditingTaggedUserIds([]); }} onDelete={(id) => { setDeletingCommentId(id); setCommentDeleteOpen(true); }} onEdit={(comment) => { setEditingCommentId(comment.id); setEditingText(comment.description); setEditingTaggedUserIds(getTaggedUserIds(comment)); }} onSave={saveComment} onTextChange={setCommentText} onTaggedUsersChange={setTaggedUserIds} onEditingTaggedUsersChange={setEditingTaggedUserIds} onEditTextChange={setEditingText} />
         <ConfirmModal busy={deletingTicket} confirmLabel="Delete ticket" description="This permanently deletes the ticket and its associated work history." onCancel={() => setTicketDeleteOpen(false)} onConfirm={() => void removeTicket()} open={ticketDeleteOpen} title="Delete ticket?" />
@@ -433,20 +492,55 @@ function MentionComposer({ disabled, members, taggedUserIds, value, onChange, on
     const mentionLabel = (member: ProjectMember) => `@${member.name || member.email}`;
     const handleChange = (nextValue: string) => {
         onChange(nextValue);
-        onTaggedUsersChange(taggedUserIds.filter((id) => {
-            const member = members.find((item) => item.user_id === id);
-            return member ? nextValue.includes(mentionLabel(member)) : false;
-        }));
+
+        const validTaggedUserIds = members
+            .filter((member) => {
+                const mention = `@${member.name || member.email}`;
+
+                return (
+                    taggedUserIds.includes(member.user_id) &&
+                    nextValue.includes(mention)
+                );
+            })
+            .map((member) => member.user_id);
+
+        onTaggedUsersChange(
+            Array.from(new Set(validTaggedUserIds)),
+        );
     };
     const selectMember = (member: ProjectMember) => {
         if (!match) return;
-        const prefix = value.slice(0, match.index + match[1].length);
-        const nextValue = `${prefix}${mentionLabel(member)} `;
+
+        const prefix = value.slice(
+            0,
+            match.index + match[1].length,
+        );
+
+        const mention = `@${member.name || member.email}`;
+
+        const nextValue = `${prefix}${mention} `;
+
         onChange(nextValue);
-        onTaggedUsersChange([...taggedUserIds, member.user_id]);
-    };
-    return <div className="relative">
-        <textarea disabled={disabled} value={value} maxLength={5000} onChange={(event) => handleChange(event.target.value)} placeholder="Leave a note for the team... Type @ to mention someone." className="min-h-28 w-full resize-y rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 p-3 text-sm leading-6 text-zinc-700 dark:text-zinc-200 outline-none transition-colors placeholder:text-zinc-600 dark:text-zinc-300 focus:border-zinc-900 dark:focus:border-white focus:ring-2 focus:ring-white/15" />
+
+        onTaggedUsersChange(
+            Array.from(
+                new Set([
+                    ...taggedUserIds,
+                    member.user_id,
+                ]),
+            ),
+        );
+
+    }; return <div className="relative">
+        <textarea
+            disabled={disabled}
+            value={value}
+            maxLength={5000}
+            onChange={(event) =>
+                handleChange(event.target.value)
+            }
+            placeholder="Leave a note for the team... Type @ to mention someone."
+            className="min-h-28 w-full resize-y rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 p-3 text-sm leading-6 text-zinc-700 dark:text-zinc-200 outline-none transition-colors placeholder:text-zinc-600 dark:text-zinc-300 focus:border-zinc-900 dark:focus:border-white focus:ring-2 focus:ring-white/15" />
         {suggestions.length > 0 && <div className="absolute bottom-full left-0 z-20 mb-2 w-full max-w-sm overflow-hidden border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 shadow-lg"><p className="border-b border-zinc-200 dark:border-zinc-800 px-3 py-2 text-[10px] uppercase tracking-[.14em] text-zinc-600 dark:text-zinc-400">Mention a project member</p>{suggestions.map((member) => <button className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-900 focus-visible:bg-zinc-100 dark:focus-visible:bg-zinc-900 focus-visible:outline-none" key={member.user_id} onMouseDown={(event) => { event.preventDefault(); selectMember(member); }} type="button"><span className="flex h-7 w-7 items-center justify-center rounded-full border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-[10px] font-medium text-zinc-700 dark:text-zinc-200">{(member.name || member.email).slice(0, 2).toUpperCase()}</span><span className="min-w-0"><span className="block truncate text-sm text-zinc-800 dark:text-zinc-100">{member.name || member.email}</span><span className="block truncate text-xs text-zinc-600 dark:text-zinc-400">{member.email}</span></span></button>)}</div>}
     </div>;
 }
