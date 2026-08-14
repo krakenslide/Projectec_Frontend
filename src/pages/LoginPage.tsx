@@ -238,7 +238,7 @@ export default function LoginPage() {
           {/* Register */}
           <div className="mt-[52px] flex items-center justify-between gap-[18px] border-t border-[var(--pj-border)] pt-8">
             <span className="text-[11px] text-[var(--pj-muted)]">
-              New to Projectec?
+              New to FlowBase?
             </span>
 
             <Link

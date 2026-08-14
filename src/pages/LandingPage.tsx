@@ -199,7 +199,7 @@ const Nav: FC = () => {
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <LogoMark size={24} />
                 <span style={{ fontFamily: C.mono, fontSize: "11px", letterSpacing: "0.16em", textTransform: "uppercase", color: C.text }}>
-                    Projectec
+                    FlowBase
                 </span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "36px" }}>
@@ -233,7 +233,7 @@ const HeroDashboard: FC<{ animateIn?: boolean }> = ({ animateIn = false }) => (
             <div style={{ display: "flex", gap: "6px" }}>
                 {["#3a3a3a", "#2e2e2e", "#222"].map((c, i) => <div key={i} style={{ width: "8px", height: "8px", borderRadius: "50%", background: c }} />)}
             </div>
-            <span style={{ fontSize: "10px", color: C.muted, letterSpacing: "0.08em" }}>projectec — acme-corp / frontend-platform</span>
+            <span style={{ fontSize: "10px", color: C.muted, letterSpacing: "0.08em" }}>flowbase — acme-corp / frontend-platform</span>
         </div>
 
         <div style={{ display: "flex", height: "480px" }}>
@@ -405,7 +405,7 @@ const Hero: FC = () => {
                 </div>
 
                 <p style={{ fontFamily: C.mono, fontSize: "12px", lineHeight: 1.9, color: C.muted, maxWidth: "400px", margin: "36px 0 44px", ...cs(290) }}>
-                    Projectec gives engineering teams a single workspace for issues, sprints, docs, and AI-powered delivery insights. Built for teams who ship with precision.
+                    FlowBase gives engineering teams a single workspace for issues, sprints, docs, and AI-powered delivery insights. Built for teams who ship with precision.
                 </p>
 
                 <div style={{ display: "flex", gap: "16px", ...cs(370) }}>
@@ -544,7 +544,7 @@ const AIChatMockup: FC<{ animate?: boolean }> = ({ animate = false }) => {
     const msgs = [
         { who: "You", delay: 100, text: <span style={{ color: C.muted }}>Summarize the current sprint blockers.</span> },
         {
-            who: "Projectec AI", delay: 400, text: (
+            who: "FlowBase AI", delay: 400, text: (
                 <>
                     <p style={{ margin: "0 0 12px" }}>Sprint 12 has <span style={{ color: C.text }}>3 active blockers:</span></p>
                     <p style={{ margin: "0 0 7px", color: C.muted }}>— FE-38 missing @dnd-kit types package. Assigned to ML.</p>
@@ -606,7 +606,7 @@ const AISection: FC = () => {
                 <SectionLabel>03 — AI Assistant</SectionLabel>
                 <DisplayHeading size="md">Your project data.<br /><em style={{ fontStyle: "italic", color: C.muted }}>Understood.</em></DisplayHeading>
                 <p style={{ fontFamily: C.mono, fontSize: "12px", lineHeight: 1.9, color: C.muted, maxWidth: "320px", margin: "32px 0 36px" }}>
-                    Projectec's AI reads your live issue data, sprint state, and team docs — then gives answers that are actually useful. No hallucinations about your backlog.
+                    FlowBase's AI reads your live issue data, sprint state, and team docs — then gives answers that are actually useful. No hallucinations about your backlog.
                 </p>
 
                 {/* Staggered example queries */}
@@ -830,7 +830,7 @@ const Footer: FC = () => (
             <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
                     <LogoMark size={24} />
-                    <span style={{ fontSize: "11px", letterSpacing: "0.16em", textTransform: "uppercase", color: C.text }}>Projectec</span>
+                    <span style={{ fontSize: "11px", letterSpacing: "0.16em", textTransform: "uppercase", color: C.text }}>FlowBase</span>
                 </div>
                 <p style={{ fontSize: "11px", lineHeight: 1.85, color: C.muted, maxWidth: "220px", margin: "0 0 24px" }}>
                     Project management for engineering teams who ship without friction.
@@ -851,7 +851,7 @@ const Footer: FC = () => (
             ))}
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "32px", borderTop: `1px solid ${C.border}` }}>
-            <span style={{ fontSize: "10px", color: C.dim, letterSpacing: "0.08em" }}>© 2025 Projectec, Inc.</span>
+            <span style={{ fontSize: "10px", color: C.dim, letterSpacing: "0.08em" }}>© 2025 FlowBase, Inc.</span>
             <span style={{ fontSize: "10px", color: C.dim, letterSpacing: "0.08em" }}>FastAPI · React · PostgreSQL · pgvector</span>
         </div>
     </footer>
