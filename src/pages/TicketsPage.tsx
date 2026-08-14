@@ -54,7 +54,7 @@ const priorityConfig: Record<
         dot: "bg-red-500",
         text: "text-red-700 dark:text-red-300",
         border: "border-red-500/60",
-        bg: "bg-red-50 dark:bg-red-950/20",
+        bg: "bg-red-200 dark:bg-red-950/20",
     },
     P1: {
         label: "Urgent",
@@ -62,7 +62,7 @@ const priorityConfig: Record<
         dot: "bg-orange-500",
         text: "text-orange-700 dark:text-orange-300",
         border: "border-orange-500/60",
-        bg: "bg-orange-50 dark:bg-orange-950/20",
+        bg: "bg-orange-100 dark:bg-orange-950/20",
     },
     P2: {
         label: "High",
@@ -70,7 +70,7 @@ const priorityConfig: Record<
         dot: "bg-amber-500",
         text: "text-amber-700 dark:text-amber-300",
         border: "border-amber-500/60",
-        bg: "bg-amber-50 dark:bg-amber-950/20",
+        bg: "bg-amber-100 dark:bg-amber-950/20",
     },
     P3: {
         label: "Normal",
@@ -78,7 +78,7 @@ const priorityConfig: Record<
         dot: "bg-sky-500",
         text: "text-sky-700 dark:text-sky-300",
         border: "border-sky-500/60",
-        bg: "bg-sky-50 dark:bg-sky-950/20",
+        bg: "bg-sky-100 dark:bg-sky-950/20",
     },
     P4: {
         label: "Low",
@@ -86,7 +86,7 @@ const priorityConfig: Record<
         dot: "bg-zinc-500",
         text: "text-zinc-700 dark:text-zinc-300",
         border: "border-zinc-400 dark:border-zinc-700",
-        bg: "bg-zinc-50 dark:bg-zinc-950/30",
+        bg: "bg-zinc-100 dark:bg-zinc-950/30",
     },
 };
 
@@ -428,7 +428,7 @@ export default function TicketsPage() {
 
                             return (
                                 <button
-                                    className={`inline-flex items-center gap-2 border px-3 py-1.5 text-[10px] font-medium uppercase tracking-[.1em] transition-all ${tone}`}
+                                    className={`inline-flex items-center gap-2 border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.1em] transition-all ${tone}`}
                                     key={status}
                                     onClick={() => {
                                         const next = new URLSearchParams(
@@ -447,7 +447,7 @@ export default function TicketsPage() {
                                 >
                                     {status !== "All" && (
                                         <span
-                                            className={`h-1.5 w-1.5 rounded-full ${statusConfig[status].dot}`}
+                                            className={`h-1.5 w-1.5 text rounded-full ${statusConfig[status].dot}`}
                                         />
                                     )}
 
@@ -889,8 +889,8 @@ function PriorityLegend({
                             transition-all
                             ${config.border}
                             ${active
-                                ? `${config.bg} ${config.text} ring-1 ring-zinc-900 dark:ring-white`
-                                : "bg-white text-zinc-600 hover:bg-zinc-50 dark:bg-transparent dark:text-zinc-300 dark:hover:bg-zinc-900"
+                                ? `${config.bg} ${config.text}`
+                                : `bg-white text-zinc-600 hover:bg-zinc-50 dark:bg-transparent dark:text-zinc-300 dark:hover:bg-zinc-900`
                             }
                         `}
                         key={priority}
@@ -905,10 +905,10 @@ function PriorityLegend({
                         </span>
 
                         {/* Priority name */}
-                        <span>{priority}</span>
+                        <span className="font-bold">{priority}</span>
 
                         {/* Priority label */}
-                        <span className="hidden sm:inline">
+                        <span className="hidden font-bold sm:inline">
                             {config.label}
                         </span>
                     </button>
