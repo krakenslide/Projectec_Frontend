@@ -16,6 +16,7 @@ import AuthErrorOverlay from "./components/AuthErrorOverlay";
 import { NotificationProvider } from "./context/NotificationContext";
 import StandupPage from "./pages/StandupPage";
 import MilestonesPage from "./pages/MilestonesPage";
+import EmailVerifiedPage from "./pages/EmailVerifiedPage";
 
 export default function App() {
   return (
@@ -23,9 +24,10 @@ export default function App() {
       <NotificationProvider>
       <AuthErrorOverlay />
       <Routes>
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/landing" element={<LandingPage />} />
+        <Route path="/verify-email" element={<EmailVerifiedPage />} />
         <Route
           element={
             <ProtectedRoute>
@@ -45,7 +47,7 @@ export default function App() {
           <Route path="/organisations/:organizationId/projects/:projectId/milestones" element={<MilestonesPage />} />
           <Route path="/organisations/:organizationId/projects/:projectId/tickets/:ticketId" element={<TicketDetailPage />} />
         </Route>
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/landing" replace />} />
       </Routes>
       </NotificationProvider>
     </BrowserRouter>
