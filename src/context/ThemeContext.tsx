@@ -20,13 +20,13 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
+  if (typeof window === "undefined") return "light";
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark" || stored === "vi") return stored;
   // Fall back to the user's OS preference; default to dark to match
   // the product's original look when preference can't be detected.
   const prefersLight = window.matchMedia?.("(prefers-color-scheme: light)").matches;
-  return prefersLight ? "light" : "dark";
+  return prefersLight ? "light" : "light";
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
