@@ -387,7 +387,7 @@ function MilestoneKanban({
       sensors={sensors}
     >
       <div className="pj-scrollbar mt-4 w-full overflow-x-auto pb-4">
-        <div className="grid min-w-[900px] grid-cols-6 gap-3">
+        <div className="grid min-w-full max-w-[900px] grid-cols-6 gap-3">
           {statuses.map((status) => (
             <MiniColumn
               key={status}

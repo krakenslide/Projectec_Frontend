@@ -346,7 +346,7 @@ export default function IssueCard({
       ) : null}
 
       {isEditing ? (
-        <form className="flex flex-col gap-6" onSubmit={handleSave}>
+        <form className="flex flex-col gap-4 sm:gap-6" onSubmit={handleSave}>
           <div>
             <label
               htmlFor={`issue-title-${issue.id}`}

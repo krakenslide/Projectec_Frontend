@@ -16,7 +16,7 @@ export function PageHeader({
   return (
     <header className="pj-page-header">
       {back ? <div className="mb-5">{back}</div> : null}
-      <div className="flex flex-wrap items-end justify-between gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-4 sm:gap-6">
         <div>
           {eyebrow ? <p className="pj-kicker">{eyebrow}</p> : null}
           <h1 className="pj-page-title">{title}</h1>

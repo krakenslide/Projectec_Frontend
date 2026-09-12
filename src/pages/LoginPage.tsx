@@ -61,7 +61,7 @@ export default function LoginPage() {
       </div>
 
       {/* LEFT PANEL */}
-      <aside className="hidden min-h-screen w-[44%] flex-col justify-between border-r border-[var(--pj-border)] px-[52px] py-[44px] md:flex">
+      <aside className="hidden min-h-screen w-[44%] flex-col justify-between border-r border-[var(--pj-border)] px-5 sm:px-[52px] py-[44px] md:flex">
         {/* Brand lockup */}
         <div className="flex items-center gap-[11px]">
           <ProjectecLogo

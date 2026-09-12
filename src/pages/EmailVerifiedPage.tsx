@@ -107,8 +107,13 @@ export default function EmailVerifiedPage() {
         <ThemeToggle />
       </div>
 
+      {/* MOBILE BRAND */}
+      <div className="flex items-center gap-[11px] px-5 pt-7 sm:hidden">
+        <ProjectecLogo size={26} delay={100} animate enableHover />
+      </div>
+
       {/* LEFT PANEL */}
-      <aside className="hidden min-h-screen w-[44%] flex-col justify-between border-r border-[var(--pj-border)] px-[52px] py-[44px] md:flex">
+      <aside className="hidden min-h-screen w-[44%] flex-col justify-between sm:flex border-r border-[var(--pj-border)] px-5 sm:px-[52px] py-[44px] md:flex">
         <div className="flex items-center gap-[11px]">
           <ProjectecLogo
             size={26}
@@ -153,7 +158,7 @@ export default function EmailVerifiedPage() {
       </aside>
 
       {/* RIGHT PANEL */}
-      <section className="flex flex-1 items-center justify-center px-6 py-8 md:px-14 md:py-11">
+      <section className="flex flex-1 items-center justify-center px-5 py-8 sm:px-14 sm:py-11 md:px-14 md:py-11">
         <div className="w-full max-w-[352px]">
           {loading ? (
             <>

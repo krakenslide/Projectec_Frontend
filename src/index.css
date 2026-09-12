@@ -598,3 +598,8 @@
     border-color: var(--pj-border);
   }
 }
+
+
+/* Mobile dock safe-area */
+html, body, #root { min-width: 0; }
+body { overflow-x: hidden; }

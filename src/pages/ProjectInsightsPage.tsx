@@ -113,7 +113,7 @@ export default function ProjectInsightsPage({ mode }: { mode: "dashboard" | "boa
                 sensors={sensors}
             >
                 <div className="pj-scrollbar w-full min-w-0 overflow-x-auto overflow-y-visible pb-6">
-                    <div className="grid min-w-[900px] grid-cols-[repeat(6,minmax(0,1fr))] items-start gap-3">
+                    <div className="grid min-w-full max-w-[900px] grid-cols-[repeat(6,minmax(0,1fr))] items-start gap-3">
                         {statuses.map((status) => (
                             <KanbanColumn key={status} status={status} tickets={grouped(status)} isOver={overStatus === status} />
                         ))}
