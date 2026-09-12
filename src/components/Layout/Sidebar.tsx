@@ -119,7 +119,7 @@ export default function Sidebar({
                         : "w-60",
             ].join(" ")}
         >
-            <div className="flex h-20 items-center justify-between border-b border-zinc-200 dark:border-zinc-800 px-5">
+            <div className="hidden sm:flex h-20 items-center justify-between border-b border-zinc-200 dark:border-zinc-800 px-5">
                 <button
                     aria-label="Go to organisations"
                     className="rounded-sm bg-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"

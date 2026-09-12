@@ -25,9 +25,9 @@ export function Button({
   type = "button",
   variant = "secondary",
   ...props
-}: ButtonProps) {
+, onClick}: ButtonProps) {
   return (
-    <button
+    <button onClick={onClick}
       className={`ui-btn ${variantClass[variant]} ${className}`}
       disabled={disabled || isLoading}
       type={type}

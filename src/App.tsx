@@ -47,7 +47,7 @@ export default function App() {
           <Route path="/organisations/:organizationId/projects/:projectId/milestones" element={<MilestonesPage />} />
           <Route path="/organisations/:organizationId/projects/:projectId/tickets/:ticketId" element={<TicketDetailPage />} />
         </Route>
-        <Route path="*" element={<Navigate to="/landing" replace />} />
+<Route path="*" element={<Navigate to="/landing" replace />} />
       </Routes>
       </NotificationProvider>
     </BrowserRouter>
