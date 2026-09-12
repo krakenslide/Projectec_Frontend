@@ -559,7 +559,7 @@ function TicketMeta({
                 {value}
             </p>
 
-            <p className="mt-0.5 text-[9px] uppercase tracking-[.08em] text-zinc-500 dark:text-zinc-500">
+            <p className="mt-0.5 text-[9px] uppercase tracking-[.08em] text-zinc-500 dark:text-zinc-400">
                 {label}
             </p>
         </div>
@@ -677,7 +677,7 @@ function TicketRow({
                                         {assignee.name || assignee.email}
                                     </p>
 
-                                    <p className="mt-0.5 text-[9px] uppercase tracking-[.08em] text-zinc-500 dark:text-zinc-500">
+                                    <p className="mt-0.5 text-[9px] uppercase tracking-[.08em] text-zinc-500 dark:text-zinc-400">
                                         Assignee
                                     </p>
                                 </div>
@@ -722,14 +722,14 @@ function TicketRow({
                         {/* Demo */}
                         {ticket.demo_link && (
                             <div className="flex items-center gap-2">
-                                <Link2 className="h-3.5 w-3.5 text-zinc-500 dark:text-zinc-500" />
+                                <Link2 className="h-3.5 w-3.5 text-zinc-500 dark:text-zinc-400" />
 
                                 <div>
                                     <p className="text-[10px] font-medium text-zinc-800 dark:text-zinc-200">
                                         Demo
                                     </p>
 
-                                    <p className="mt-0.5 text-[9px] uppercase tracking-[.08em] text-zinc-500 dark:text-zinc-500">
+                                    <p className="mt-0.5 text-[9px] uppercase tracking-[.08em] text-zinc-500 dark:text-zinc-400">
                                         Attached
                                     </p>
                                 </div>

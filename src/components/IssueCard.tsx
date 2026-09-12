@@ -21,6 +21,7 @@ import {
 import { getErrorMessage } from "../api/client";
 import type { Issue, IssuePriority, IssueStatus } from "../types/issue";
 import { getIssuePriorityTone, issuePriorityTone } from "../utils/issuePriority";
+import { IconButton } from "./ui/IconButton";
 
 interface Props {
   issue: Issue;
@@ -47,42 +48,6 @@ const priorityOptions: { value: IssuePriority; label: string }[] = [
 ];
 
 const iconClass = "h-3.5 w-3.5 shrink-0";
-
-function IconButton({
-  children,
-  label,
-  onClick,
-  title,
-  dragProps,
-  danger = false,
-}: {
-  children: React.ReactNode;
-  label: string;
-  onClick?: () => void;
-  title?: string;
-  dragProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
-  danger?: boolean;
-}) {
-  return (
-    <button
-      {...dragProps}
-      aria-label={label}
-      className={[
-        "inline-flex h-8 w-8 items-center justify-center border border-transparent bg-transparent",
-        "rounded-none transition-all duration-200",
-        danger
-          ? "text-[#52525b] dark:text-[#9a9a9a] hover:border-[#b91c1c] dark:hover:border-[#f2867d] hover:bg-[#fef2f2] dark:hover:bg-[#1a0d0d] hover:text-[#b91c1c] dark:hover:text-[#ffb3b3]"
-          : "text-[#52525b] dark:text-[#b8b8b8] hover:border-[#52525b] dark:hover:border-[#8a8a8a] hover:bg-[#f4f4f5] dark:hover:bg-[#111111] hover:text-[#171717] dark:hover:text-[#ffffff]",
-        dragProps?.className ?? "",
-      ].join(" ")}
-      onClick={onClick}
-      title={title}
-      type="button"
-    >
-      {children}
-    </button>
-  );
-}
 
 function PrimaryButton({
   children,
