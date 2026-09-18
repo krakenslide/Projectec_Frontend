@@ -6,7 +6,6 @@ import {
     Plus,
     Search,
     Settings2,
-    UserRound,
     X,
 } from "lucide-react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -46,6 +45,7 @@ const priorityConfig: Record<
         text: string;
         border: string;
         bg: string;
+        ring: string;
     }
 > = {
     P0: {
@@ -55,6 +55,7 @@ const priorityConfig: Record<
         text: "text-red-700 dark:text-red-300",
         border: "border-red-500/60",
         bg: "bg-red-200 dark:bg-red-950/20",
+        ring: "border-red-500/60",
     },
     P1: {
         label: "Urgent",
@@ -63,6 +64,7 @@ const priorityConfig: Record<
         text: "text-orange-700 dark:text-orange-300",
         border: "border-orange-500/60",
         bg: "bg-orange-100 dark:bg-orange-950/20",
+        ring: "border-orange-500/60",
     },
     P2: {
         label: "High",
@@ -71,6 +73,7 @@ const priorityConfig: Record<
         text: "text-amber-700 dark:text-amber-300",
         border: "border-amber-500/60",
         bg: "bg-amber-100 dark:bg-amber-950/20",
+        ring: "border-amber-500/60",
     },
     P3: {
         label: "Normal",
@@ -79,6 +82,7 @@ const priorityConfig: Record<
         text: "text-sky-700 dark:text-sky-300",
         border: "border-sky-500/60",
         bg: "bg-sky-100 dark:bg-sky-950/20",
+        ring: "border-sky-500/60",
     },
     P4: {
         label: "Low",
@@ -87,8 +91,61 @@ const priorityConfig: Record<
         text: "text-zinc-700 dark:text-zinc-300",
         border: "border-zinc-400 dark:border-zinc-700",
         bg: "bg-zinc-100 dark:bg-zinc-950/30",
+        ring: "border-zinc-400 dark:border-zinc-700",
     },
 };
+// const priorityConfig: Record<
+//     TicketPriority,
+//     {
+//         label: string;
+//         marker: string;
+//         dot: string;
+//         text: string;
+//         border: string;
+//         bg: string;
+//     }
+// > = {
+//     P0: {
+//         label: "Critical",
+//         marker: "▲",
+//         dot: "bg-red-500",
+//         text: "text-red-700 dark:text-red-300",
+//         border: "border-red-500/60",
+//         bg: "bg-red-200 dark:bg-red-950/20",
+//     },
+//     P1: {
+//         label: "Urgent",
+//         marker: "▲",
+//         dot: "bg-orange-500",
+//         text: "text-orange-700 dark:text-orange-300",
+//         border: "border-orange-500/60",
+//         bg: "bg-orange-100 dark:bg-orange-950/20",
+//     },
+//     P2: {
+//         label: "High",
+//         marker: "●",
+//         dot: "bg-amber-500",
+//         text: "text-amber-700 dark:text-amber-300",
+//         border: "border-amber-500/60",
+//         bg: "bg-amber-100 dark:bg-amber-950/20",
+//     },
+//     P3: {
+//         label: "Normal",
+//         marker: "●",
+//         dot: "bg-sky-500",
+//         text: "text-sky-700 dark:text-sky-300",
+//         border: "border-sky-500/60",
+//         bg: "bg-sky-100 dark:bg-sky-950/20",
+//     },
+//     P4: {
+//         label: "Low",
+//         marker: "▼",
+//         dot: "bg-zinc-500",
+//         text: "text-zinc-700 dark:text-zinc-300",
+//         border: "border-zinc-400 dark:border-zinc-700",
+//         bg: "bg-zinc-100 dark:bg-zinc-950/30",
+//     },
+// };
 
 const statusConfig: Record<
     TicketStatus,
@@ -779,17 +836,17 @@ function TicketRow({
     );
 }
 
-function MetaChip({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    return (
-        <span className="inline-flex items-center gap-1.5 border border-zinc-200 bg-zinc-50 px-2 py-1 text-[9px] uppercase tracking-[.06em] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-400">
-            {children}
-        </span>
-    );
-}
+// function MetaChip({
+//     children,
+// }: {
+//     children: React.ReactNode;
+// }) {
+//     return (
+//         <span className="inline-flex items-center gap-1.5 border border-zinc-200 bg-zinc-50 px-2 py-1 text-[9px] uppercase tracking-[.06em] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-400">
+//             {children}
+//         </span>
+//     );
+// }
 
 function getStatusFilterTone(
     status: TicketStatus,

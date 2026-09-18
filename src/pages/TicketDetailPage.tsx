@@ -529,7 +529,7 @@ function MentionComposer({ disabled, members, taggedUserIds, value, onChange, on
     const match = /(^|\s)@([^\s@]*)$/.exec(value);
     const query = match?.[2].toLowerCase() ?? null;
     const suggestions = query === null ? [] : members.filter((member) => !taggedUserIds.includes(member.user_id) && `${member.name} ${member.email}`.toLowerCase().includes(query)).slice(0, 6);
-    const mentionLabel = (member: ProjectMember) => `@${member.name || member.email}`;
+    // const mentionLabel = (member: ProjectMember) => `@${member.name || member.email}`;
     const handleChange = (nextValue: string) => {
         onChange(nextValue);
 

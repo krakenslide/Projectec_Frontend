@@ -330,7 +330,7 @@ function MilestoneDetail({
                 <YAxis domain={[0, 100]} fontSize={11} stroke="currentColor" strokeOpacity={0.5} tickFormatter={(v) => `${v}%`} tickLine={false} />
                 <Tooltip
                   contentStyle={{ background: "var(--pj-tooltip-bg, #111)", border: "1px solid #333", fontSize: 12 }}
-                  formatter={(value: number) => `${value}%`}
+                  formatter={(value) => `${value ?? 0}%`}
                 />
                 <Line dataKey="Expected" dot={false} stroke="#a1a1aa" strokeDasharray="4 4" strokeWidth={2} type="monotone" />
                 <Line dataKey="Actual" dot={{ r: 3 }} stroke="#10b981" strokeWidth={2} type="monotone" />

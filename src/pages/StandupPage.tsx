@@ -524,20 +524,20 @@ function FilterSelect({
   );
 }
 
-function Avatar({ member }: { member: OrganisationMember }) {
-  const initials = (member.name || member.email)
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+// function Avatar({ member }: { member: OrganisationMember }) {
+//   const initials = (member.name || member.email)
+//     .split(" ")
+//     .map((part) => part[0])
+//     .join("")
+//     .slice(0, 2)
+//     .toUpperCase();
 
-  return (
-    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-[10px] font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-      {initials}
-    </span>
-  );
-}
+//   return (
+//     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-[10px] font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+//       {initials}
+//     </span>
+//   );
+// }
 
 function Metric({
   icon: Icon,

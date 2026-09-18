@@ -7,7 +7,6 @@ import {
   X,
   Milestone,
   Users,
-  BarChart3,
   Settings,
   Building2,
   ClipboardCheck,
