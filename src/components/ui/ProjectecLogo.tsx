@@ -11,7 +11,7 @@ interface ProjectecLogoProps {
     loader?: boolean;
 }
 
-const WORD = "FLOWBASE";
+const WORD = "WORKORBIT";
 
 export function ProjectecLogo({
     size = 26,
