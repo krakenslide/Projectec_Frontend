@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProjectsPage from "./pages/ProjectsPage";
@@ -17,6 +17,11 @@ import { NotificationProvider } from "./context/NotificationContext";
 import StandupPage from "./pages/StandupPage";
 import MilestonesPage from "./pages/MilestonesPage";
 import EmailVerifiedPage from "./pages/EmailVerifiedPage";
+
+function RedirectToOrgStandup() {
+  const { organizationId } = useParams();
+  return <Navigate to={`/organisations/${organizationId}/standup`} replace />;
+}
 
 export default function App() {
   return (
@@ -37,12 +42,20 @@ export default function App() {
         >
           <Route path="/organisations" element={<OrganisationPage />} />
           <Route path="/organisations/:organizationId/members" element={<OrganisationMembersPage />} />
+          <Route path="/organisations/:organizationId/standup" element={<StandupPage />} />
           <Route path="/organisations/:organizationId/projects" element={<ProjectsPage />} />
           <Route path="/organisations/:organizationId/projects/:projectId/tickets" element={<TicketsPage />} />
           <Route path="/organisations/:organizationId/projects/:projectId/settings" element={<ProjectSettingsPage />} />
           <Route path="/organisations/:organizationId/projects/:projectId/members" element={<ProjectMembersPage />} />
           <Route path="/organisations/:organizationId/projects/:projectId/dashboard" element={<ProjectInsightsPage mode="dashboard" />} />
-          <Route path="/organisations/:organizationId/projects/:projectId/standup" element={<StandupPage />} />
+          {/* Standup moved to the organisation level (it was never actually
+              project-scoped — see StandupPage, which only ever reads
+              organizationId). This keeps old bookmarked/linked project-level
+              URLs working by redirecting to the new org-level route. */}
+          <Route
+            path="/organisations/:organizationId/projects/:projectId/standup"
+            element={<RedirectToOrgStandup />}
+          />
           <Route path="/organisations/:organizationId/projects/:projectId/board" element={<ProjectInsightsPage mode="board" />} />
           <Route path="/organisations/:organizationId/projects/:projectId/milestones" element={<MilestonesPage />} />
           <Route path="/organisations/:organizationId/projects/:projectId/tickets/:ticketId" element={<TicketDetailPage />} />

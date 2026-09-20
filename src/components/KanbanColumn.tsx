@@ -52,7 +52,7 @@ export default function KanbanColumn({
     <section
       ref={setNodeRef}
       className={[
-        "flex min-h-72 flex-col self-start border bg-transparent",
+        "pj-kanban-column flex min-h-72 flex-col self-start border bg-transparent",
         "rounded-none font-['Inter',ui-sans-serif,sans-serif]",
         "transition-all duration-200",
         isOver

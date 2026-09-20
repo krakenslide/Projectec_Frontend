@@ -16,7 +16,7 @@ export function Alert({
 }: AlertProps) {
   return (
     <div
-      className={`ui-alert ${tone === "error" ? "ui-alert-error" : ""} ${className}`}
+      className={`pj-alert ui-alert ${tone === "error" ? "ui-alert-error" : ""} ${className}`}
       role={tone === "error" ? "alert" : "status"}
       {...props}
     >

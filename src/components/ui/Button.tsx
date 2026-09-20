@@ -24,10 +24,12 @@ export function Button({
   isLoading = false,
   type = "button",
   variant = "secondary",
+  onClick,
   ...props
-, onClick}: ButtonProps) {
+}: ButtonProps) {
   return (
-    <button onClick={onClick}
+    <button
+      onClick={onClick}
       className={`ui-btn ${variantClass[variant]} ${className}`}
       disabled={disabled || isLoading}
       type={type}

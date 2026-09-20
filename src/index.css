@@ -1,156 +1,202 @@
-@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   WORKORBIT DESIGN SYSTEM
+   --------------------------------------------------------------------------
+   ACCENT CONTRACT — read this before adding any lime to the product.
+
+   Lime (--pj-lime, #d8ff58) is the single brand signal. It is expensive:
+   the more surfaces wear it, the less any of them mean. It is allowed in
+   exactly five roles, and nowhere else:
+
+     1. STATE        the one active nav item, the selected tab/filter/chip
+     2. INTENT       the primary action on a view (one per view)
+     3. FOCUS        keyboard focus rings
+     4. AFFORDANCE   the hover rail / edge that says "this row is clickable"
+     5. POSITIVE     on-track progress, done, live, delivered
+
+   Yellow (--pj-yellow) means ATTENTION: at risk, over WIP limit, P1/P2,
+   blocked-adjacent. Red (--pj-red) means FAILURE or DESTRUCTION: P0, errors,
+   delete. Everything else is neutral ink.
+
+   Two hard rules:
+     - Accent never fills a large surface. It is a 2px rail, a dot, a bar,
+       a small chip, or text. Fills are --pj-lime-soft (a tint), never solid.
+     - Hover and active must be distinguishable at a glance. Hover = tinted
+       surface + partial rail. Active = tinted surface + full rail + lime
+       icon + brighter ink.
+   ========================================================================== */
+
 @layer base {
   :root {
     color-scheme: dark;
 
-    /* Dark theme (default). All values below meet WCAG 2.1 AA contrast
-       (>=4.5:1 for body text, >=3:1 for large text/UI) against --pj-bg. */
-    --pj-bg: #080808;
-    --pj-text: #f5f3ee;
-    --pj-muted: #a3a3a3;
-    /* was #555 (~3.3:1, failed AA) -> ~8.9:1 */
-    --pj-dim: #52525b;
-    --pj-border: #52525b;
-    --pj-input-border: #71717a;
-    --pj-error: #f2867d;
-    /* brightened from #b53a3a (~3.9:1) -> ~7.6:1 */
+    /* --- Canvas & surfaces ------------------------------------------- */
+    --pj-bg: #090a08;
+    --pj-panel: #12140f;
+    --pj-panel-raised: #181b15;
+    --pj-panel-muted: #1e221b;
 
-    --pj-placeholder: #6b6b6b;
-    --pj-button-hover: #d8d5ce;
-    --pj-disabled-bg: #1c1c1c;
+    /* --- Ink ---------------------------------------------------------- */
+    --pj-text: #f2f0e7;
+    --pj-muted: #aeb0a6;
+    --pj-dim: #858980;
+    --pj-placeholder: #858980;
 
+    /* --- Lines -------------------------------------------------------- */
+    --pj-border: rgba(244, 242, 233, .13);
+    --pj-border-strong: rgba(244, 242, 233, .24);
+    --pj-input-border: rgba(244, 242, 233, .30);
+
+    /* --- Accent: lime ------------------------------------------------- */
+    /* Two accent tokens, because one colour cannot do both jobs.
+
+       --pj-lime        STRUCTURAL. Rails, dots, markers, progress fills,
+                        borders, focus. Must contrast against the *canvas*.
+       --pj-lime-vivid  SURFACE FILL. Primary buttons, the selected standup
+                        block, selection highlight. Carries dark ink on top,
+                        so it must contrast against --pj-on-lime instead.
+
+       On dark they are the same colour. On light they cannot be: neon on
+       cream is roughly 1.1:1, so a structural neon rail is invisible. */
+    --pj-lime: #d8ff58;
+    --pj-lime-vivid: #d8ff58;
+    --pj-lime-vivid-strong: #e5ff86;
+    --pj-lime-strong: #e5ff86;
+    --pj-lime-soft: rgba(216, 255, 88, .07);
+    --pj-lime-tint: rgba(216, 255, 88, .11);
+    --pj-lime-line: rgba(216, 255, 88, .34);
+    --pj-lime-glow: rgba(216, 255, 88, .16);
+    --pj-on-lime: #10120b;
+
+    /* Accent text is the *readable* accent. Never use --pj-lime for body
+       copy: on dark it is fine, on light it is unreadable. */
+    --pj-accent-text: #d8ff58;
+
+    /* --- Attention: yellow -------------------------------------------- */
+    --pj-yellow: #f1d75b;
+    --pj-yellow-soft: rgba(241, 215, 91, .075);
+    --pj-yellow-line: rgba(241, 215, 91, .34);
+    --pj-warning-text: #f1d75b;
+
+    /* --- Failure: red -------------------------------------------------- */
+    --pj-red: #ff8278;
+    --pj-red-soft: rgba(255, 130, 120, .07);
+    --pj-red-line: rgba(255, 130, 120, .36);
+    --pj-error: #ff8278;
+
+    /* --- Interaction --------------------------------------------------- */
+    --pj-hover-surface: #171a14;
+    --pj-active-surface: #1b1f17;
+    --pj-disabled-bg: #171a14;
+    --pj-focus: #d8ff58;
+    --pj-rail: 2px;
+    --pj-tooltip-bg: #181b15;
+    --pj-shadow-color: 0, 0, 0;
+    --pj-scrim: rgba(4, 5, 3, .78);
+
+    /* --- Type ---------------------------------------------------------- */
     --font-serif: "Instrument Serif", Georgia, serif;
-    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    --font-mono: "Inter", ui-sans-serif, system-ui, sans-serif;
-    /* kept for legacy class refs, no longer monospace */
+    --font-sans: "Inter", "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-    --duration-fast: 200ms;
-    --duration-normal: 250ms;
-
-    /* Semantic color tokens consumed by tailwind.config.js
-       (rgb(var(--color-x) / <alpha-value>)). Values are space-separated
-       R G B triplets. All pairings below meet WCAG AA (>=4.5:1 text,
-       >=3:1 large text/UI) against their intended background. */
-    --color-canvas: 8 8 8;
-    /* page background */
-    --color-surface: 17 17 17;
-    --color-surface-raised: 24 24 24;
-    --color-surface-muted: 32 32 32;
-    --color-border: 82 82 91;
-    --color-border-strong: 113 113 122;
-    --color-ink: 245 243 238;
-    /* primary text, ~17.5:1 on canvas */
-    --color-ink-muted: 163 163 163;
-    /* ~8.9:1 on canvas */
-    --color-ink-subtle: 120 120 120;
-    /* ~4.6:1 on canvas, decorative only */
-    --color-accent: 129 140 248;
-    /* indigo-400, ~6.2:1 on canvas */
-    --color-accent-strong: 165 180 252;
-    --color-accent-soft: 30 30 55;
-    --color-success: 74 222 128;
-    /* green-400, ~9.9:1 on canvas */
-    --color-success-soft: 20 36 26;
-    --color-warning: 250 204 21;
-    /* yellow-400, ~14.6:1 on canvas */
-    --color-warning-soft: 40 33 12;
-    --color-danger: 248 113 113;
-    /* red-400, ~7.6:1 on canvas */
-    --color-danger-soft: 42 20 20;
-
-    --radius-control: 6px;
-    --radius-panel: 12px;
-    --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
-    --shadow-popover: 0 4px 12px rgba(0, 0, 0, 0.45), 0 16px 40px rgba(0, 0, 0, 0.4);
+    /* --- Motion & shape ------------------------------------------------ */
+    --duration-fast: 160ms;
+    --duration-normal: 240ms;
+    --ease-pj: cubic-bezier(.16, 1, .3, 1);
+    --radius-control: 0px;
+    --radius-panel: 2px;
+    --shadow-panel: 0 1px 0 rgba(255, 255, 255, .025), 0 20px 55px rgba(0, 0, 0, .22);
+    --shadow-popover: 0 18px 60px rgba(0, 0, 0, .48), 0 2px 0 rgba(255, 255, 255, .03);
   }
 
-  /* Light theme overrides, applied via the `light` class on <html>
-     (see ThemeProvider). Also meets WCAG 2.1 AA contrast against --pj-bg. */
   :root.light {
     color-scheme: light;
 
-    --pj-bg: #ffffff;
-    --pj-text: #171717;
-    /* ~18.5:1 on white */
-    --pj-muted: #52525b;
-    /* zinc-600, ~7.5:1 on white */
-    --pj-dim: #d4d4d8;
-    --pj-border: #e4e4e7;
-    --pj-input-border: #d4d4d8;
-    --pj-error: #b91c1c;
-    /* ~6.4:1 on white */
+    --pj-bg: #efede4;
+    --pj-panel: #f8f7f0;
+    --pj-panel-raised: #fffdf7;
+    --pj-panel-muted: #e4e3d9;
 
-    --pj-placeholder: #8a8a92;
-    --pj-button-hover: #27272a;
-    --pj-disabled-bg: #f4f4f5;
+    --pj-text: #151713;
+    --pj-muted: #565a51;
+    --pj-dim: #696d64;
+    --pj-placeholder: #60645b;
 
-    --color-canvas: 255 255 255;
-    --color-surface: 255 255 255;
-    --color-surface-raised: 250 250 250;
-    --color-surface-muted: 244 244 245;
-    --color-border: 228 228 231;
-    --color-border-strong: 212 212 216;
-    --color-ink: 23 23 23;
-    /* ~18.5:1 on canvas */
-    --color-ink-muted: 82 82 91;
-    /* zinc-600, ~7.5:1 on canvas */
-    --color-ink-subtle: 113 113 122;
-    /* zinc-500, ~4.9:1 on canvas */
-    --color-accent: 79 70 229;
-    /* indigo-600, ~6.8:1 on canvas */
-    --color-accent-strong: 55 48 163;
-    --color-accent-soft: 238 242 255;
-    --color-success: 21 128 61;
-    /* green-700, ~5.3:1 on canvas */
-    --color-success-soft: 240 253 244;
-    --color-warning: 161 98 7;
-    /* yellow-700, ~5.0:1 on canvas */
-    --color-warning-soft: 254 252 232;
-    --color-danger: 185 28 28;
-    /* red-700, ~6.4:1 on canvas */
-    --color-danger-soft: 254 242 242;
+    --pj-border: rgba(21, 23, 19, .14);
+    --pj-border-strong: rgba(21, 23, 19, .25);
+    --pj-input-border: rgba(21, 23, 19, .32);
 
-    --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.08);
-    --shadow-popover: 0 4px 12px rgba(0, 0, 0, 0.08), 0 16px 40px rgba(0, 0, 0, 0.1);
+    /* Structural accent is Tailwind's emerald-900, not a custom cypress mix
+       — a colour people already recognise as "green", not olive-yellow or
+       teal. The fill (buttons, the standup selection) is emerald-700,
+       brighter so it reads as a deliberate brand pop, carrying light ink
+       instead of dark — a dark fill needs light text, unlike the neon fill
+       on dark mode. */
+    --pj-lime: #064e3b;
+    --pj-lime-strong: #022c22;
+    --pj-lime-vivid: #047857;
+    --pj-lime-vivid-strong: #065f46;
+    --pj-lime-soft: rgba(6, 78, 59, .07);
+    --pj-lime-tint: rgba(6, 78, 59, .13);
+    --pj-lime-line: rgba(6, 78, 59, .38);
+    --pj-lime-glow: rgba(6, 78, 59, .16);
+    --pj-on-lime: #f5f4ec;
+    --pj-accent-text: #022c22;
+
+    --pj-yellow: #9a7400;
+    --pj-yellow-soft: rgba(146, 108, 5, .08);
+    --pj-yellow-line: rgba(146, 108, 5, .40);
+    --pj-warning-text: #7d5f00;
+
+    --pj-red: #a52f28;
+    --pj-red-soft: rgba(165, 47, 40, .06);
+    --pj-red-line: rgba(165, 47, 40, .34);
+    --pj-error: #a52f28;
+
+    --pj-hover-surface: #e8e6dc;
+    --pj-active-surface: #e1dfd2;
+    --pj-disabled-bg: #deddd3;
+    --pj-focus: #4c6800;
+    --pj-tooltip-bg: #fffdf7;
+    --pj-shadow-color: 38, 42, 28;
+    --pj-scrim: rgba(36, 38, 28, .46);
+
+    --shadow-panel: 0 1px 0 rgba(255, 255, 255, .8), 0 18px 50px rgba(30, 35, 22, .07);
+    --shadow-popover: 0 18px 55px rgba(30, 35, 22, .14), 0 1px 0 rgba(255, 255, 255, .8);
   }
 
-  /* VI (Vodafone Idea) theme. A light-based variant — always paired with the
-     `light` class (see ThemeProvider) — that swaps only the accent palette
-     for VI's brand red. Everything else (surfaces, borders, text) stays the
-     same neutral light tokens on purpose, so the accent reads as a brand
-     touch rather than a full re-skin. Values meet WCAG 2.1 AA (>=4.5:1 text,
-     >=3:1 large text/UI) against the light canvas. */
+  /* Vodafone Idea brand skin: same system, red signal instead of lime. */
   :root.vi {
-    /* Vodafone Idea's core working palette: Vodafone red, Idea yellow,
-       black and white. Red marks primary action/critical work, yellow is
-       reserved for attention states, and the neutral pair keeps dense work
-       surfaces calm and readable. */
-    --color-accent: 230 0 0;
-    /* Vodafone red #e60000 */
-    --color-accent-strong: 173 0 0;
-    /* accessible red hover/active */
-    --color-accent-soft: 254 236 240;
-    /* red tint */
-    --vi-red: #e60000;
-    --vi-red-strong: #ad0000;
-    --vi-red-soft: #feecf0;
-    --vi-yellow: #ffcc00;
-    --vi-yellow-soft: #fff6cc;
-    --vi-black: #171717;
-    --vi-white: #ffffff;
+    --pj-bg: #efede4;
+    --pj-panel: #f8f7f0;
+    --pj-panel-raised: #fffdf7;
+    --pj-panel-muted: #e4e3d9;
+
+    --pj-lime: #c40000;
+    --pj-lime-strong: #9a0000;
+    --pj-lime-vivid: #e60000;
+    --pj-lime-vivid-strong: #c40000;
+    --pj-lime-soft: rgba(230, 0, 0, .06);
+    --pj-lime-tint: rgba(230, 0, 0, .1);
+    --pj-lime-line: rgba(230, 0, 0, .4);
+    --pj-lime-glow: rgba(230, 0, 0, .16);
+    --pj-on-lime: #fff;
+    --pj-accent-text: #c00000;
+    --pj-focus: #c00000;
+
+    --pj-yellow: #a37a00;
+    --pj-warning-text: #7d5f00;
+
+    --pj-hover-surface: #e8e6dc;
+    --pj-active-surface: #e1dfd2;
   }
 
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-    border-color: var(--pj-border);
-  }
+  *, *::before, *::after { box-sizing: border-box; border-color: var(--pj-border); }
 
   html {
     min-height: 100%;
@@ -162,438 +208,1467 @@
   body {
     min-height: 100vh;
     margin: 0;
+    overflow-x: hidden;
     background: var(--pj-bg);
     color: var(--pj-text);
     font-family: var(--font-sans);
   }
 
-  ::selection {
-    background: var(--pj-text);
-    color: var(--pj-bg);
-  }
+  #root { min-height: 100vh; min-width: 0; }
 
-  :focus {
-    outline: none;
-  }
+  ::selection { background: var(--pj-lime-vivid); color: var(--pj-on-lime); }
 
-  :focus-visible {
-    outline: 1px solid var(--pj-text);
-    outline-offset: 3px;
-  }
+  :focus { outline: none; }
+  :focus-visible { outline: 2px solid var(--pj-focus); outline-offset: 2px; }
 
-  button,
-  input,
-  textarea,
-  select {
-    font: inherit;
-  }
+  button, input, textarea, select { font: inherit; }
+  button { cursor: pointer; }
+  button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
 
-  button {
-    cursor: pointer;
-  }
-
-  button:disabled,
-  [aria-disabled="true"] {
-    cursor: not-allowed;
-  }
-
-  input::placeholder,
-  textarea::placeholder {
-    color: var(--pj-placeholder);
-    font-family: var(--font-sans);
-  }
-
-  input:-webkit-autofill,
-  textarea:-webkit-autofill,
-  select:-webkit-autofill {
+  input::placeholder, textarea::placeholder { color: var(--pj-placeholder); opacity: 1; }
+  input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px var(--pj-bg) inset !important;
     -webkit-text-fill-color: var(--pj-text) !important;
     caret-color: var(--pj-text) !important;
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
-
+  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
   th {
     color: var(--pj-muted);
-    font-family: var(--font-sans);
-    font-size: 10px;
-    font-weight: 400;
-    letter-spacing: 0.22em;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: .2em;
     text-align: left;
     text-transform: uppercase;
   }
+  th, td { border-bottom: 1px solid var(--pj-border); padding: 15px 0; vertical-align: middle; }
+  td { color: var(--pj-text); line-height: 1.65; }
+  tbody tr { transition: background-color var(--duration-fast) var(--ease-pj); }
+  tbody tr:hover { background: var(--pj-hover-surface); }
 
-  th,
-  td {
-    border-bottom: 1px solid var(--pj-border);
-    padding: 14px 0;
-    vertical-align: middle;
-  }
+  @keyframes pj-spin { to { transform: rotate(360deg); } }
+  @keyframes pj-fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pj-header-sweep { 0% { transform: translateX(-100%); opacity: 0; } 20% { opacity: .9; } 80% { opacity: .9; } 100% { transform: translateX(220%); opacity: 0; } }
+  @keyframes pj-pulse-ring { 0%, 100% { box-shadow: 0 0 0 0 var(--pj-lime-glow); } 50% { box-shadow: 0 0 0 5px transparent; } }
+  @keyframes pj-glow { 0%, 100% { opacity: .45; } 50% { opacity: .85; } }
+  @keyframes pj-rail-in { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
-  td {
-    color: var(--pj-text);
-    font-family: var(--font-sans);
-    font-size: 12px;
-    line-height: 1.65;
-  }
-
-  tbody tr {
-    transition: color var(--duration-fast), border-color var(--duration-fast);
-  }
-
-  tbody tr:hover {
-    background: transparent;
-  }
-
-  @keyframes pj-spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes pj-fade-in {
-    from {
-      opacity: 0;
-    }
-
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes pj-logo-loader {
-
-    0%,
-    100% {
-      opacity: 0.28;
-      transform: scale(0.72);
-      box-shadow: 0 0 0 rgba(240, 240, 240, 0);
-    }
-
-    35% {
-      opacity: 1;
-      transform: scale(1);
-      box-shadow: 0 0 12px rgba(240, 240, 240, 0.34);
-    }
-  }
-
-  @keyframes pj-header-sweep {
-    0% {
-      transform: translateX(-8%);
-      opacity: 0.25;
-    }
-
-    50% {
-      transform: translateX(105%);
-      opacity: 1;
-    }
-
-    100% {
-      transform: translateX(220%);
-      opacity: 0.25;
-    }
-  }
+  /* Orbit motion, shared by the brand mark and the landing page's giant
+     orbit centerpiece. A satellite's *position* comes from its parent ring
+     rotating; -reverse is applied to a label so it stays upright while its
+     ring keeps turning underneath it. */
+  @keyframes pj-orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes pj-orbit-spin-reverse { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+  @keyframes pj-orbit-spin-fast { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
   @media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
       animation-iteration-count: 1 !important;
       scroll-behavior: auto !important;
-      transition-duration: 0.01ms !important;
+      transition-duration: .01ms !important;
     }
   }
 }
 
+/* ==========================================================================
+   1. ACCENT PRIMITIVES
+   Shared vocabulary so every module signals state the same way.
+   ========================================================================== */
 @layer components {
-  @media (min-width: 1024px) {
-    .pj-standup>.grid {
-      grid-template-columns: minmax(15rem, 24%) minmax(0, 1fr);
-    }
-
-    .pj-standup>.grid>aside:first-child {
-      align-self: start;
-      position: sticky;
-      top: 5rem;
-    }
+  /* The rail: the product's core affordance. Rows, cards and nav items all
+     grow the same 2px lime edge. Partial on hover, full on active. */
+  .pj-rail-host { position: relative; }
+  .pj-rail-host::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--pj-rail);
+    background: var(--pj-lime);
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: transform var(--duration-normal) var(--ease-pj);
+    pointer-events: none;
   }
+  .pj-rail-host:hover::before { transform: scaleY(.45); }
+  .pj-rail-host.is-active::before,
+  .pj-rail-host[aria-current="page"]::before { transform: scaleY(1); }
 
-  /* The priority dashboard needs stronger light-mode signals than the dark
-     palette's pastel accents. These stay semantic outside VI, then use the
-     VI red/yellow palette where it adds useful meaning. */
-  .pj-priority-p0 {
-    border-color: #fca5a5;
-    background: #fef2f2;
-    color: #b91c1c;
-  }
-
-  .pj-priority-p1 {
-    border-color: #fdba74;
-    background: #fff7ed;
-    color: #9a3412;
-  }
-
-  .pj-priority-p2 {
-    border-color: #fcd34d;
-    background: #fffbeb;
-    color: #92400e;
-  }
-
-  .pj-priority-p3 {
-    border-color: #7dd3fc;
-    background: #f0f9ff;
-    color: #075985;
-  }
-
-  .pj-priority-p4 {
-    border-color: #d4d4d8;
-    background: #fafafa;
-    color: #52525b;
-  }
-
-  .dark .pj-priority-p0 {
-    border-color: rgb(248 113 113 / .5);
-    background: rgb(69 10 10 / .25);
-    color: #fca5a5;
-  }
-
-  .dark .pj-priority-p1 {
-    border-color: rgb(251 146 60 / .5);
-    background: rgb(67 20 7 / .25);
-    color: #fdba74;
-  }
-
-  .dark .pj-priority-p2 {
-    border-color: rgb(251 191 36 / .5);
-    background: rgb(69 52 6 / .25);
-    color: #fcd34d;
-  }
-
-  .dark .pj-priority-p3 {
-    border-color: rgb(56 189 248 / .5);
-    background: rgb(8 47 73 / .25);
-    color: #7dd3fc;
-  }
-
-  .dark .pj-priority-p4 {
-    border-color: #3f3f46;
-    background: rgb(9 9 11 / .3);
-    color: #d4d4d8;
-  }
-
-  .vi .pj-priority-p0 {
-    border-color: var(--vi-red);
-    background: var(--vi-red-soft);
-    color: var(--vi-red-strong);
-  }
-
-  .vi .pj-priority-p1 {
-    border-color: #e48a00;
-    background: var(--vi-yellow-soft);
-    color: #6b4c00;
-  }
-
-  .vi .pj-priority-p2 {
-    border-color: var(--vi-yellow);
-    background: #fff9df;
-    color: #5c4500;
-  }
-
-  .vi .pj-dashboard .pj-stat-accent {
-    color: var(--vi-red);
-  }
-
-  .vi .pj-dashboard .pj-flow-accent {
-    background: var(--vi-red);
-  }
-
-  /* Ticket-list priority labels keep light, calm fills in light mode, paired
-     with deliberately deep text and borders so they still scan clearly. */
-  .border-red-400\/50.bg-red-950\/20 {
-    border-color: #fca5a5;
-    background: #fee2e2;
-    color: #991b1b;
-  }
-
-  .border-orange-300\/50.bg-orange-950\/20 {
-    border-color: #fdba74;
-    background: #ffedd5;
-    color: #9a3412;
-  }
-
-  .border-amber-300\/50.bg-amber-950\/20 {
-    border-color: #fcd34d;
-    background: #fef3c7;
-    color: #78350f;
-  }
-
-  .border-sky-300\/50.bg-sky-950\/20 {
-    border-color: #7dd3fc;
-    background: #e0f2fe;
-    color: #075985;
-  }
-
-  .dark .border-red-400\/50.bg-red-950\/20 {
-    border-color: rgb(248 113 113 / .5);
-    background: rgb(69 10 10 / .25);
-    color: #fca5a5;
-  }
-
-  .dark .border-orange-300\/50.bg-orange-950\/20 {
-    border-color: rgb(251 146 60 / .5);
-    background: rgb(67 20 7 / .25);
-    color: #fdba74;
-  }
-
-  .dark .border-amber-300\/50.bg-amber-950\/20 {
-    border-color: rgb(251 191 36 / .5);
-    background: rgb(69 52 6 / .25);
-    color: #fcd34d;
-  }
-
-  .dark .border-sky-300\/50.bg-sky-950\/20 {
-    border-color: rgb(56 189 248 / .5);
-    background: rgb(8 47 73 / .25);
-    color: #7dd3fc;
-  }
-
-  .vi .border-red-400\/50.bg-red-950\/20 {
-    border-color: #f28a97;
-    background: var(--vi-red-soft);
-    color: var(--vi-red-strong);
-  }
-
-  .vi .border-orange-300\/50.bg-orange-950\/20 {
-    border-color: #ee9aa4;
-    background: #fff0f2;
-    color: var(--vi-red-strong);
-  }
-
-  .vi .border-amber-300\/50.bg-amber-950\/20 {
-    border-color: #e8b900;
-    background: var(--vi-yellow-soft);
-    color: #604700;
-  }
-}
-
-@layer components {
-  .pj-scrollbar {
-    scrollbar-color: #3a3a3a transparent;
-    scrollbar-width: thin;
-  }
-
-  .pj-scrollbar::-webkit-scrollbar {
+  /* Live dot with a soft halo — used for "current", "live", "on track". */
+  .pj-dot {
+    display: inline-block;
+    width: 6px;
     height: 6px;
+    flex-shrink: 0;
+    background: var(--pj-lime);
+    box-shadow: 0 0 0 4px var(--pj-lime-glow);
   }
+  .pj-dot-yellow { background: var(--pj-yellow); box-shadow: 0 0 0 4px rgba(241, 215, 91, .14); }
+  .pj-dot-red { background: var(--pj-red); box-shadow: 0 0 0 4px rgba(255, 130, 120, .14); }
 
-  .pj-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+  /* Mono eyebrow, borrowed from the landing page's section numbering. */
+  .pj-kicker, .ui-label {
+    color: var(--pj-muted);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: .22em;
+    text-transform: uppercase;
   }
+  .pj-kicker-accent { color: var(--pj-accent-text); }
 
-  .pj-scrollbar::-webkit-scrollbar-thumb {
-    background: #3a3a3a;
-    border-radius: 999px;
+  /* Underline that draws itself on hover — for inline text links. */
+  .pj-underline {
+    background-image: linear-gradient(var(--pj-lime), var(--pj-lime));
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 0 1px;
+    transition: background-size var(--duration-normal) var(--ease-pj), color var(--duration-fast) var(--ease-pj);
   }
+  .pj-underline:hover { background-size: 100% 1px; color: var(--pj-text); }
 
-  .pj-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #686868;
-  }
+  .pj-scrollbar { scrollbar-color: var(--pj-border-strong) transparent; scrollbar-width: thin; }
+  .pj-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+  .pj-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .pj-scrollbar::-webkit-scrollbar-thumb { background: var(--pj-border-strong); }
+  .pj-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--pj-lime-line); }
+}
 
-  .pj-page {
-    min-height: 100vh;
-    background: var(--pj-bg);
+/* ==========================================================================
+   2. PAGE FRAME & TYPOGRAPHY
+   ========================================================================== */
+@layer components {
+  .pj-page { min-height: 100vh; background: var(--pj-bg); color: var(--pj-text); }
+  .pj-page-enter { animation: pj-fade-in 420ms var(--ease-pj) both; }
+
+  .pj-app-page,
+  .pj-route-content {
+    position: relative;
     color: var(--pj-text);
     font-family: var(--font-sans);
+    letter-spacing: -.005em;
   }
 
-  .pj-page-enter {
-    animation: pj-fade-in 550ms ease both;
+  .pj-app-page h1, .pj-app-page h2, .pj-app-page h3,
+  .pj-route-content h1, .pj-route-content h2 { letter-spacing: -.02em; }
+
+  .pj-app-page h1,
+  .pj-app-page h2.text-3xl, .pj-app-page h2.text-4xl, .pj-app-page h2.text-5xl,
+  .pj-app-page h3.text-3xl,
+  .pj-route-content h1 { font-family: var(--font-serif) !important; font-weight: 400 !important; }
+
+  .pj-route-content label, .pj-route-content th { font-family: var(--font-mono); }
+
+  /* Every page header carries one short lime rule — the view's single
+     "you are here" mark. */
+  .pj-page-header {
+    position: relative;
+    padding: 4px 0 32px;
+    margin-bottom: 34px;
+    border-bottom: 1px solid var(--pj-border);
+  }
+  .pj-page-header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 42px;
+    height: 2px;
+    background: var(--pj-lime);
+  }
+  .pj-page-title {
+    margin: 8px 0 0;
+    color: var(--pj-text);
+    font-family: var(--font-serif);
+    font-size: clamp(44px, 5.3vw, 74px);
+    font-weight: 400;
+    line-height: .92;
+    letter-spacing: -.02em;
+  }
+  .pj-page-copy { max-width: 48rem; margin-top: 13px; color: var(--pj-muted); font-size: 13px; line-height: 1.8; }
+
+  .pj-route-content .pj-app-page > header,
+  .pj-route-content .pj-app-page > .flex.items-end.justify-between,
+  .pj-route-content .pj-app-page > .flex.flex-wrap.items-end.justify-between {
+    position: relative;
+    border-bottom-color: var(--pj-border) !important;
+  }
+  .pj-route-content .pj-app-page > header::after,
+  .pj-route-content .pj-app-page > .flex.items-end.justify-between::after,
+  .pj-route-content .pj-app-page > .flex.flex-wrap.items-end.justify-between::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 36px;
+    height: 2px;
+    background: var(--pj-lime);
   }
 
+  .pj-shell { background: var(--pj-bg) !important; color: var(--pj-text) !important; animation: none !important; }
+}
+
+/* ==========================================================================
+   3. PRIMITIVES — buttons, badges, fields, panels
+   ========================================================================== */
+@layer components {
+  .ui-panel, .ui-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--pj-border);
+    border-radius: var(--radius-panel);
+    background: var(--pj-panel);
+  }
+  .ui-panel { padding: 20px; box-shadow: var(--shadow-panel); }
+  .ui-card {
+    padding: 18px;
+    transition: transform var(--duration-normal) var(--ease-pj),
+                border-color var(--duration-normal) var(--ease-pj),
+                background-color var(--duration-normal) var(--ease-pj),
+                box-shadow var(--duration-normal) var(--ease-pj);
+  }
+  .ui-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--pj-lime-line);
+    background: var(--pj-panel-raised);
+    box-shadow: var(--shadow-panel);
+  }
+
+  /* Cards share the rail affordance. */
+  .ui-card::before, .pj-project-card::before, .pj-issue-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--pj-rail);
+    background: var(--pj-lime);
+    transform: scaleY(0);
+    transition: transform 300ms var(--ease-pj);
+    z-index: 2;
+  }
+  .ui-card:hover::before, .pj-project-card:hover::before, .pj-issue-card:hover::before { transform: scaleY(1); }
+
+  /* --- Buttons --------------------------------------------------------- */
+  .ui-btn {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-panel);
+    padding: 0 17px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    line-height: 1;
+    text-transform: uppercase;
+    transition: transform var(--duration-fast) var(--ease-pj),
+                background-color var(--duration-fast) var(--ease-pj),
+                border-color var(--duration-fast) var(--ease-pj),
+                color var(--duration-fast) var(--ease-pj),
+                box-shadow var(--duration-fast) var(--ease-pj);
+  }
+  .ui-btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .ui-btn:active:not(:disabled) { transform: translateY(0); }
+  .ui-btn:disabled { opacity: .42; transform: none; }
+
+  /* INTENT: the one solid lime element on a view. */
+  .ui-btn-primary { background: var(--pj-lime-vivid); border-color: var(--pj-lime-vivid); color: var(--pj-on-lime); }
+  .ui-btn-primary:hover:not(:disabled) {
+    background: var(--pj-lime-vivid-strong);
+    border-color: var(--pj-lime-vivid-strong);
+    color: var(--pj-on-lime);
+    box-shadow: 0 8px 28px var(--pj-lime-glow);
+  }
+
+  .ui-btn-secondary { border-color: var(--pj-border-strong); background: transparent; color: var(--pj-text); }
+  .ui-btn-secondary:hover:not(:disabled) { border-color: var(--pj-lime); background: var(--pj-lime-soft); color: var(--pj-text); }
+
+  .ui-btn-ghost { background: transparent; color: var(--pj-muted); }
+  .ui-btn-ghost:hover:not(:disabled) { background: var(--pj-lime-soft); color: var(--pj-accent-text); }
+
+  .ui-btn-danger { border-color: var(--pj-red-line); background: var(--pj-red-soft); color: var(--pj-red); }
+  .ui-btn-danger:hover:not(:disabled) { background: color-mix(in srgb, var(--pj-red) 12%, transparent); }
+
+  /* Tailwind's "inverted" buttons that survive in older page markup become
+     the primary intent colour instead of a white slab. Covers both the
+     bg-zinc-900 and the slightly-darker bg-zinc-950 variant some pages use
+     for the same "New X" action — previously only -900 matched, so those
+     buttons stayed a flat black/white slab instead of picking up the brand. */
+  .pj-route-content button[class~="bg-zinc-900"],
+  .pj-route-content button[class~="bg-zinc-950"],
+  .pj-route-content button[class~="dark:bg-white"],
+  .pj-route-content button[class~="dark:bg-[#f5f3ee]"] {
+    background: var(--pj-lime-vivid) !important;
+    border-color: var(--pj-lime-vivid) !important;
+    color: var(--pj-on-lime) !important;
+  }
+  .pj-route-content button[class~="bg-zinc-900"]:hover,
+  .pj-route-content button[class~="bg-zinc-950"]:hover,
+  .pj-route-content button[class~="dark:bg-white"]:hover,
+  .pj-route-content button[class~="dark:bg-[#f5f3ee]"]:hover {
+    background: var(--pj-lime-vivid-strong) !important;
+    border-color: var(--pj-lime-vivid-strong) !important;
+    color: var(--pj-on-lime) !important;
+  }
+
+  /* Neutral bordered buttons pick up the accent edge on hover. */
+  .pj-route-content button[class~="border-zinc-300"]:hover:not(:disabled),
+  .pj-route-content button[class~="dark:border-zinc-700"]:hover:not(:disabled) {
+    border-color: var(--pj-lime-line) !important;
+    color: var(--pj-text) !important;
+  }
+
+  /* A plain outline button using border-zinc-900 / dark:border-white (no
+     matching bg-zinc-900/950 fill) is a secondary action, not a primary
+     one — "Create milestone", "Add member" and similar. It gets a neutral
+     token border rather than a literal black/white line that ignores the
+     theme, but is explicitly excluded wherever the fill rule above already
+     turned the same button into a solid accent pill. */
+  .pj-route-content button[class~="border-zinc-900"]:not([class~="bg-zinc-900"]):not([class~="bg-zinc-950"]),
+  .pj-route-content button[class~="dark:border-white"]:not([class~="dark:bg-white"]):not([class~="dark:bg-[#f5f3ee]"]) {
+    border-color: var(--pj-border-strong) !important;
+    color: var(--pj-text) !important;
+  }
+  .pj-route-content button[class~="border-zinc-900"]:not([class~="bg-zinc-900"]):not([class~="bg-zinc-950"]):hover:not(:disabled),
+  .pj-route-content button[class~="dark:border-white"]:not([class~="dark:bg-white"]):not([class~="dark:bg-[#f5f3ee]"]):hover:not(:disabled) {
+    border-color: var(--pj-lime-line) !important;
+    background: var(--pj-hover-surface) !important;
+  }
+
+  .pj-hard-action, .pj-outline-action, .pj-tab { border-radius: 0 !important; }
+  .pj-outline-action {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    border: 1px solid var(--pj-border-strong);
+    padding: .7rem 1rem;
+    color: var(--pj-text);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    transition: background-color var(--duration-fast) var(--ease-pj),
+                border-color var(--duration-fast) var(--ease-pj),
+                transform var(--duration-fast) var(--ease-pj);
+  }
+  .pj-outline-action:hover:not(:disabled) { border-color: var(--pj-lime); background: var(--pj-lime-soft); transform: translateY(-1px); }
+  .pj-outline-action:disabled { opacity: .45; transform: none; }
+
+  /* --- Tabs / chips: STATE role ---------------------------------------- */
+  .pj-tab {
+    min-height: 38px;
+    padding: 0 .8rem;
+    border-bottom: 2px solid transparent;
+    color: var(--pj-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    transition: color var(--duration-fast) var(--ease-pj), border-color var(--duration-fast) var(--ease-pj);
+  }
+  .pj-tab:hover { color: var(--pj-text); border-bottom-color: var(--pj-lime-line); }
+  .pj-tab.is-active { color: var(--pj-text); border-bottom-color: var(--pj-lime); }
+
+  .pj-board-chip {
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--pj-border);
+    padding: 0 11px;
+    color: var(--pj-muted);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    transition: color var(--duration-fast) var(--ease-pj),
+                border-color var(--duration-fast) var(--ease-pj),
+                background-color var(--duration-fast) var(--ease-pj);
+  }
+  .pj-board-chip:hover { border-color: var(--pj-lime-line); color: var(--pj-text); background: var(--pj-lime-soft); }
+  .pj-board-chip-active {
+    border-color: var(--pj-lime);
+    background: var(--pj-lime-tint);
+    color: var(--pj-accent-text);
+  }
+  .pj-board-chip-active::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    background: var(--pj-lime);
+  }
+
+  /* --- Badges ---------------------------------------------------------- */
+  .ui-badge {
+    display: inline-flex;
+    min-height: 22px;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--pj-border);
+    border-radius: var(--radius-panel);
+    padding: 0 7px;
+    background: transparent;
+    color: var(--pj-muted);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .ui-badge::before { content: ""; width: 4px; height: 4px; background: currentColor; opacity: .85; }
+  .ui-badge-success { border-color: var(--pj-lime-line); background: var(--pj-lime-soft); color: var(--pj-accent-text); }
+  .ui-badge-warning { border-color: var(--pj-yellow-line); background: var(--pj-yellow-soft); color: var(--pj-warning-text); }
+  .ui-badge-danger { border-color: var(--pj-red-line); background: var(--pj-red-soft); color: var(--pj-red); }
+
+  .pj-priority-p0 { color: var(--pj-red) !important; border-color: var(--pj-red-line) !important; background: var(--pj-red-soft) !important; }
+  .pj-priority-p1, .pj-priority-p2 { color: var(--pj-warning-text) !important; border-color: var(--pj-yellow-line) !important; background: var(--pj-yellow-soft) !important; }
+  .pj-priority-p3 { color: var(--pj-accent-text) !important; border-color: var(--pj-lime-line) !important; background: var(--pj-lime-soft) !important; }
+  .pj-priority-p4 { color: var(--pj-muted) !important; border-color: var(--pj-border) !important; background: transparent !important; }
+
+  /* --- Fields ---------------------------------------------------------- */
+  .ui-field { display: block; }
+  .ui-field .ui-label { display: block; margin-bottom: 9px; }
+  .ui-input {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid var(--pj-input-border);
+    border-radius: 0;
+    background: var(--pj-panel);
+    color: var(--pj-text);
+    padding: 10px 12px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color var(--duration-fast) var(--ease-pj), box-shadow var(--duration-fast) var(--ease-pj);
+  }
+  .ui-input:hover { border-color: var(--pj-border-strong); }
+  .ui-input:focus { border-color: var(--pj-lime); box-shadow: 0 1px 0 var(--pj-lime); }
+  textarea.ui-input { min-height: 110px; }
+
+  .pj-route-content input:not([type="checkbox"]):not([type="radio"]),
+  .pj-route-content textarea,
+  .pj-route-content select,
+  .pj-modal input,
+  .pj-assignee-picker > button {
+    border-radius: 0 !important;
+    border-color: var(--pj-input-border) !important;
+    background: var(--pj-panel) !important;
+    color: var(--pj-text) !important;
+    box-shadow: none !important;
+  }
+  .pj-route-content input:focus,
+  .pj-route-content textarea:focus,
+  .pj-route-content select:focus,
+  .pj-modal input:focus {
+    border-color: var(--pj-lime) !important;
+    box-shadow: 0 1px 0 var(--pj-lime) !important;
+  }
+  .pj-route-content input::placeholder,
+  .pj-route-content textarea::placeholder { color: var(--pj-placeholder) !important; }
+  .pj-route-content select option { background: var(--pj-panel-raised); color: var(--pj-text); }
+
+  .pj-field { display: block; }
+  .pj-field > span {
+    display: block;
+    margin-bottom: .55rem;
+    color: var(--pj-muted);
+    font: 500 9px/1 var(--font-mono);
+    letter-spacing: .15em;
+    text-transform: uppercase;
+  }
+  .pj-field input, .pj-field textarea {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--pj-border-strong);
+    border-radius: 0 !important;
+    background: transparent;
+    padding: .75rem 0;
+    color: var(--pj-text);
+    outline: none;
+  }
+  .pj-field textarea { min-height: 88px; resize: vertical; }
+  .pj-field input:focus, .pj-field textarea:focus { border-bottom-color: var(--pj-lime); }
+
+  /* --- Feedback -------------------------------------------------------- */
+  .ui-alert, .pj-alert {
+    display: flex;
+    gap: 11px;
+    border: 1px solid var(--pj-border);
+    border-radius: 0;
+    padding: 13px 14px;
+    background: var(--pj-panel);
+    color: var(--pj-muted);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .ui-alert-error {
+    border: 0;
+    border-left: 2px solid var(--pj-red);
+    background: var(--pj-red-soft);
+    color: var(--pj-red);
+    padding-left: 12px;
+  }
+  .pj-route-content [class*="border-red-"] {
+    border-radius: 0 !important;
+    border-left: 2px solid var(--pj-red) !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    background: var(--pj-red-soft) !important;
+    padding-left: 12px !important;
+  }
+
+  .ui-empty, .pj-empty-state {
+    border-top: 1px solid var(--pj-border);
+    border-bottom: 1px solid var(--pj-border);
+    padding: 4rem 1.5rem;
+    text-align: center;
+  }
+  .ui-empty {
+    display: flex;
+    min-height: 190px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px dashed var(--pj-border-strong);
+  }
+
+  .ui-spinner, .pj-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--pj-border-strong);
+    border-top-color: var(--pj-lime);
+    border-radius: 50%;
+    animation: pj-spin .7s linear infinite;
+  }
+  .pj-spinner { width: 11px; height: 11px; border-width: 1px; }
+
+  .pj-status-text { font: 600 9px/1 var(--font-mono); letter-spacing: .13em; color: var(--pj-muted); }
+  .pj-status-text.pj-yellow { color: var(--pj-warning-text); }
+  .pj-status-text.pj-lime { color: var(--pj-accent-text); }
+}
+
+/* ==========================================================================
+   4. APPLICATION SHELL — header, sidebar, mobile dock
+   ========================================================================== */
+@layer components {
+  .pj-header {
+    height: 68px !important;
+    border-bottom: 1px solid var(--pj-border) !important;
+    background: color-mix(in srgb, var(--pj-bg) 91%, transparent) !important;
+    backdrop-filter: blur(18px);
+  }
+  .pj-header-progress {
+    height: 2px !important;
+    background: linear-gradient(90deg, transparent, var(--pj-lime), transparent) !important;
+    box-shadow: 0 0 16px var(--pj-lime-glow);
+  }
+
+  /* ---------------------------------------------------------------------
+     SIDEBAR
+     Three clearly separated states:
+       rest    muted ink, no surface, no rail
+       hover   text brightens, faint tinted surface, half-height rail
+       active  full-height rail, raised surface, lime icon, bright ink,
+               plus a trailing marker so the state survives a screenshot
+     --------------------------------------------------------------------- */
+  .pj-sidebar {
+    background: var(--pj-panel) !important;
+    border-color: var(--pj-border) !important;
+  }
+  .pj-sidebar > div:first-child,
+  .pj-sidebar > div:last-child { border-color: var(--pj-border) !important; }
+
+  .pj-sidebar-nav { scrollbar-width: thin; scrollbar-color: var(--pj-border-strong) transparent; }
+  .pj-sidebar-nav::-webkit-scrollbar { width: 5px; }
+  .pj-sidebar-nav::-webkit-scrollbar-thumb { background: var(--pj-border-strong); }
+
+  .pj-sidebar a, .pj-sidebar button { border-radius: 0 !important; }
+
+  .pj-sidebar-item {
+    position: relative;
+    isolation: isolate;
+    color: var(--pj-muted);
+    background: transparent;
+    transition: color var(--duration-fast) var(--ease-pj),
+                background-color var(--duration-fast) var(--ease-pj);
+  }
+
+  /* The rail */
+  .pj-sidebar-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: var(--pj-rail);
+    background: var(--pj-lime);
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: transform var(--duration-normal) var(--ease-pj),
+                top var(--duration-normal) var(--ease-pj),
+                bottom var(--duration-normal) var(--ease-pj);
+    z-index: 1;
+  }
+
+  .pj-sidebar-item:hover { color: var(--pj-text); background: var(--pj-hover-surface); }
+  .pj-sidebar-item:hover::before { transform: scaleY(.4); }
+  .pj-sidebar-item:hover svg { color: var(--pj-accent-text); }
+
+  /* Active is a genuinely different surface, not a slightly darker hover:
+     raised panel + lime tint over it, so the two never get confused. */
+  .pj-sidebar-item.is-active {
+    color: var(--pj-text);
+    background:
+      linear-gradient(var(--pj-lime-tint), var(--pj-lime-tint)),
+      var(--pj-active-surface);
+  }
+  .pj-sidebar-item.is-active::before { transform: scaleY(1); top: 0; bottom: 0; }
+  .pj-sidebar-item.is-active svg { color: var(--pj-lime) !important; }
+  .pj-sidebar-item.is-active .pj-sidebar-label { font-weight: 600; letter-spacing: .14em; }
+
+  /* Trailing marker: a small lime tick at the right edge of the active row,
+     so the state is legible even at a glance or in a screenshot. */
+  .pj-sidebar-marker {
+    margin-left: auto;
+    width: 4px;
+    height: 4px;
+    flex-shrink: 0;
+    background: var(--pj-lime);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity var(--duration-normal) var(--ease-pj), transform var(--duration-normal) var(--ease-pj);
+  }
+  .pj-sidebar-item.is-active .pj-sidebar-marker { opacity: 1; transform: translateX(0); }
+
+  .pj-sidebar-item svg {
+    transition: color var(--duration-fast) var(--ease-pj), transform var(--duration-fast) var(--ease-pj);
+  }
+  .pj-sidebar-item:hover svg { transform: translateX(1px); }
+
+  .pj-sidebar-item:focus-visible { outline: 2px solid var(--pj-focus); outline-offset: -2px; }
+
+  /* Collapsed rail: icon-only. The rail alone carries the state. */
+  .pj-sidebar-item.is-collapsed { justify-content: center; }
+  .pj-sidebar-item.is-collapsed .pj-sidebar-marker { display: none; }
+  .pj-sidebar-item.is-collapsed.is-active::before { top: 0; bottom: 0; }
+
+  .pj-sidebar-section-label {
+    color: var(--pj-dim);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+  }
+  .pj-sidebar-context { color: var(--pj-text); font-size: 12px; font-weight: 500; }
+
+  .pj-account-menu {
+    border-color: var(--pj-border-strong) !important;
+    background: var(--pj-panel-raised) !important;
+    box-shadow: var(--shadow-popover) !important;
+  }
+  .pj-sidebar > div:last-child > button {
+    border-radius: 0 !important;
+    background: transparent !important;
+    transition: background-color var(--duration-fast) var(--ease-pj), border-color var(--duration-fast) var(--ease-pj);
+  }
+  .pj-sidebar > div:last-child > button:hover {
+    border-color: var(--pj-lime-line) !important;
+    background: var(--pj-hover-surface) !important;
+  }
+
+  @media (min-width: 1024px) {
+    .pj-sidebar-item { min-height: 42px; }
+  }
+
+  /* --- Mobile dock ------------------------------------------------------ */
+  .pj-mobile-dock {
+    border-radius: 0 !important;
+    border-color: var(--pj-border) !important;
+    background: color-mix(in srgb, var(--pj-panel) 96%, transparent) !important;
+    box-shadow: 0 -10px 35px rgba(var(--pj-shadow-color), .16) !important;
+    backdrop-filter: blur(18px);
+  }
+  .pj-mobile-dock a, .pj-mobile-dock button,
+  .pj-more-sheet a, .pj-more-sheet button { border-radius: 0 !important; }
+  .pj-more-sheet {
+    border-radius: 0 !important;
+    border-color: var(--pj-border-strong) !important;
+    background: var(--pj-panel) !important;
+    box-shadow: var(--shadow-popover) !important;
+  }
+
+  /* --- Popovers --------------------------------------------------------- */
+  .pj-notification-menu {
+    border-radius: 0 !important;
+    border-color: var(--pj-border-strong) !important;
+    background: var(--pj-panel) !important;
+    box-shadow: var(--shadow-popover) !important;
+  }
+  .pj-notification-menu > div:first-child { border-color: var(--pj-border) !important; }
+  .pj-notification-menu button {
+    position: relative;
+    transition: background-color var(--duration-fast) var(--ease-pj);
+  }
+  .pj-notification-menu button:hover { background: var(--pj-hover-surface) !important; }
+  .pj-notification-menu button:hover::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--pj-rail);
+    background: var(--pj-lime);
+  }
+
+  .pj-toast {
+    border: 1px solid var(--pj-border-strong) !important;
+    border-radius: 0 !important;
+    background: var(--pj-panel) !important;
+    box-shadow: var(--shadow-popover) !important;
+    backdrop-filter: blur(18px);
+  }
+  .pj-toast span {
+    border-radius: 0 !important;
+    border-color: var(--pj-lime-line) !important;
+    background: var(--pj-lime-soft) !important;
+    color: var(--pj-accent-text) !important;
+  }
+
+  .pj-modal-backdrop { background: var(--pj-scrim) !important; backdrop-filter: blur(10px); }
+  .pj-modal {
+    border-radius: 0 !important;
+    border-color: var(--pj-border-strong) !important;
+    background: var(--pj-panel) !important;
+    box-shadow: var(--shadow-popover) !important;
+  }
+  .pj-modal h2 { font-family: var(--font-serif); font-size: 30px; font-weight: 400; letter-spacing: -.02em; }
+
+  .pj-assignee-picker > button, .pj-assignee-picker .relative { border-radius: 0 !important; }
+  .pj-assignee-picker .absolute {
+    border-radius: 0 !important;
+    border-color: var(--pj-border-strong) !important;
+    background: var(--pj-panel) !important;
+    box-shadow: var(--shadow-popover);
+    overflow: hidden;
+  }
+  .pj-assignee-picker button:hover { background: var(--pj-hover-surface) !important; }
+  .pj-assignee-picker .text-emerald-300 { color: var(--pj-accent-text) !important; }
+
+  .pj-theme-toggle, .pj-theme-menu button { border-radius: 0 !important; }
+  .pj-theme-toggle:hover, .pj-theme-menu button:hover {
+    background: var(--pj-lime-soft) !important;
+    color: var(--pj-accent-text) !important;
+  }
+}
+
+/* ==========================================================================
+   5. CONTENT SURFACES — cards, rows, directories
+   ========================================================================== */
+@layer components {
+  .pj-project-card, .pj-issue-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--pj-border) !important;
+    border-radius: var(--radius-panel) !important;
+    background: var(--pj-panel) !important;
+    box-shadow: none !important;
+    transition: transform var(--duration-normal) var(--ease-pj),
+                border-color var(--duration-normal) var(--ease-pj),
+                background-color var(--duration-normal) var(--ease-pj),
+                box-shadow var(--duration-normal) var(--ease-pj) !important;
+  }
+  .pj-project-card:hover, .pj-issue-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--pj-lime-line) !important;
+    background: var(--pj-panel-raised) !important;
+    box-shadow: var(--shadow-panel) !important;
+  }
+  .pj-project-card h2, .pj-project-card h3 {
+    font-family: var(--font-serif) !important;
+    font-weight: 400 !important;
+    letter-spacing: -.015em;
+  }
+  .pj-project-card > div:first-child > div:first-child {
+    border-radius: 0 !important;
+    border-color: var(--pj-lime-line) !important;
+    background: transparent !important;
+    color: var(--pj-accent-text) !important;
+  }
+  .pj-project-card svg { transition: transform var(--duration-normal) var(--ease-pj), color var(--duration-normal) var(--ease-pj); }
+  .pj-project-card:hover svg { color: var(--pj-accent-text) !important; }
+  .pj-issue-card:active { cursor: grabbing; }
+
+  /* Rows: directories and queues share one interaction language —
+     tinted surface, indent, lime rail. */
+  .pj-org-row, .pj-project-row, .pj-milestone-row, .pj-ticket-row {
+    position: relative;
+    background: transparent;
+    transition: background-color var(--duration-fast) var(--ease-pj),
+                padding-left var(--duration-fast) var(--ease-pj);
+  }
+  .pj-org-row::before, .pj-project-row::before, .pj-ticket-row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--pj-rail);
+    background: var(--pj-lime);
+    transform: scaleY(0);
+    transition: transform var(--duration-fast) var(--ease-pj);
+  }
+  .pj-org-row:hover, .pj-project-row:hover { background: var(--pj-hover-surface) !important; box-shadow: none !important; }
+  .pj-org-row:hover::before, .pj-project-row:hover::before { transform: scaleY(1); }
+
+  .pj-ticket-row { background: var(--pj-panel); }
+  .pj-ticket-row:hover { background: var(--pj-hover-surface) !important; padding-left: 22px; }
+  .pj-ticket-row:hover::before { transform: scaleY(1); }
+  .pj-milestone-row > button:hover h2 { color: var(--pj-accent-text); }
+
+  /* Attention = yellow rail, never lime. */
+  .pj-attention-card {
+    background: var(--pj-panel);
+    border-left: 2px solid var(--pj-yellow);
+    transition: background-color var(--duration-fast) var(--ease-pj);
+  }
+  .pj-attention-card:hover { background: var(--pj-hover-surface) !important; }
+
+  .pj-route-content table tr:hover { background: var(--pj-hover-surface) !important; }
+
+  .pj-form-surface, .pj-settings-surface, .pj-danger-surface,
+  .pj-standup-panel, .pj-members-panel {
+    border: 1px solid var(--pj-border-strong);
+    background: var(--pj-panel) !important;
+  }
+  .pj-form-surface { padding: 1.5rem; }
+
+  .pj-stat-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid var(--pj-border);
+    border-bottom: 1px solid var(--pj-border);
+  }
+  .pj-stat-strip > div { min-height: 100px; padding: 1.25rem 1rem; border-right: 1px solid var(--pj-border); }
+  .pj-stat-strip > div:last-child { border-right: 0; }
+  .pj-stat-strip span { display: block; color: var(--pj-muted); font: 500 9px/1.2 var(--font-mono); letter-spacing: .15em; }
+  .pj-stat-strip strong { display: block; margin-top: .5rem; color: var(--pj-text); font-family: var(--font-serif); font-size: 2rem; font-weight: 400; line-height: 1; }
+
+  .pj-page-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+
+  /* Member directories stay perfectly still while scrolling — no lift,
+     no rail, just a surface change. Dense lists punish motion. */
+  .pj-member-table-row, .pj-member-row {
+    margin: 0 0 6px;
+    padding-left: 16px;
+    padding-right: 16px;
+    border: 1px solid var(--pj-border) !important;
+    background: var(--pj-panel) !important;
+    transform: none !important;
+    transition: background-color var(--duration-fast) var(--ease-pj), border-color var(--duration-fast) var(--ease-pj) !important;
+  }
+  .pj-member-table-row:hover, .pj-member-row:hover {
+    transform: none !important;
+    background: var(--pj-hover-surface) !important;
+    border-color: var(--pj-lime-line) !important;
+  }
+  .pj-member-table-row::before, .pj-member-row::before { display: none !important; }
+
+  [data-page="members"] article, [data-page="members"] button,
+  .pj-members-list article, .pj-members-list button {
+    transform: none !important;
+    will-change: auto !important;
+  }
+}
+
+/* ==========================================================================
+   6. MODULES — board, milestones, dashboard, tickets, standup, settings
+   ========================================================================== */
+@layer components {
+  /* --- Kanban board ------------------------------------------------------ */
+  .pj-board a, .pj-board button, .pj-board input, .pj-board select { border-radius: 0 !important; }
+
+  .pj-board-column, .pj-milestone-column {
+    min-height: min(70vh, 680px);
+    border-left: 1px solid var(--pj-border);
+    background: var(--pj-panel);
+    transition: background-color var(--duration-normal) var(--ease-pj),
+                border-color var(--duration-normal) var(--ease-pj),
+                box-shadow var(--duration-normal) var(--ease-pj);
+  }
+  .pj-board-column:last-child, .pj-milestone-column:last-child { border-right: 1px solid var(--pj-border); }
+
+  /* Drop target: the accent marks *where the work will land*. */
+  .pj-board-column-over, .pj-milestone-column-over {
+    border-left-color: var(--pj-lime) !important;
+    background: var(--pj-panel-raised) !important;
+    box-shadow: inset 0 0 0 1px var(--pj-lime-line), inset 0 0 40px var(--pj-lime-soft);
+  }
+
+  .pj-board-ticket, .pj-milestone-ticket {
+    cursor: grab;
+    border: 1px solid var(--pj-border);
+    background: var(--pj-panel-raised);
+    padding: 13px;
+    transition: border-color var(--duration-fast) var(--ease-pj), background-color var(--duration-fast) var(--ease-pj);
+  }
+  .pj-board-ticket:hover, .pj-milestone-ticket:hover {
+    transform: none !important;
+    border-color: var(--pj-lime-line);
+    background: var(--pj-hover-surface);
+  }
+  .pj-board-ticket:active { cursor: grabbing; }
+  .pj-board-ticket-dragging {
+    transform: none !important;
+    opacity: .92;
+    border-color: var(--pj-lime) !important;
+    box-shadow: 0 18px 45px rgba(var(--pj-shadow-color), .22), 0 0 0 1px var(--pj-lime-line) !important;
+  }
+
+  .pj-kanban-column { border: 0 !important; border-radius: 0 !important; background: transparent !important; }
+  .pj-kanban-column > div:first-child { border-color: var(--pj-border) !important; border-radius: 0 !important; }
+  .pj-kanban-column [class*="border-dashed"] { border-color: var(--pj-lime-line) !important; border-radius: 0 !important; }
+
+  /* --- Milestones -------------------------------------------------------- */
+  .pj-milestones button, .pj-milestones a, .pj-milestones input { border-radius: 0 !important; }
+  [data-page="milestones"] .pj-app-page [class*="grid"] > *,
+  [data-page="milestones"] .pj-app-page [role="progressbar"] { border-radius: 0 !important; }
+
+  /* --- Dashboard --------------------------------------------------------- */
+  .pj-dashboard button, .pj-dashboard a { border-radius: 0 !important; }
+  .pj-dashboard .border-b, .pj-dashboard .border-t,
+  .pj-dashboard .border-zinc-200, .pj-dashboard .dark\:border-zinc-800 { border-color: var(--pj-border) !important; }
+  .pj-dashboard .text-3xl, .pj-dashboard .text-4xl, .pj-dashboard .text-5xl {
+    font-family: var(--font-serif) !important;
+    font-weight: 400 !important;
+  }
+
+  .pj-dashboard .grid.gap-px { background: var(--pj-border) !important; border-color: var(--pj-border) !important; }
+  .pj-dashboard .grid.gap-px > button {
+    position: relative;
+    background: var(--pj-panel) !important;
+    transition: background-color var(--duration-fast) var(--ease-pj);
+  }
+  .pj-dashboard .grid.gap-px > button::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--pj-rail);
+    background: var(--pj-lime);
+    transform: scaleY(0);
+    transition: transform var(--duration-normal) var(--ease-pj);
+  }
+  .pj-dashboard .grid.gap-px > button:hover { background: var(--pj-hover-surface) !important; }
+  .pj-dashboard .grid.gap-px > button:hover::before { transform: scaleY(1); }
+  [data-page="dashboard"] .pj-dashboard .grid.gap-px > button > p:nth-of-type(1) {
+    font-size: clamp(34px, 3.5vw, 50px) !important;
+    line-height: .9 !important;
+  }
+
+  .pj-dashboard-eyebrow {
+    color: var(--pj-dim);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: .2em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+  .pj-dashboard-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--pj-muted);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    transition: color var(--duration-fast) var(--ease-pj), gap var(--duration-fast) var(--ease-pj);
+  }
+  .pj-dashboard-link:hover { color: var(--pj-accent-text); gap: 10px; }
+  .pj-dashboard-number { font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em; color: var(--pj-dim); }
+  .pj-dashboard-signal { border-left: 2px solid currentColor; padding-left: 8px; font-size: 9px; font-weight: 700; letter-spacing: .16em; }
+  .pj-dashboard-lime, .pj-stat-accent { color: var(--pj-accent-text); }
+  .pj-dashboard-yellow { color: var(--pj-warning-text); }
+  .pj-dashboard-red { color: var(--pj-red); }
+  .pj-dashboard-muted { color: var(--pj-muted); }
+  .pj-flow-accent { background: var(--pj-lime); }
+
+  .pj-dashboard .pj-dashboard-attention { position: relative; overflow: hidden; }
+  .pj-dashboard .pj-dashboard-attention::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--pj-yellow);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 280ms var(--ease-pj);
+  }
+  .pj-dashboard .pj-dashboard-attention:hover::before { transform: scaleY(1); }
+  .pj-dashboard .pj-dashboard-attention:hover { background: var(--pj-hover-surface); }
+  .pj-dashboard .pj-dashboard-attention:hover h3 { color: var(--pj-warning-text); }
+  .pj-dashboard .chart-bar { transform-origin: left center; }
+
+  [data-page="dashboard"] .pj-dashboard section a {
+    border-radius: 0 !important;
+    transition: background-color var(--duration-fast) var(--ease-pj), padding-left var(--duration-fast) var(--ease-pj);
+  }
+  [data-page="dashboard"] .pj-dashboard section a:hover { padding-left: 22px; background: var(--pj-hover-surface) !important; }
+
+  /* --- Ticket queue ------------------------------------------------------- */
+  [data-page="tickets"] .pj-app-page > section:last-child,
+  [data-page="tickets"] .pj-app-page > section:last-child > div.border-t { border-color: var(--pj-border) !important; }
+  [data-page="tickets"] .pj-app-page > section:last-child > button.group {
+    position: relative;
+    border-color: var(--pj-border) !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    background: var(--pj-panel) !important;
+    transition: background-color var(--duration-fast) var(--ease-pj), padding-left var(--duration-fast) var(--ease-pj);
+  }
+  [data-page="tickets"] .pj-app-page > section:last-child > button.group::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: var(--pj-rail);
+    background: var(--pj-lime);
+    transform: scaleY(0);
+    transition: transform var(--duration-fast) var(--ease-pj);
+  }
+  [data-page="tickets"] .pj-app-page > section:last-child > button.group:hover { padding-left: 24px; background: var(--pj-hover-surface) !important; }
+  [data-page="tickets"] .pj-app-page > section:last-child > button.group:hover::before { transform: scaleY(1); }
+  [data-page="tickets"] .pj-app-page > section:last-child > button.group h2 { font-family: var(--font-sans) !important; font-weight: 600 !important; }
+
+  /* Filter chips: the active filter is the only coloured thing in the bar. */
+  /* Filter chips are quiet by default: a hairline border and a hover tint,
+     nothing louder. The old version filled every active chip with a tinted
+     accent background, so a single filter bar could show four or five
+     saturated blocks at once — including "All", active by default with no
+     filter applied at all. An accent means "this is chosen"; it should
+     never be the resting state. Active chips now carry only a border and a
+     text colour, no fill, so one real selection still reads clearly
+     without the whole bar looking lit up. */
+  [data-page="tickets"] .pj-filter-priority,
+  [data-page="tickets"] .pj-filter-status {
+    background: transparent;
+    transition: border-color var(--duration-fast) var(--ease-pj),
+                color var(--duration-fast) var(--ease-pj);
+  }
+  [data-page="tickets"] .pj-filter-priority:hover,
+  [data-page="tickets"] .pj-filter-status:hover {
+    border-color: var(--pj-border-strong) !important;
+    color: var(--pj-text) !important;
+  }
+
+  :root { --pj-filter-border: var(--pj-lime-line); --pj-filter-text: var(--pj-accent-text); }
+
+  [data-page="tickets"] .pj-filter-priority-active,
+  [data-page="tickets"] .pj-filter-status-active {
+    border-color: var(--pj-filter-border) !important;
+    background: transparent !important;
+    color: var(--pj-filter-text) !important;
+    font-weight: 600;
+  }
+
+  /* "All" is the absence of a filter, not a selection — it stays neutral
+     ink so the bar isn't accent-coloured before the person has chosen
+     anything. Everything else keeps the semantic scale, not a rainbow. */
+  [data-page="tickets"] .pj-filter-status-active[data-status="All"] {
+    --pj-filter-border: var(--pj-border-strong);
+    --pj-filter-text: var(--pj-text);
+  }
+  [data-page="tickets"] .pj-filter-priority-active[data-priority="P0"] {
+    --pj-filter-border: var(--pj-red-line);
+    --pj-filter-text: var(--pj-red);
+  }
+  [data-page="tickets"] .pj-filter-priority-active[data-priority="P1"],
+  [data-page="tickets"] .pj-filter-priority-active[data-priority="P2"],
+  [data-page="tickets"] .pj-filter-status-active[data-status="In Progress"],
+  [data-page="tickets"] .pj-filter-status-active[data-status="Testing"] {
+    --pj-filter-border: var(--pj-yellow-line);
+    --pj-filter-text: var(--pj-warning-text);
+  }
+  [data-page="tickets"] .pj-filter-status-active[data-status="In Review"] {
+    --pj-filter-border: rgba(56, 189, 248, .45);
+    --pj-filter-text: #1682ad;
+  }
+  :root:not(.light) [data-page="tickets"] .pj-filter-status-active[data-status="In Review"] { --pj-filter-text: #7dd3fc; }
+  [data-page="tickets"] .pj-filter-status-active[data-status="To Do"],
+  [data-page="tickets"] .pj-filter-status-active[data-status="Closed"] {
+    --pj-filter-border: var(--pj-border-strong);
+    --pj-filter-text: var(--pj-text);
+  }
+
+  [data-page="tickets"] .pj-ticket-row .ticket-bottom-meta { color: var(--pj-muted); }
+  [data-page="tickets"] .pj-ticket-row .ticket-bottom-meta .meta-accent { color: var(--pj-accent-text); }
+  [data-page="tickets"] .pj-ticket-row .ticket-bottom-meta .meta-warning { color: var(--pj-warning-text); }
+  [data-page="tickets"] .pj-ticket-row:hover .ticket-bottom-meta .meta-accent { color: var(--pj-lime); }
+  [data-page="tickets"] .pj-app-page > section:last-of-type > div:last-child { background: transparent; }
+
+  [data-page="tickets"] .pj-app-page > section:first-of-type,
+  [data-page="milestones"] .pj-app-page > section,
+  [data-page="members"] .pj-app-page > section { position: relative; }
+  [data-page="tickets"] .pj-app-page > section:first-of-type::before,
+  [data-page="milestones"] .pj-app-page > section::before {
+    content: "";
+    display: block;
+    width: 28px;
+    height: 2px;
+    background: var(--pj-yellow);
+    margin-bottom: 14px;
+  }
+
+  /* --- Ticket detail ------------------------------------------------------ */
+  [data-page="ticket-detail"] .pj-app-page > header,
+  [data-page="ticket-detail"] .pj-app-page > section:first-of-type { border-color: var(--pj-border) !important; }
+  [data-page="ticket-detail"] .pj-app-page h1 { font-size: clamp(44px, 5.5vw, 70px) !important; max-width: 900px; }
+  [data-page="ticket-detail"] .pj-app-page section { border-radius: 0 !important; }
+  [data-page="ticket-detail"] .pj-app-page textarea { min-height: 130px; }
+
+  /* --- Standup ------------------------------------------------------------ */
+  .pj-standup .border-b, .pj-standup .border-t, .pj-standup .border { border-color: var(--pj-border) !important; }
+  .pj-standup section, .pj-standup .rounded-none { border-radius: 0 !important; }
+  .pj-standup .text-2xl, .pj-standup .text-3xl { font-family: var(--font-serif) !important; font-weight: 400 !important; }
+  [data-page="standup"] .pj-standup h1 { font-size: clamp(44px, 5.5vw, 72px) !important; }
+  [data-page="standup"] .pj-standup > .grid > aside,
+  [data-page="standup"] .pj-standup > .grid > section { background: var(--pj-panel) !important; border-color: var(--pj-border) !important; }
+  [data-page="standup"] .pj-standup article {
+    background: var(--pj-panel) !important;
+    transform: none !important;
+    transition: background-color var(--duration-fast) var(--ease-pj) !important;
+  }
+  [data-page="standup"] .pj-standup article:hover { background: var(--pj-hover-surface) !important; transform: none !important; }
+
+  /* Teammate rail: selection is a solid lime block — this is the one place
+     a filled accent is correct, because picking a person *is* the view. */
+  .pj-standup .pj-member-choice {
+    position: relative;
+    overflow: hidden;
+    border-left: 0 !important;
+    background: transparent !important;
+    transform: none !important;
+    will-change: auto !important;
+    transition: background-color var(--duration-fast) var(--ease-pj),
+                color var(--duration-fast) var(--ease-pj),
+                box-shadow var(--duration-fast) var(--ease-pj);
+  }
+  .pj-standup .pj-member-choice:hover {
+    background: var(--pj-hover-surface) !important;
+    box-shadow: inset 2px 0 0 var(--pj-lime) !important;
+  }
+  .pj-standup .pj-member-choice.is-selected {
+    background: var(--pj-lime-vivid) !important;
+    color: var(--pj-on-lime) !important;
+    box-shadow: inset 4px 0 0 var(--pj-on-lime) !important;
+  }
+  .pj-standup .pj-member-choice.is-selected span { color: var(--pj-on-lime) !important; }
+  .pj-standup .pj-member-choice .pj-member-avatar {
+    background: var(--pj-panel-muted) !important;
+    color: var(--pj-text) !important;
+  }
+  .pj-standup .pj-member-choice.is-selected .pj-member-avatar {
+    background: var(--pj-on-lime) !important;
+    border-color: var(--pj-on-lime) !important;
+    color: var(--pj-lime-vivid) !important;
+  }
+
+  /* --- Settings ----------------------------------------------------------- */
+  [data-page="settings"] .pj-app-page > form,
+  [data-page="settings"] .pj-app-page > section { border-radius: 0 !important; }
+  [data-page="settings"] .pj-app-page h2 { font-family: var(--font-serif) !important; font-weight: 400 !important; }
+
+  .pj-settings-surface { overflow: hidden; box-shadow: var(--shadow-panel); }
+  .pj-settings-field { display: block; }
+  .pj-settings-field > span {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--pj-muted);
+    font: 500 9px/1 var(--font-mono);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  .pj-settings-field input, .pj-settings-field textarea {
+    width: 100%;
+    border: 1px solid var(--pj-input-border);
+    border-radius: 0 !important;
+    background: var(--pj-panel-raised);
+    color: var(--pj-text);
+    outline: none;
+    padding: 13px 14px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .pj-settings-field textarea { min-height: 130px; resize: vertical; }
+  .pj-settings-field input:focus, .pj-settings-field textarea:focus {
+    border-color: var(--pj-lime);
+    box-shadow: inset 0 0 0 1px var(--pj-lime);
+  }
+  .pj-settings-field small { display: block; margin-top: 6px; color: var(--pj-dim); font: 10px var(--font-mono); }
+  .pj-settings-validation { color: var(--pj-red); font-size: 12px; }
+  .pj-settings-primary {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    gap: 9px;
+    border: 1px solid var(--pj-lime-vivid);
+    border-radius: 0 !important;
+    background: var(--pj-lime-vivid);
+    color: var(--pj-on-lime);
+    padding: 0 17px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    transition: background-color var(--duration-fast) var(--ease-pj), box-shadow var(--duration-fast) var(--ease-pj);
+  }
+  .pj-settings-primary:hover:not(:disabled) { background: var(--pj-lime-vivid-strong); box-shadow: 0 8px 28px var(--pj-lime-glow); }
+  .pj-settings-primary:disabled { opacity: .4; cursor: not-allowed; }
+
+  .pj-danger-surface {
+    border: 1px solid color-mix(in srgb, var(--pj-red) 42%, var(--pj-border)) !important;
+    background: color-mix(in srgb, var(--pj-red) 4%, var(--pj-panel)) !important;
+    padding: 20px 24px;
+  }
+  .pj-settings-danger {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border: 1px solid color-mix(in srgb, var(--pj-red) 58%, var(--pj-border));
+    border-radius: 0 !important;
+    background: transparent;
+    color: var(--pj-red);
+    padding: 0 14px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    transition: background-color var(--duration-fast) var(--ease-pj);
+  }
+  .pj-settings-danger:hover:not(:disabled) { background: color-mix(in srgb, var(--pj-red) 9%, transparent); }
+
+  /* --- Organisation / project directories --------------------------------- */
+  [data-page="organisations"] .pj-app-page > .grid > button,
+  [data-page="projects"] .pj-app-page > .grid > button {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 !important;
+    border-color: var(--pj-border) !important;
+    background: var(--pj-panel) !important;
+    min-height: 210px !important;
+    transition: transform var(--duration-normal) var(--ease-pj),
+                background-color var(--duration-normal) var(--ease-pj),
+                border-color var(--duration-normal) var(--ease-pj),
+                box-shadow var(--duration-normal) var(--ease-pj);
+  }
+  [data-page="organisations"] .pj-app-page > .grid > button::before,
+  [data-page="projects"] .pj-app-page > .grid > button::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 38px;
+    background: var(--pj-lime);
+    transition: height 300ms var(--ease-pj);
+  }
+  [data-page="organisations"] .pj-app-page > .grid > button:hover,
+  [data-page="projects"] .pj-app-page > .grid > button:hover {
+    transform: translateY(-3px);
+    border-color: var(--pj-lime-line) !important;
+    background: var(--pj-panel-raised) !important;
+    box-shadow: var(--shadow-panel) !important;
+  }
+  [data-page="organisations"] .pj-app-page > .grid > button:hover::before,
+  [data-page="projects"] .pj-app-page > .grid > button:hover::before { height: 100%; }
+  [data-page="organisations"] .pj-app-page > .grid > button h2,
+  [data-page="projects"] .pj-app-page > .grid > button h2 {
+    font-family: var(--font-serif) !important;
+    font-size: 34px !important;
+    font-weight: 400 !important;
+  }
+  [data-page="organisations"] .pj-app-page > .grid > button svg { color: var(--pj-accent-text) !important; }
+
+  [data-page="organisations"] .pj-app-page > form,
+  [data-page="projects"] .pj-app-page > form {
+    border: 0 !important;
+    border-top: 1px solid var(--pj-border) !important;
+    border-bottom: 1px solid var(--pj-border) !important;
+    background: transparent !important;
+    padding: 26px 0 !important;
+  }
+  [data-page="organisations"] .pj-app-page > form h2,
+  [data-page="projects"] .pj-app-page > form h2 { font-family: var(--font-serif) !important; font-size: 28px; font-weight: 400; }
+
+  /* --- Members ------------------------------------------------------------- */
+  [data-page="members"] .pj-app-page article,
+  [data-page="members"] .pj-app-page section { border-radius: 0 !important; }
+}
+
+/* ==========================================================================
+   7. LEGACY TAILWIND NORMALISATION
+   Older page markup still carries zinc/emerald/sky utilities. Map them onto
+   the system instead of rewriting every page.
+   ========================================================================== */
+@layer components {
+  .pj-route-content [class*="rounded-lg"],
+  .pj-route-content [class*="rounded-xl"],
+  .pj-route-content [class*="rounded-2xl"],
+  .pj-route-content [class*="rounded-md"] { border-radius: var(--radius-panel) !important; }
+
+  .pj-app-page button, .pj-app-page a,
+  .pj-app-page input, .pj-app-page textarea, .pj-app-page select { border-radius: 0 !important; }
+
+  .pj-route-content .border-zinc-200, .pj-route-content .border-zinc-300,
+  .pj-route-content .border-zinc-400, .pj-route-content .border-zinc-600,
+  .pj-route-content .dark\:border-zinc-600, .pj-route-content .dark\:border-zinc-700,
+  .pj-route-content .dark\:border-zinc-800,
+  .pj-app-page hr { border-color: var(--pj-border) !important; }
+  .pj-route-content [class*="border-dashed"] { border-color: var(--pj-border-strong) !important; border-radius: 0 !important; }
+
+  /* Tailwind's divide-y utility sets border-color on a child-combinator
+     selector, not on the element carrying the class, so it needs its own
+     rule rather than being caught by the .border-zinc-* mapping above.
+     This is what actually separates rows in the organisations, projects
+     and members lists — on the cream canvas, raw zinc-200 (~1.08:1
+     contrast) was next to invisible, which is why those pages looked
+     borderless in light mode. */
+  .pj-route-content .divide-zinc-200 > :not([hidden]) ~ :not([hidden]),
+  .pj-route-content .divide-zinc-300 > :not([hidden]) ~ :not([hidden]),
+  .pj-route-content .dark\:divide-zinc-700 > :not([hidden]) ~ :not([hidden]),
+  .pj-route-content .dark\:divide-zinc-800 > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--pj-border) !important;
+  }
+
+  /* Progress-track and other flat zinc fills: same idea as the bg-white /
+     bg-zinc-50 mapping below, extended to the shades this app also uses. */
+  .pj-app-page .bg-zinc-200, .pj-app-page .bg-zinc-300 { background-color: var(--pj-panel-muted) !important; }
+  .pj-app-page .dark\:bg-zinc-600 { background-color: var(--pj-panel-muted) !important; }
+
+  .pj-app-page .bg-white, .pj-app-page .bg-zinc-50, .pj-app-page .bg-zinc-100,
+  .pj-app-page .dark\:bg-zinc-950, .pj-app-page .dark\:bg-zinc-900 { background-color: var(--pj-panel) !important; }
+  .pj-app-page .dark\:bg-\[\#080808\] { background-color: var(--pj-bg) !important; }
+
+  .pj-app-page .text-zinc-900, .pj-app-page .dark\:text-white,
+  .pj-app-page .text-zinc-800, .pj-app-page .dark\:text-zinc-100 { color: var(--pj-text) !important; }
+  .pj-route-content .text-zinc-300,
+  .pj-route-content .text-zinc-400, .pj-app-page .text-zinc-400,
+  .pj-app-page .text-zinc-700, .pj-app-page .text-zinc-600,
+  .pj-app-page .dark\:text-zinc-300 { color: var(--pj-muted) !important; }
+  .pj-route-content .text-zinc-500, .pj-app-page .text-zinc-500 { color: var(--pj-dim) !important; }
+
+  .pj-app-page .hover\:bg-zinc-50:hover, .pj-app-page .hover\:bg-zinc-100:hover,
+  .pj-app-page .dark\:hover\:bg-zinc-900:hover, .pj-app-page .dark\:hover\:bg-zinc-800:hover { background-color: var(--pj-hover-surface) !important; }
+  .pj-app-page .hover\:text-zinc-900:hover, .pj-app-page .dark\:hover\:text-white:hover { color: var(--pj-text) !important; }
+
+  /* Semantic colour remap: green/emerald/sky all collapse to the accent,
+     amber to attention, red to failure. */
+  .pj-app-page .text-emerald-300, .pj-app-page .text-emerald-400,
+  .pj-app-page .text-emerald-700, .pj-app-page .text-green-300, .pj-app-page .text-green-400,
+  .pj-app-page .text-sky-300, .pj-app-page .text-sky-400, .pj-app-page .text-sky-500 { color: var(--pj-accent-text) !important; }
+  .pj-app-page .bg-emerald-300, .pj-app-page .bg-emerald-400,
+  .pj-app-page .bg-green-400, .pj-app-page .bg-sky-500,
+  .pj-dashboard [class*="bg-emerald"], .pj-dashboard [class*="bg-green"] { background-color: var(--pj-lime) !important; }
+
+  .pj-route-content [class*="text-amber"], .pj-route-content [class*="text-yellow"] { color: var(--pj-warning-text) !important; }
+  .pj-route-content [class*="bg-amber"], .pj-route-content [class*="bg-yellow"] {
+    background: var(--pj-yellow-soft) !important;
+    color: var(--pj-text) !important;
+  }
+  .pj-app-page .text-red-300, .pj-app-page .text-red-400, .pj-app-page .text-red-500 { color: var(--pj-red) !important; }
+  .pj-app-page .bg-red-500 { background-color: var(--pj-red) !important; }
+  .pj-app-page [class*="border-amber-"] { border-color: var(--pj-yellow-line) !important; }
+  .pj-app-page [class*="bg-amber-950"] { background: var(--pj-yellow-soft) !important; }
+  .pj-app-page [class*="border-sky-"] { border-color: var(--pj-lime-line) !important; }
+  .pj-app-page [class*="bg-sky-950"] { background: var(--pj-lime-soft) !important; }
+
+  /* Saturated pastel chips become quiet surfaces. */
+  [data-page="tickets"] .pj-app-page [class*="bg-emerald-50"],
+  [data-page="tickets"] .pj-app-page [class*="bg-sky-50"],
+  [data-page="tickets"] .pj-app-page [class*="bg-violet-50"],
+  [data-page="tickets"] .pj-app-page [class*="bg-green-50"],
+  [data-page="standup"] .pj-standup [class*="bg-emerald-50"],
+  [data-page="standup"] .pj-standup [class*="bg-green-50"] {
+    background: var(--pj-lime-soft) !important;
+    color: var(--pj-accent-text) !important;
+  }
+  [data-page="tickets"] .pj-app-page [class*="bg-emerald-100"],
+  [data-page="tickets"] .pj-app-page [class*="bg-sky-100"],
+  [data-page="tickets"] .pj-app-page [class*="bg-violet-100"],
+  [data-page="tickets"] .pj-app-page [class*="bg-green-100"],
+  [data-page="tickets"] .pj-app-page [class*="bg-red-200"],
+  [data-page="tickets"] .pj-app-page [class*="bg-orange-100"],
+  [data-page="tickets"] .pj-app-page [class*="bg-amber-100"] {
+    background: var(--pj-panel-muted) !important;
+    color: var(--pj-text) !important;
+  }
+
+  .pj-app-page .font-mono { font-family: var(--font-mono) !important; }
+  .pj-app-page .font-serif { font-family: var(--font-serif) !important; }
+  .pj-app-page .text-5xl, .pj-app-page .text-4xl, .pj-app-page .text-3xl {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -.025em;
+  }
+  .pj-app-page a { text-underline-offset: 4px; }
+
+  .pj-route-content button:focus-visible, .pj-route-content a:focus-visible,
+  .pj-route-content input:focus-visible, .pj-route-content select:focus-visible,
+  .pj-route-content textarea:focus-visible {
+    outline: 2px solid var(--pj-focus) !important;
+    outline-offset: 2px;
+  }
+}
+
+/* ==========================================================================
+   8. AUTHENTICATION
+   ========================================================================== */
+@layer components {
   .pj-left-panel {
+    position: relative;
+    overflow: hidden;
     width: 44%;
     min-height: 100vh;
     border-right: 1px solid var(--pj-border);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 44px 52px;
+    padding: 48px 56px;
+    background: radial-gradient(circle at 15% 80%, var(--pj-lime-glow), transparent 34%);
   }
+  .pj-right-panel { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 64px; }
 
-  .pj-right-panel {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 44px 56px;
-  }
-
-  .pj-brand {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-  }
-
+  .pj-brand { display: flex; align-items: center; gap: 11px; }
   .pj-brand-mark {
-    width: 26px;
-    height: 26px;
-    border: 1px solid var(--pj-dim);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--pj-lime-line);
+    background: var(--pj-lime-soft);
+    color: var(--pj-accent-text);
   }
+  .pj-brand-wordmark { font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; }
 
-  .pj-brand-wordmark {
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--pj-muted);
-  }
-
-  .pj-kicker {
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--pj-muted);
-  }
-
-  .pj-h1 {
-    font-family: var(--font-serif);
-    font-size: clamp(52px, 5.5vw, 84px);
-    line-height: 0.92;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-  }
-
-  .pj-h2 {
-    font-family: var(--font-serif);
-    font-size: 36px;
-    line-height: 1.05;
-    font-weight: 400;
-  }
-
-  .pj-body {
-    font-size: 12px;
-    line-height: 1.85;
-    color: var(--pj-muted);
-  }
-
-  .pj-label {
-    display: block;
-    margin-bottom: 11px;
-    color: var(--pj-muted);
-    font-size: 10px;
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-  }
+  .pj-h1 { font-family: var(--font-serif); font-size: clamp(54px, 6vw, 88px); line-height: .9; font-weight: 400; letter-spacing: -.025em; }
+  .pj-h2 { font-family: var(--font-serif); font-size: 38px; line-height: .98; font-weight: 400; }
+  .pj-body { color: var(--pj-muted); font-size: 12px; line-height: 1.85; }
+  .pj-label { display: block; margin-bottom: 10px; color: var(--pj-muted); font-family: var(--font-mono); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; }
 
   .pj-input {
     width: 100%;
@@ -602,179 +1677,563 @@
     border-radius: 0;
     background: transparent;
     color: var(--pj-text);
-    padding: 11px 0;
-    font-family: var(--font-sans);
+    padding: 12px 0;
     font-size: 14px;
     outline: none;
-    transition: border-color var(--duration-normal);
+    transition: border-color var(--duration-fast) var(--ease-pj), box-shadow var(--duration-fast) var(--ease-pj);
   }
-
-  .pj-input:focus {
-    border-bottom-color: var(--pj-text);
-  }
+  .pj-input:focus { border-bottom-color: var(--pj-lime); box-shadow: 0 1px 0 var(--pj-lime); }
 
   .pj-btn-primary {
     display: inline-flex;
     width: 100%;
+    min-height: 50px;
     align-items: center;
     justify-content: center;
-    gap: 14px;
-    border: 1px solid var(--pj-text);
+    gap: 12px;
+    border: 1px solid var(--pj-lime-vivid);
     border-radius: 0;
-    background: var(--pj-text);
-    color: var(--pj-bg);
-    padding: 16px 24px;
-    font-family: var(--font-sans);
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    line-height: 1;
-    text-transform: uppercase;
-    transition:
-      background-color var(--duration-normal),
-      border-color var(--duration-normal),
-      color var(--duration-normal);
-  }
-
-  .pj-btn-primary:hover:not(:disabled) {
-    background: var(--pj-button-hover);
-  }
-
-  .pj-btn-primary:disabled {
-    border-color: var(--pj-dim);
-    background: var(--pj-disabled-bg);
-    color: var(--pj-muted);
-  }
-
-  .pj-link-muted {
-    color: var(--pj-muted);
+    background: var(--pj-lime-vivid);
+    color: var(--pj-on-lime);
+    padding: 15px 24px;
     font-size: 10px;
-    letter-spacing: 0.16em;
+    font-weight: 700;
+    letter-spacing: .18em;
     text-transform: uppercase;
-    text-decoration: none;
-    transition: color var(--duration-fast);
+    transition: transform var(--duration-fast) var(--ease-pj), box-shadow var(--duration-fast) var(--ease-pj), background-color var(--duration-fast) var(--ease-pj);
   }
+  .pj-btn-primary:hover:not(:disabled) { transform: translateY(-1px); background: var(--pj-lime-vivid-strong); box-shadow: 0 12px 32px var(--pj-lime-glow); }
+  .pj-btn-primary:disabled { opacity: .42; transform: none; }
 
-  .pj-link-muted:hover {
-    color: var(--pj-text);
-  }
-
+  .pj-link-muted { color: var(--pj-muted); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; transition: color var(--duration-fast) var(--ease-pj); }
+  .pj-link-muted:hover { color: var(--pj-accent-text); }
   .pj-link-rule {
-    border-bottom: 1px solid var(--pj-dim);
+    border-bottom: 1px solid var(--pj-border-strong);
     color: var(--pj-text);
-    padding-bottom: 2px;
-    font-size: 11px;
-    letter-spacing: 0.14em;
+    padding-bottom: 3px;
+    font-size: 10px;
+    letter-spacing: .14em;
     text-transform: uppercase;
     text-decoration: none;
-    transition: border-color var(--duration-fast);
+    transition: border-color var(--duration-fast) var(--ease-pj), color var(--duration-fast) var(--ease-pj);
+  }
+  .pj-link-rule:hover { border-color: var(--pj-lime); color: var(--pj-accent-text); }
+
+  .pj-error { border-top: 1px solid var(--pj-error); border-bottom: 1px solid var(--pj-error); padding: 12px 0; }
+  .pj-error-text { margin: 0; color: var(--pj-error); font-size: 11px; line-height: 1.6; }
+  .pj-section-rule { border-top: 1px solid var(--pj-border); }
+
+  .pj-auth-page .pj-right-panel > * { width: min(100%, 430px); }
+  .pj-auth-page .pj-left-panel::after {
+    content: "";
+    position: absolute;
+    left: 24%;
+    bottom: 9%;
+    width: 1px;
+    height: 220px;
+    background: linear-gradient(var(--pj-lime), transparent);
+    pointer-events: none;
   }
 
-  .pj-link-rule:hover {
-    border-bottom-color: var(--pj-muted);
+  .pj-auth-layout .pj-auth-aside {
+    border-color: var(--pj-border) !important;
+    background: radial-gradient(circle at 20% 75%, var(--pj-lime-glow), transparent 34%);
   }
-
-  .pj-error {
-    padding: 12px 0;
-    border-top: 1px solid var(--pj-error);
-    border-bottom: 1px solid var(--pj-error);
-  }
-
-  .pj-error-text {
-    margin: 0;
-    color: var(--pj-error);
-    font-size: 11px;
-    letter-spacing: 0.05em;
-    line-height: 1.6;
-  }
-
-  .pj-section-rule {
-    border-top: 1px solid var(--pj-border);
-  }
-
-  .pj-spinner {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border: 1px solid #444;
-    border-top-color: var(--pj-muted);
-    border-radius: 50%;
-    animation: pj-spin 750ms linear infinite;
-  }
+  .pj-auth-layout .pj-auth-section { background: radial-gradient(circle at 70% 20%, var(--pj-lime-soft), transparent 30%); }
+  .pj-auth-layout button:hover { transform: translateY(-1px); }
+  .pj-auth-layout input:focus, .pj-auth-layout textarea:focus { border-color: var(--pj-lime) !important; }
 
   @media (max-width: 680px) {
-    .pj-left-panel {
-      display: none;
-    }
-
-    .pj-right-panel {
-      padding: 32px 24px;
-    }
+    .pj-left-panel { display: none; }
+    .pj-right-panel { padding: 32px 22px; }
+    .pj-page-title { font-size: 46px; }
   }
 }
 
+/* ==========================================================================
+   9. LANDING PAGE
+   The marketing surface runs on paper but uses the same signal vocabulary.
+   ========================================================================== */
+@layer components {
+  .pj-landing button, .pj-landing a { transition-timing-function: var(--ease-pj); }
+  .pj-landing .rounded-full { border-radius: 999px !important; }
+
+  .fb-reveal {
+    opacity: 0;
+    transform: translateY(35px);
+    transition:
+      opacity .9s var(--ease-pj) var(--reveal-delay, 0ms),
+      transform .9s var(--ease-pj) var(--reveal-delay, 0ms);
+  }
+  .fb-reveal.is-visible { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   10. UTILITIES
+   ========================================================================== */
 @layer utilities {
-  .font-pj-serif {
-    font-family: var(--font-serif);
+  .font-pj-serif { font-family: var(--font-serif); }
+  .font-pj-mono { font-family: var(--font-mono); }
+  .text-pj { color: var(--pj-text); }
+  .text-pj-muted { color: var(--pj-muted); }
+  .text-pj-dim { color: var(--pj-dim); }
+  .bg-pj { background: var(--pj-bg); }
+  .border-pj { border-color: var(--pj-border); }
+
+  /* Semantic accent utilities always resolve to the *readable* accent so
+     they stay legible when the light theme is active. */
+  .text-pj-lime { color: var(--pj-accent-text) !important; }
+  .text-pj-yellow { color: var(--pj-warning-text) !important; }
+  .text-pj-red { color: var(--pj-red) !important; }
+  .bg-pj-lime { background-color: var(--pj-lime) !important; }
+  .bg-pj-lime-vivid { background-color: var(--pj-lime-vivid) !important; }
+  .bg-pj-yellow { background-color: var(--pj-yellow) !important; }
+  .bg-pj-panel { background-color: var(--pj-panel) !important; }
+  .bg-pj-panel-raised { background-color: var(--pj-panel-raised) !important; }
+  .bg-pj-panel-muted { background-color: var(--pj-panel-muted) !important; }
+}
+
+/* ==========================================================================
+   11. RESPONSIVE
+   ========================================================================== */
+@media (max-width: 1023px) {
+  .pj-header { height: 60px !important; }
+  .pj-app-page { padding-bottom: 5.5rem; }
+  .pj-route-content { padding-inline: 0; padding-bottom: 76px; }
+  .pj-page-title { font-size: clamp(40px, 12vw, 58px) !important; }
+}
+
+@media (max-width: 767px) {
+  .pj-page-hero h1 { font-size: 3.5rem; }
+  .pj-stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pj-stat-strip > div:nth-child(2) { border-right: 0; }
+  .pj-stat-strip > div:nth-child(-n+2) { border-bottom: 1px solid var(--pj-border); }
+  .pj-board-column, .pj-milestone-column { min-height: 360px; }
+  .pj-danger-surface { padding: 18px; }
+}
+
+@media (max-width: 700px) {
+  [data-page="organisations"] .pj-app-page > .grid > button,
+  [data-page="projects"] .pj-app-page > .grid > button { min-height: 180px !important; }
+  [data-page="organisations"] .pj-app-page > .grid > button h2,
+  [data-page="projects"] .pj-app-page > .grid > button h2 { font-size: 30px !important; }
+}
+
+@media (max-width: 640px) {
+  .pj-dashboard header h1 { font-size: 3.65rem; }
+  .pj-dashboard .grid-cols-2 > button:nth-child(even) { border-right: 0; }
+}
+
+/* ==========================================================================
+   12. LIGHT THEME
+   --------------------------------------------------------------------------
+   Light is not dark with the values flipped. Three things behave differently
+   on paper and they are the reason a straight inversion looks wrong:
+
+   1. ELEVATION REVERSES. On ink, a raised surface gets lighter. On paper it
+      gets *whiter and shadowed* — and a pressed/hovered row gets darker
+      rather than brighter. So lifts go toward white; fills go toward warm
+      grey. Both directions are used deliberately below.
+
+   2. THE ACCENT CANNOT DO BOTH JOBS. Neon lime on cream is ~1.1:1. Anything
+      structural (rails, dots, markers, progress, focus) uses the olive
+      --pj-lime; only surfaces carrying dark ink keep the neon.
+
+   3. SHADOWS MUST BE WARM AND SHALLOW. Pure black at 40% reads as dirt on a
+      cream page. Shadows here are warm-grey, low-opacity, and paired with a
+      white top highlight so panels look like paper, not like holes.
+   ========================================================================== */
+@layer components {
+
+  /* --- Canvas separation ------------------------------------------------
+     On ink the sidebar is lighter than the canvas. On paper that inverts:
+     the canvas is the page and the rails sit *behind* it, slightly deeper,
+     so content surfaces read as the top layer. */
+  :root.light .pj-sidebar {
+    background: #e4e1d4 !important;
+    border-color: rgba(21, 23, 19, .12) !important;
+  }
+  :root.light .pj-header {
+    background: color-mix(in srgb, var(--pj-bg) 88%, transparent) !important;
+    border-bottom-color: rgba(21, 23, 19, .12) !important;
+  }
+  :root.light .pj-mobile-dock {
+    background: color-mix(in srgb, #f4f2e9 96%, transparent) !important;
+    box-shadow: 0 -8px 28px rgba(38, 42, 28, .09) !important;
   }
 
-  .font-pj-mono {
-    font-family: var(--font-sans);
-  }
-
-  .text-pj {
+  /* --- Sidebar states ----------------------------------------------------
+     Against the deeper sidebar, hover lifts toward white and active goes
+     to full white with the olive rail. That keeps the same "active is
+     unmistakably different from hover" contract as dark mode, using the
+     opposite elevation direction. */
+  :root.light .pj-sidebar-item { color: #52564d; }
+  :root.light .pj-sidebar-item:hover {
     color: var(--pj-text);
+    background: rgba(255, 255, 255, .45);
+  }
+  :root.light .pj-sidebar-item:hover svg { color: var(--pj-accent-text); }
+  :root.light .pj-sidebar-item.is-active {
+    color: #1a1d16;
+    background:
+      linear-gradient(var(--pj-lime-tint), var(--pj-lime-tint)),
+      #fbfaf4;
+    box-shadow: 0 1px 0 rgba(38, 42, 28, .05);
+  }
+  :root.light .pj-sidebar-item.is-active svg,
+  :root.light .pj-sidebar-item.is-active::before,
+  :root.light .pj-sidebar-marker { color: var(--pj-lime) !important; }
+  :root.light .pj-sidebar-item.is-active::before,
+  :root.light .pj-sidebar-marker { background: var(--pj-lime); }
+  :root.light .pj-sidebar-section-label { color: #6e7268; }
+
+  :root.light .pj-sidebar > div:last-child > button:hover {
+    background: rgba(255, 255, 255, .6) !important;
+    border-color: var(--pj-lime-line) !important;
   }
 
-  .text-pj-muted {
-    color: var(--pj-muted);
+  /* --- Rows and list hovers ---------------------------------------------
+     A hovered row is a *fill*, not a lift, so it warms and deepens. The
+     olive rail supplies the accent that the neon used to fail to provide. */
+  :root.light .pj-org-row:hover,
+  :root.light .pj-project-row:hover,
+  :root.light .pj-ticket-row:hover,
+  :root.light .pj-attention-card:hover,
+  :root.light .pj-member-table-row:hover,
+  :root.light .pj-member-row:hover,
+  :root.light .pj-route-content table tr:hover,
+  :root.light tbody tr:hover,
+  :root.light [data-page="dashboard"] .pj-dashboard section a:hover,
+  :root.light [data-page="tickets"] .pj-app-page > section:last-child > button.group:hover,
+  :root.light .pj-dashboard .grid.gap-px > button:hover,
+  :root.light .pj-dashboard .pj-dashboard-attention:hover,
+  :root.light [data-page="standup"] .pj-standup article:hover {
+    background: #e7e4d8 !important;
   }
 
-  .text-pj-dim {
-    color: var(--pj-dim);
+  :root.light .pj-member-table-row,
+  :root.light .pj-member-row,
+  :root.light .pj-ticket-row {
+    background: #fbfaf4 !important;
   }
 
-  .bg-pj {
-    background: var(--pj-bg);
+  /* --- Cards: lifts go toward white -------------------------------------- */
+  :root.light .ui-card,
+  :root.light .pj-project-card,
+  :root.light .pj-issue-card,
+  :root.light .ui-panel,
+  :root.light .pj-form-surface,
+  :root.light .pj-settings-surface,
+  :root.light .pj-standup-panel,
+  :root.light .pj-members-panel {
+    background: #fbfaf4 !important;
+    border-color: rgba(21, 23, 19, .13) !important;
+  }
+  :root.light .ui-card:hover,
+  :root.light .pj-project-card:hover,
+  :root.light .pj-issue-card:hover,
+  :root.light [data-page="organisations"] .pj-app-page > .grid > button:hover,
+  :root.light [data-page="projects"] .pj-app-page > .grid > button:hover {
+    background: #ffffff !important;
+    border-color: var(--pj-lime-line) !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .9), 0 14px 34px rgba(38, 42, 28, .10) !important;
+  }
+  :root.light [data-page="organisations"] .pj-app-page > .grid > button,
+  :root.light [data-page="projects"] .pj-app-page > .grid > button {
+    background: #fbfaf4 !important;
   }
 
-  .border-pj {
-    border-color: var(--pj-border);
+  /* --- Buttons ------------------------------------------------------------
+     The fill needs a crisp edge, saturated-on-desaturated alone leaves the
+     button shape vague at small sizes. Text stays on --pj-on-lime rather
+     than a hardcoded value: the fill itself is dark now (emerald, not
+     neon), so it needs light ink, not dark — a literal colour here would
+     silently go wrong again the next time the fill token changes, exactly
+     as it did when this fill moved from neon to emerald. */
+  :root.light .ui-btn-primary,
+  :root.light .pj-btn-primary,
+  :root.light .pj-settings-primary,
+  :root.light .pj-route-content button[class~="bg-zinc-900"],
+  :root.light .pj-route-content button[class~="bg-zinc-950"],
+  :root.light .pj-route-content button[class~="dark:bg-white"],
+  :root.light .pj-route-content button[class~="dark:bg-[#f5f3ee]"] {
+    border-color: rgba(21, 23, 19, .30) !important;
+    color: var(--pj-on-lime) !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+  }
+  :root.light .ui-btn-primary:hover:not(:disabled),
+  :root.light .pj-btn-primary:hover:not(:disabled),
+  :root.light .pj-settings-primary:hover:not(:disabled) {
+    border-color: rgba(21, 23, 19, .42) !important;
+    box-shadow: 0 8px 22px rgba(6, 78, 59, .22) !important;
   }
 
-  /* Bring legacy dark utility borders up to the same contrast as the theme tokens. */
-  .dark [class~="dark:border-zinc-800"],
-  .dark [class~="dark:border-[#333]"] {
-    border-color: #52525b !important;
+  :root.light .ui-btn-secondary:hover:not(:disabled),
+  :root.light .pj-outline-action:hover:not(:disabled),
+  :root.light .pj-route-content button[class~="border-zinc-300"]:hover:not(:disabled) {
+    background: #e7e4d8 !important;
+    border-color: var(--pj-lime) !important;
+    color: var(--pj-text) !important;
+  }
+  :root.light .ui-btn-ghost:hover:not(:disabled),
+  :root.light .pj-theme-toggle:hover,
+  :root.light .pj-theme-menu button:hover,
+  :root.light .pj-assignee-picker button:hover,
+  :root.light .pj-notification-menu button:hover {
+    background: #e7e4d8 !important;
+    color: var(--pj-accent-text) !important;
   }
 
-  .dark [class~="dark:border-zinc-700"],
-  .dark [class~="dark:border-[#71717a]"] {
-    border-color: #71717a !important;
+  /* --- Chips, tabs, filters ---------------------------------------------- */
+  :root.light .pj-board-chip:hover,
+  :root.light [data-page="tickets"] .pj-filter-priority:hover,
+  :root.light [data-page="tickets"] .pj-filter-status:hover {
+    background: #e7e4d8 !important;
+    border-color: var(--pj-lime) !important;
+    color: var(--pj-text) !important;
+  }
+  :root.light .pj-board-chip-active {
+    border-color: var(--pj-lime) !important;
+    background: rgba(6, 78, 59, .12) !important;
+    color: var(--pj-accent-text) !important;
+  }
+  :root.light .pj-tab:hover { border-bottom-color: var(--pj-lime-line); }
+  :root.light .pj-tab.is-active { border-bottom-color: var(--pj-lime); }
+
+  /* Filter defaults: cypress, so the selected chip is legible on cream.
+     No background fill token any more — active chips are border + text
+     only (see the base filter rules), so there is nothing to set here but
+     the two colours those chips read from. */
+  :root.light {
+    --pj-filter-border: rgba(6, 78, 59, .45);
+    --pj-filter-text: #022c22;
+  }
+  :root.light [data-page="tickets"] .pj-filter-status-active[data-status="In Review"] {
+    --pj-filter-border: rgba(14, 116, 158, .42);
+    --pj-filter-text: #0e6b8f;
   }
 
-  .dark [class~="dark:border-zinc-600"] {
-    border-color: #a1a1aa !important;
+  /* --- Board and milestone columns ---------------------------------------
+     Columns are paper on a slightly deeper canvas. The drop target warms
+     and gains an olive edge instead of the dark-mode inner glow, which is
+     invisible on light surfaces. */
+  :root.light .pj-board-column,
+  :root.light .pj-milestone-column {
+    background: #fbfaf4;
+    border-color: rgba(21, 23, 19, .12);
+  }
+  :root.light .pj-board-column-over,
+  :root.light .pj-milestone-column-over {
+    background: #f2f6e4 !important;
+    border-left-color: var(--pj-lime) !important;
+    box-shadow: inset 0 0 0 1px var(--pj-lime-line) !important;
+  }
+  :root.light .pj-board-ticket,
+  :root.light .pj-milestone-ticket {
+    background: #ffffff;
+    border-color: rgba(21, 23, 19, .13);
+    box-shadow: 0 1px 2px rgba(38, 42, 28, .05);
+  }
+  :root.light .pj-board-ticket:hover,
+  :root.light .pj-milestone-ticket:hover {
+    background: #ffffff;
+    border-color: var(--pj-lime) !important;
+    box-shadow: 0 4px 12px rgba(38, 42, 28, .10);
+  }
+  :root.light .pj-board-ticket-dragging {
+    background: #ffffff !important;
+    border-color: var(--pj-lime) !important;
+    box-shadow: 0 16px 34px rgba(38, 42, 28, .18), 0 0 0 1px var(--pj-lime-line) !important;
+  }
+  :root.light .pj-kanban-column [class*="border-dashed"] {
+    border-color: rgba(6, 78, 59, .34) !important;
   }
 
-  .dark [class~="dark:border-white"] {
-    border-color: #f5f3ee !important;
+  /* --- Standup teammate rail ---------------------------------------------
+     Selection stays a solid neon block: on paper it is the strongest mark
+     on the page, and the ink on top keeps it readable. Hover, by contrast,
+     stays quiet so the two never compete. */
+  :root.light .pj-standup .pj-member-choice:hover {
+    background: #e7e4d8 !important;
+    box-shadow: inset 2px 0 0 var(--pj-lime) !important;
+  }
+  :root.light .pj-standup .pj-member-choice.is-selected {
+    background: var(--pj-lime-vivid) !important;
+    color: var(--pj-on-lime) !important;
+    box-shadow: inset 4px 0 0 var(--pj-on-lime) !important;
+  }
+  :root.light .pj-standup .pj-member-choice.is-selected span { color: var(--pj-on-lime) !important; }
+  :root.light .pj-standup .pj-member-choice .pj-member-avatar {
+    background: #e2dfd2 !important;
+    color: var(--pj-text) !important;
+  }
+  /* The rule above is scoped to the rest state only — .is-selected needs
+     higher specificity here or it would win regardless of source order
+     (an extra :root.light + un-scoped descendant chain out-specifies the
+     base .is-selected .pj-member-avatar rule), flattening the selected
+     avatar back to looking unselected. */
+  :root.light .pj-standup .pj-member-choice.is-selected .pj-member-avatar {
+    background: var(--pj-on-lime) !important;
+    border-color: var(--pj-on-lime) !important;
+    color: var(--pj-lime-vivid) !important;
   }
 
-  .dark [class*="dark:border-white/"],
-  .dark [class*="border-white/"] {
-    border-color: rgb(245 243 238 / 0.32) !important;
+  /* --- Popovers, modals, toasts ------------------------------------------
+     White, not cream, so they separate from the page behind them. */
+  :root.light .pj-notification-menu,
+  :root.light .pj-more-sheet,
+  :root.light .pj-modal,
+  :root.light .pj-toast,
+  :root.light .pj-account-menu,
+  :root.light .pj-assignee-picker .absolute {
+    background: #ffffff !important;
+    border-color: rgba(21, 23, 19, .16) !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .9), 0 18px 48px rgba(38, 42, 28, .16) !important;
   }
-}
+  :root.light .pj-toast span {
+    background: rgba(6, 78, 59, .1) !important;
+    border-color: var(--pj-lime-line) !important;
+    color: var(--pj-accent-text) !important;
+  }
 
+  /* --- Inputs -------------------------------------------------------------
+     Fields are white against cream so the editable area is obvious; the
+     focus ring is olive, since a neon underline vanishes here. */
+  :root.light .ui-input,
+  :root.light .pj-route-content input:not([type="checkbox"]):not([type="radio"]),
+  :root.light .pj-route-content textarea,
+  :root.light .pj-route-content select,
+  :root.light .pj-modal input,
+  :root.light .pj-settings-field input,
+  :root.light .pj-settings-field textarea,
+  :root.light .pj-assignee-picker > button {
+    background: #ffffff !important;
+    border-color: rgba(21, 23, 19, .22) !important;
+  }
+  :root.light .ui-input:hover,
+  :root.light .pj-route-content input:hover,
+  :root.light .pj-route-content textarea:hover {
+    border-color: rgba(21, 23, 19, .34) !important;
+  }
+  :root.light .ui-input:focus,
+  :root.light .pj-route-content input:focus,
+  :root.light .pj-route-content textarea:focus,
+  :root.light .pj-route-content select:focus,
+  :root.light .pj-modal input:focus {
+    border-color: var(--pj-lime) !important;
+    box-shadow: 0 0 0 3px rgba(6, 78, 59, .14) !important;
+  }
+  :root.light .pj-settings-field input:focus,
+  :root.light .pj-settings-field textarea:focus {
+    border-color: var(--pj-lime);
+    box-shadow: 0 0 0 3px rgba(6, 78, 59, .14);
+  }
+  :root.light .pj-field input:focus,
+  :root.light .pj-field textarea:focus,
+  :root.light .pj-input:focus {
+    border-bottom-color: var(--pj-lime);
+    box-shadow: 0 1px 0 var(--pj-lime);
+  }
 
-/* Mobile dock safe-area */
-html,
-body,
-#root {
-  min-width: 0;
-}
+  /* --- Legacy Tailwind surfaces on paper ---------------------------------- */
+  :root.light .pj-app-page .bg-white,
+  :root.light .pj-app-page .bg-zinc-50,
+  :root.light .pj-app-page .bg-zinc-100 { background-color: #fbfaf4 !important; }
+  :root.light .pj-app-page .hover\:bg-zinc-50:hover,
+  :root.light .pj-app-page .hover\:bg-zinc-100:hover { background-color: #e7e4d8 !important; }
 
-body {
-  overflow-x: hidden;
+  /* Pastel status chips: tinted paper with readable ink, not washed pastel. */
+  :root.light [data-page="tickets"] .pj-app-page [class*="bg-emerald-50"],
+  :root.light [data-page="tickets"] .pj-app-page [class*="bg-green-50"],
+  :root.light [data-page="standup"] .pj-standup [class*="bg-emerald-50"],
+  :root.light [data-page="standup"] .pj-standup [class*="bg-green-50"] {
+    background: rgba(6, 78, 59, .1) !important;
+    color: var(--pj-accent-text) !important;
+  }
+  :root.light [data-page="tickets"] .pj-app-page [class*="bg-emerald-100"],
+  :root.light [data-page="tickets"] .pj-app-page [class*="bg-sky-100"],
+  :root.light [data-page="tickets"] .pj-app-page [class*="bg-violet-100"],
+  :root.light [data-page="tickets"] .pj-app-page [class*="bg-green-100"],
+  :root.light [data-page="tickets"] .pj-app-page [class*="bg-amber-100"] {
+    background: #e7e4d8 !important;
+    color: #2d3128 !important;
+  }
+
+  /* --- Semantic text: all three signals need darkening on paper ----------- */
+  :root.light .pj-route-content [class*="text-amber"],
+  :root.light .pj-route-content [class*="text-yellow"],
+  :root.light .text-pj-yellow,
+  :root.light .pj-dashboard-yellow,
+  :root.light .pj-status-text.pj-yellow { color: #7d5f00 !important; }
+  :root.light .pj-app-page .text-red-300,
+  :root.light .pj-app-page .text-red-400,
+  :root.light .pj-app-page .text-red-500,
+  :root.light .text-pj-red { color: #a52f28 !important; }
+  :root.light .pj-app-page .text-emerald-300,
+  :root.light .pj-app-page .text-emerald-400,
+  :root.light .pj-app-page .text-emerald-700,
+  :root.light .pj-app-page .text-green-300,
+  :root.light .pj-app-page .text-green-400,
+  :root.light .pj-app-page .text-sky-300,
+  :root.light .pj-app-page .text-sky-400,
+  :root.light .pj-app-page .text-sky-500 { color: var(--pj-accent-text) !important; }
+
+  /* Yellow as a *fill* also has to darken, or attention bars disappear. */
+  :root.light .pj-dashboard .pj-dashboard-attention::before,
+  :root.light .pj-attention-card { border-color: #9a7400; }
+  :root.light .bg-pj-yellow { background-color: #9a7400 !important; }
+  :root.light [data-page="tickets"] .pj-app-page > section:first-of-type::before,
+  :root.light [data-page="milestones"] .pj-app-page > section::before { background: #9a7400; }
+
+  /* --- Errors and danger --------------------------------------------------- */
+  :root.light .ui-alert-error,
+  :root.light .pj-route-content [class*="border-red-"] {
+    background: rgba(165, 47, 40, .05) !important;
+    color: #8c2822 !important;
+  }
+  :root.light .pj-danger-surface {
+    border-color: rgba(165, 47, 40, .32) !important;
+    background: rgba(165, 47, 40, .04) !important;
+  }
+  :root.light .pj-settings-danger:hover:not(:disabled),
+  :root.light .ui-btn-danger:hover:not(:disabled) {
+    background: rgba(165, 47, 40, .09) !important;
+  }
+
+  /* --- Page furniture ------------------------------------------------------ */
+  :root.light .pj-header-progress {
+    background: linear-gradient(90deg, transparent, var(--pj-lime), transparent) !important;
+    box-shadow: none;
+  }
+  :root.light .pj-empty-state,
+  :root.light .ui-empty {
+    background: rgba(255, 255, 255, .45);
+    border-color: rgba(21, 23, 19, .16);
+  }
+  :root.light .pj-route-content [class*="border-dashed"] {
+    border-color: rgba(21, 23, 19, .22) !important;
+  }
+  :root.light .pj-scrollbar::-webkit-scrollbar-thumb,
+  :root.light .pj-sidebar-nav::-webkit-scrollbar-thumb { background: rgba(21, 23, 19, .2); }
+  :root.light .pj-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--pj-lime); }
+
+  /* Auth screens: the ambient wash has to be warmer and much weaker, or the
+     gradient turns into a visible green smudge on cream. */
+  :root.light .pj-left-panel,
+  :root.light .pj-auth-layout .pj-auth-aside {
+    background: radial-gradient(circle at 15% 80%, rgba(6, 78, 59, .10), transparent 42%);
+  }
+  :root.light .pj-auth-layout .pj-auth-section {
+    background: radial-gradient(circle at 70% 20%, rgba(6, 78, 59, .05), transparent 34%);
+  }
+
+  /* Focus is olive everywhere; neon rings do not register on paper. */
+  :root.light :focus-visible,
+  :root.light .pj-route-content button:focus-visible,
+  :root.light .pj-route-content a:focus-visible,
+  :root.light .pj-route-content input:focus-visible,
+  :root.light .pj-route-content select:focus-visible,
+  :root.light .pj-route-content textarea:focus-visible {
+    outline-color: var(--pj-lime) !important;
+  }
 }

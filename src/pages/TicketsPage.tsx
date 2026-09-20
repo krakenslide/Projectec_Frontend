@@ -20,7 +20,7 @@ import type {
     TicketStatus,
     TicketType,
 } from "../types/ticket";
-import ProjectecLoader from "../components/ui/ProjectecLoader";
+import WorkOrbitLoader from "../components/ui/WorkOrbitLoader";
 import AssigneePicker from "../components/ui/AssigneePicker";
 import { listProjectMembers } from "../api/projects";
 
@@ -54,7 +54,7 @@ const priorityConfig: Record<
         dot: "bg-red-500",
         text: "text-red-700 dark:text-red-300",
         border: "border-red-500/60",
-        bg: "bg-red-200 dark:bg-red-950/20",
+        bg: "bg-transparent dark:bg-transparent",
     },
     P1: {
         label: "Urgent",
@@ -62,7 +62,7 @@ const priorityConfig: Record<
         dot: "bg-orange-500",
         text: "text-orange-700 dark:text-orange-300",
         border: "border-orange-500/60",
-        bg: "bg-orange-100 dark:bg-orange-950/20",
+        bg: "bg-transparent dark:bg-transparent",
     },
     P2: {
         label: "High",
@@ -70,7 +70,7 @@ const priorityConfig: Record<
         dot: "bg-amber-500",
         text: "text-amber-700 dark:text-amber-300",
         border: "border-amber-500/60",
-        bg: "bg-amber-100 dark:bg-amber-950/20",
+        bg: "bg-transparent dark:bg-transparent",
     },
     P3: {
         label: "Normal",
@@ -78,7 +78,7 @@ const priorityConfig: Record<
         dot: "bg-sky-500",
         text: "text-sky-700 dark:text-sky-300",
         border: "border-sky-500/60",
-        bg: "bg-sky-100 dark:bg-sky-950/20",
+        bg: "bg-transparent dark:bg-transparent",
     },
     P4: {
         label: "Low",
@@ -86,7 +86,7 @@ const priorityConfig: Record<
         dot: "bg-zinc-500",
         text: "text-zinc-700 dark:text-zinc-300",
         border: "border-zinc-400 dark:border-zinc-700",
-        bg: "bg-zinc-100 dark:bg-zinc-950/30",
+        bg: "bg-transparent dark:bg-transparent",
     },
 };
 
@@ -230,320 +230,80 @@ export default function TicketsPage() {
         }
     };
 
+    const attentionTickets = tickets
+        .filter((ticket) => !["Done", "Closed"].includes(ticket.status) && ["P0", "P1"].includes(ticket.priority))
+        .slice(0, 4);
+
+    const activeFilterCount = Number(Boolean(selectedPriority)) + Number(Boolean(selectedStatus));
+
     return (
-        <div className="space-y-8 font-['Inter',ui-sans-serif,sans-serif]">
-            {/* Header */}
-            <header className="border-b border-zinc-200 pb-7 dark:border-zinc-800">
-                <Link
-                    className="text-[11px] uppercase tracking-[.18em] text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
-                    to={`/organisations/${organizationId}/projects`}
-                >
+        <div className="pj-app-page space-y-8 font-['Inter',ui-sans-serif,sans-serif]">
+            <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
+                <Link className="text-[10px] uppercase tracking-[.2em] text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white" to={`/organisations/${organizationId}/projects`}>
                     ← Projects
                 </Link>
-
-                <div className="mt-6 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                <div className="mt-7 flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
                     <div>
-                        <p className="text-[10px] uppercase tracking-[.22em] text-zinc-600 dark:text-zinc-300">
-                            {project?.code ?? "Project"} · Work queue
-                        </p>
-
-                        <h1 className="mt-3 font-['Instrument_Serif',Georgia,serif] text-5xl leading-none text-zinc-900 dark:text-white">
-                            {project?.name ?? "Tickets"}
-                        </h1>
-
-                        <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-                            {openCount} open · {urgentCount} urgent ·{" "}
-                            {tickets.length} total
-                        </p>
+                        <p className="text-[10px] font-semibold uppercase tracking-[.24em] text-pj-lime">{project?.code ?? "PROJECT"} / WORK QUEUE</p>
+                        <h1 className="mt-3 font-['Instrument_Serif',Georgia,serif] text-5xl leading-[.92] tracking-tight text-zinc-900 dark:text-white sm:text-6xl">Everything that needs movement.</h1>
+                        <p className="mt-4 max-w-xl text-sm leading-6 text-zinc-600 dark:text-zinc-400">Triage the queue, find the work that matters, and move tickets forward.</p>
                     </div>
-
-                    <div className="flex flex-wrap gap-3">
-                        <Link
-                            className="inline-flex min-h-10 items-center gap-2 border border-zinc-300 px-4 text-[11px] uppercase tracking-[.14em] text-zinc-700 transition-colors hover:border-zinc-500 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:text-white"
-                            to={`/organisations/${organizationId}/projects/${projectId}/settings`}
-                        >
-                            <Settings2 className="h-4 w-4" />
-                            Project settings
-                        </Link>
-
-                        <button
-                            className="inline-flex min-h-10 items-center gap-2 border border-zinc-900 bg-zinc-900 px-4 text-[11px] uppercase tracking-[.14em] text-white transition-colors hover:bg-zinc-700 dark:border-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-                            onClick={() => setShowForm((value) => !value)}
-                            type="button"
-                        >
-                            {showForm ? (
-                                <X className="h-4 w-4" />
-                            ) : (
-                                <Plus className="h-4 w-4" />
-                            )}
-
-                            {showForm ? "Close" : "New ticket"}
-                        </button>
+                    <div className="flex flex-wrap gap-2">
+                        <Link className="inline-flex min-h-10 items-center gap-2 border border-zinc-300 px-4 text-[10px] font-semibold uppercase tracking-[.14em] text-zinc-700 hover:border-zinc-500 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500" to={`/organisations/${organizationId}/projects/${projectId}/settings`}><Settings2 className="h-4 w-4" /> Settings</Link>
+                        <button className="inline-flex min-h-10 items-center gap-2 border border-zinc-900 bg-zinc-900 px-4 text-[10px] font-semibold uppercase tracking-[.14em] text-white hover:bg-zinc-700 dark:border-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200" onClick={() => setShowForm((value) => !value)} type="button">{showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}{showForm ? "Close" : "New ticket"}</button>
                     </div>
+                </div>
+                <div className="mt-8 grid grid-cols-2 border-t border-zinc-200 pt-5 dark:border-zinc-800 sm:grid-cols-4">
+                    <QueueStat label="Open" value={openCount} />
+                    <QueueStat label="Attention" value={urgentCount} accent={urgentCount > 0 ? "yellow" : "lime"} />
+                    <QueueStat label="Showing" value={filtered.length} />
+                    <QueueStat label="Total" value={tickets.length} />
                 </div>
             </header>
 
-            {/* Create ticket */}
             {showForm && (
-                <form
-                    className="grid gap-5 border border-zinc-300 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-950/40 md:grid-cols-2"
-                    onSubmit={submit}
-                >
-                    <div className="md:col-span-2">
-                        <label className="mb-2 block text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-300">
-                            Title
-                        </label>
-
-                        <input
-                            autoFocus
-                            className="w-full border border-zinc-400 bg-white px-3 py-3 text-zinc-900 outline-none transition-colors placeholder:text-zinc-500 hover:border-zinc-500 focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-600 dark:bg-zinc-950 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-zinc-500 dark:focus:border-white dark:focus:ring-white/15"
-                            minLength={3}
-                            placeholder="What needs to happen?"
-                            required
-                            value={title}
-                            onChange={(event) => setTitle(event.target.value)}
-                        />
+                <form className="border-y border-zinc-300 bg-white py-6 dark:border-zinc-700 dark:bg-zinc-950/40" onSubmit={submit}>
+                    <div className="mb-5 flex items-end justify-between gap-4"><div><p className="text-[10px] uppercase tracking-[.2em] text-pj-lime">NEW TICKET</p><h2 className="mt-2 text-xl font-medium text-zinc-900 dark:text-white">What needs to happen?</h2></div><span className="text-[10px] uppercase tracking-[.14em] text-zinc-500">Required: title</span></div>
+                    <div className="grid gap-5 md:grid-cols-2">
+                        <div className="md:col-span-2"><label className="mb-2 block text-[10px] uppercase tracking-[.16em] text-zinc-500">Title</label><input autoFocus className="w-full border-b border-zinc-300 bg-transparent px-0 py-3 text-lg text-zinc-900 outline-none focus:border-zinc-900 dark:border-zinc-700 dark:text-white dark:focus:border-white" minLength={3} placeholder="Describe the outcome, not just the problem" required value={title} onChange={(event) => setTitle(event.target.value)} /></div>
+                        <div className="md:col-span-2"><label className="mb-2 block text-[10px] uppercase tracking-[.16em] text-zinc-500">Context <span className="normal-case tracking-normal">Optional</span></label><textarea className="min-h-24 w-full border border-zinc-300 bg-transparent p-3 text-sm leading-6 outline-none focus:border-zinc-900 dark:border-zinc-700 dark:text-white dark:focus:border-white" placeholder="Add the context the team needs" value={description} onChange={(event) => setDescription(event.target.value)} /></div>
+                        <Select label="Type" value={type} options={types} onChange={(value) => setType(value as TicketType)} />
+                        <Select label="Priority" value={priority} options={priorities} onChange={(value) => setPriority(value as TicketPriority)} />
+                        <AssigneePicker label="Assignee" members={members} value={assignedTo} onChange={setAssignedTo} />
                     </div>
-
-                    <div className="md:col-span-2">
-                        <label className="mb-2 block text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-300">
-                            Description{" "}
-                            <span className="normal-case tracking-normal text-zinc-500 dark:text-zinc-400">
-                                Optional
-                            </span>
-                        </label>
-
-                        <textarea
-                            className="min-h-28 w-full border border-zinc-400 bg-white px-3 py-3 text-zinc-900 outline-none transition-colors placeholder:text-zinc-500 hover:border-zinc-500 focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-600 dark:bg-zinc-950 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-zinc-500 dark:focus:border-white dark:focus:ring-white/15"
-                            placeholder="Add the context the team needs"
-                            value={description}
-                            onChange={(event) =>
-                                setDescription(event.target.value)
-                            }
-                        />
-                    </div>
-
-                    <Select
-                        label="Type"
-                        value={type}
-                        options={types}
-                        onChange={(value) => setType(value as TicketType)}
-                    />
-
-                    <Select
-                        label="Priority"
-                        value={priority}
-                        options={priorities}
-                        onChange={(value) =>
-                            setPriority(value as TicketPriority)
-                        }
-                    />
-
-                    <AssigneePicker
-                        label="Assignee"
-                        members={members}
-                        value={assignedTo}
-                        onChange={setAssignedTo}
-                    />
-
-                    <button
-                        className="inline-flex w-fit min-h-10 items-center gap-2 border border-zinc-900 px-4 text-[11px] uppercase tracking-[.14em] text-zinc-900 disabled:opacity-40 dark:border-white dark:text-white"
-                        disabled={saving}
-                        type="submit"
-                    >
-                        {saving && (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                        )}
-
-                        {saving ? "Creating" : "Create ticket"}
-                    </button>
+                    <button className="mt-6 inline-flex min-h-10 items-center gap-2 border border-zinc-900 bg-zinc-900 px-4 text-[10px] font-semibold uppercase tracking-[.14em] text-white hover:bg-zinc-700 dark:border-white dark:bg-white dark:text-zinc-900" disabled={saving} type="submit">{saving && <Loader2 className="h-4 w-4 animate-spin" />}{saving ? "Creating" : "Create ticket"}</button>
                 </form>
             )}
 
-            {error && (
-                <p className="border-y border-red-400/50 py-3 text-sm text-red-700 dark:text-red-300">
-                    {error}
-                </p>
+            {error && <p className="border-y border-red-400/50 py-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
+
+            {attentionTickets.length > 0 && !selectedPriority && !selectedStatus && !query && (
+                <section className="border-y border-zinc-200 py-5 dark:border-zinc-800">
+                    <div className="mb-4 flex items-baseline justify-between gap-4"><div><p className="text-[10px] font-semibold uppercase tracking-[.2em] text-pj-yellow">NEEDS ATTENTION</p><h2 className="mt-1 text-lg font-medium text-zinc-900 dark:text-white">Priority work is waiting.</h2></div><span className="text-[10px] uppercase tracking-[.14em] text-zinc-500">{urgentCount} urgent</span></div>
+                    <div className="grid gap-px bg-zinc-200 dark:bg-zinc-800 sm:grid-cols-2 lg:grid-cols-4">
+                        {attentionTickets.map((ticket) => <button key={ticket.id} className="pj-attention-card group min-w-0 p-4 text-left" onClick={() => navigate(`/organisations/${ticket.organization_id}/projects/${ticket.project_id}/tickets/${ticket.id}`)} type="button"><div className="flex items-center justify-between"><span className="text-[10px] font-bold tracking-[.14em] text-pj-yellow">{ticket.priority}</span><ChevronRight className="h-4 w-4 text-zinc-400 transition-transform group-hover:translate-x-1" /></div><p className="mt-4 line-clamp-2 text-sm font-medium leading-5 text-zinc-900 dark:text-white">{ticket.title}</p><p className="mt-4 text-[9px] uppercase tracking-[.12em] text-zinc-500">{ticket.ticket_number} · {ticket.status}</p></button>)}
+                    </div>
+                </section>
             )}
 
-            {/* Ticket list */}
-            <section className="space-y-5">
-                <div className="space-y-4 border-b border-zinc-200 pb-4 dark:border-zinc-800">
-                    {/* Search */}
-                    <div className="flex items-center justify-between gap-4">
-                        <div className="relative max-w-sm flex-1">
-                            <Search className="pointer-events-none absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 dark:text-zinc-300" />
-
-                            <input
-                                className="w-full border-b border-zinc-300 bg-transparent py-2 pl-6 text-sm text-zinc-900 outline-none transition-colors placeholder:text-zinc-500 focus:border-zinc-900 dark:border-zinc-700 dark:text-white dark:placeholder:text-zinc-500 dark:focus:border-white"
-                                placeholder="Search tickets"
-                                value={query}
-                                onChange={(event) =>
-                                    setQuery(event.target.value)
-                                }
-                            />
-                        </div>
-
-                        <p className="shrink-0 text-[11px] uppercase tracking-[.14em] text-zinc-600 dark:text-zinc-300">
-                            {filtered.length} shown
-                        </p>
+            <section>
+                <div className="border-b border-zinc-200 pb-4 dark:border-zinc-800">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="relative w-full max-w-xl"><Search className="pointer-events-none absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" /><input className="w-full border-b border-zinc-300 bg-transparent py-3 pl-7 text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-900 dark:border-zinc-700 dark:text-white dark:focus:border-white" placeholder="Search by ticket, title, or description  /" value={query} onChange={(event) => setQuery(event.target.value)} /></div>
+                        <div className="flex items-center gap-3 text-[10px] uppercase tracking-[.14em] text-zinc-500"><span>{filtered.length} shown</span>{activeFilterCount > 0 && <button className="text-pj-lime hover:underline" onClick={() => setSearchParams({})} type="button">Clear {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""}</button>}</div>
                     </div>
-
-                    {/* Priority */}
-                    <PriorityLegend
-                        selectedPriority={selectedPriority}
-                        onSelect={(priority) => {
-                            const next = new URLSearchParams(searchParams);
-
-                            if (priority) {
-                                next.set("priority", priority);
-                            } else {
-                                next.delete("priority");
-                            }
-
-                            setSearchParams(next);
-                        }}
-                    />
-
-                    {/* Status */}
-                    <div className="flex flex-wrap items-center gap-2">
-                        <span className="mr-1 text-[10px] uppercase tracking-[.14em] text-zinc-600 dark:text-zinc-300">
-                            Status
-                        </span>
-
-                        {(["All", ...statuses] as const).map((status) => {
-                            const active =
-                                (!selectedStatus && status === "All") ||
-                                selectedStatus === status;
-
-                            const tone =
-                                status === "All"
-                                    ? active
-                                        ? "border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-zinc-900"
-                                        : "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-transparent dark:text-zinc-300 dark:hover:bg-zinc-900"
-                                    : getStatusFilterTone(
-                                        status,
-                                        active
-                                    );
-
-                            return (
-                                <button
-                                    className={`inline-flex items-center gap-2 border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.1em] transition-all ${tone}`}
-                                    key={status}
-                                    onClick={() => {
-                                        const next = new URLSearchParams(
-                                            searchParams
-                                        );
-
-                                        if (status === "All") {
-                                            next.delete("status");
-                                        } else {
-                                            next.set("status", status);
-                                        }
-
-                                        setSearchParams(next);
-                                    }}
-                                    type="button"
-                                >
-                                    {status !== "All" && (
-                                        <span
-                                            className={`h-1.5 w-1.5 text rounded-full ${statusConfig[status].dot}`}
-                                        />
-                                    )}
-
-                                    {status}
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {/* Clear filters */}
-                    {(selectedPriority || selectedStatus) && (
-                        <button
-                            className="text-[10px] uppercase tracking-[.12em] text-zinc-600 underline-offset-4 hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-white"
-                            onClick={() => setSearchParams({})}
-                            type="button"
-                        >
-                            Clear filters
-                        </button>
-                    )}
+                    <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3"><span className="text-[10px] font-semibold uppercase tracking-[.16em] text-zinc-500">Priority</span><PriorityLegend selectedPriority={selectedPriority} onSelect={(nextPriority) => { const next = new URLSearchParams(searchParams); if (nextPriority) next.set("priority", nextPriority); else next.delete("priority"); setSearchParams(next); }} /></div>
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5"><span className="mr-2 text-[10px] font-semibold uppercase tracking-[.16em] text-zinc-500">Status</span>{(["All", ...statuses] as const).map((status) => { const active = (!selectedStatus && status === "All") || selectedStatus === status; return <button className={`pj-filter-status ${active ? "pj-filter-status-active" : ""} border px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[.1em] transition-colors`} data-status={status} key={status} onClick={() => { const next = new URLSearchParams(searchParams); if (status === "All") next.delete("status"); else next.set("status", status); setSearchParams(next); }} type="button">{status}</button>; })}</div>
                 </div>
 
-                {loading ? (
-                    <ProjectecLoader />
-                ) : filtered.length ? (
-                    <div className="border-t border-zinc-200 dark:border-zinc-800">
-                        {filtered.map((ticket, index) => (
-                            <TicketRow
-                                index={index}
-                                key={ticket.id}
-                                members={members}
-                                navigate={navigate}
-                                parentTicket={tickets.find(
-                                    (item) =>
-                                        item.id === ticket.parent_ticket_id
-                                )}
-                                ticket={ticket}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="border border-dashed border-zinc-300 p-12 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
-                        {query
-                            ? "No tickets match your search."
-                            : "No tickets in this project yet."}
-                    </div>
-                )}
+                {loading ? <WorkOrbitLoader /> : filtered.length ? <div className="mt-1">{filtered.map((ticket, index) => <TicketRow index={index} key={ticket.id} members={members} navigate={navigate} parentTicket={tickets.find((item) => item.id === ticket.parent_ticket_id)} ticket={ticket} />)}</div> : <div className="border-y border-dashed border-zinc-300 py-16 text-center dark:border-zinc-700"><p className="text-[10px] font-semibold uppercase tracking-[.2em] text-zinc-500">Nothing here</p><p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{query ? "No tickets match your search." : "This queue is clear."}</p></div>}
             </section>
         </div>
     );
 }
 
-function PriorityStatusIndicator({
-    priority,
-    statusDot,
-}: {
-    priority: TicketPriority;
-    statusDot: string;
-}) {
-    const ring = priorityConfig[priority].ring;
-
-    return (
-        <div className="relative flex h-4 w-4 items-center justify-center">
-            {priority === "P0" && (
-                <>
-                    <span
-                        className={`absolute h-7 w-7 rounded-full border ${ring}`}
-                    />
-                    <span
-                        className={`absolute h-5 w-5 rounded-full border ${ring}`}
-                    />
-                </>
-            )}
-
-            {priority === "P1" && (
-                <span
-                    className={`absolute h-6 w-6 rounded-full border ${ring}`}
-                />
-            )}
-
-            {priority === "P2" && (
-                <span
-                    className={`absolute h-5 w-5 rounded-full border ${ring}`}
-                />
-            )}
-
-            {priority === "P3" && (
-                <span
-                    className={`absolute h-4 w-4 rounded-full border ${ring}`}
-                />
-            )}
-
-            <span
-                className={`relative h-1.5 w-1.5 rounded-full ${statusDot}`}
-            />
-        </div>
-    );
+function QueueStat({ label, value, accent }: { label: string; value: number; accent?: "lime" | "yellow" }) {
+    return <div className="border-r border-zinc-200 px-4 first:pl-0 last:border-r-0 dark:border-zinc-800"><p className={`text-2xl font-semibold tracking-tight ${accent === "yellow" ? "text-pj-yellow" : accent === "lime" ? "text-pj-lime" : "text-zinc-900 dark:text-white"}`}>{value}</p><p className="mt-1 text-[9px] uppercase tracking-[.16em] text-zinc-500">{label}</p></div>;
 }
 
 function TicketMeta({
@@ -566,219 +326,22 @@ function TicketMeta({
     );
 }
 
-function TicketRow({
-    index,
-    members,
-    navigate,
-    parentTicket,
-    ticket,
-}: {
-    index: number;
-    members: ProjectMember[];
-    navigate: ReturnType<typeof useNavigate>;
-    parentTicket?: Ticket;
-    ticket: Ticket;
-}) {
-    const priorityTone = priorityConfig[ticket.priority];
-    const statusTone = statusConfig[ticket.status];
+function TicketRow({ index, members, navigate, parentTicket, ticket }: { index: number; members: ProjectMember[]; navigate: ReturnType<typeof useNavigate>; parentTicket?: Ticket; ticket: Ticket }) {
+    const priority = priorityConfig[ticket.priority];
+    const status = statusConfig[ticket.status];
+    const assignee = members.find((member) => member.user_id === ticket.assigned_to);
+    const initials = assignee ? (assignee.name || assignee.email || "?").split(/\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase() : null;
+    const isAttention = ["P0", "P1"].includes(ticket.priority) && !["Done", "Closed"].includes(ticket.status);
 
-    const assignee = members.find(
-        (member) => member.user_id === ticket.assigned_to
-    );
-
-    const initials = assignee
-        ? (assignee.name || assignee.email || "?")
-            .split(/\s+/)
-            .map((part) => part[0])
-            .slice(0, 2)
-            .join("")
-            .toUpperCase()
-        : null;
-
-    return (
-        <button
-            className="group w-full border-b border-zinc-200 bg-white text-left transition-colors hover:bg-zinc-50 focus-visible:bg-zinc-50 focus-visible:outline-none dark:border-zinc-800 dark:bg-transparent dark:hover:bg-zinc-900/50 dark:focus-visible:bg-zinc-900"
-            onClick={() =>
-                navigate(
-                    `/organisations/${ticket.organization_id}/projects/${ticket.project_id}/tickets/${ticket.id}`
-                )
-            }
-            style={{
-                animationDelay: `${index * 35}ms`,
-            }}
-            type="button"
-        >
-            <div className="flex min-w-0 items-start gap-4 px-4 py-5 sm:px-5">
-                {/* Priority + status */}
-                <div className="flex w-8 shrink-0 flex-col items-center gap-3 pt-1">
-                    <span
-                        className={`text-base font-semibold leading-none ${priorityTone.text}`}
-                        title={`${ticket.priority}: ${priorityTone.label}`}
-                    >
-                        {priorityTone.marker}
-                    </span>
-
-                    <PriorityStatusIndicator
-                        priority={ticket.priority}
-                        statusDot={statusTone.dot}
-                    />
-                </div>
-
-                {/* Main content */}
-                <div className="min-w-0 flex-1">
-                    {/* Ticket identity */}
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] uppercase tracking-[.14em]">
-                        <span className="font-semibold text-zinc-700 dark:text-zinc-300">
-                            {ticket.ticket_number}
-                        </span>
-
-                        <span className="text-zinc-300 dark:text-zinc-700">
-                            ·
-                        </span>
-
-                        <span className="text-zinc-500 dark:text-zinc-400">
-                            {ticket.type}
-                        </span>
-
-                        {parentTicket && (
-                            <>
-                                <span className="text-zinc-300 dark:text-zinc-700">
-                                    ·
-                                </span>
-
-                                <span className="text-zinc-500 dark:text-zinc-400">
-                                    Child of {parentTicket.ticket_number}
-                                </span>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Title */}
-                    <h2 className="mt-1.5 truncate text-[15px] font-medium leading-6 text-zinc-900 transition-colors group-hover:text-black dark:text-zinc-100 dark:group-hover:text-white">
-                        {ticket.title}
-                    </h2>
-
-                    {/* Description */}
-                    <p className="mt-1 max-w-4xl truncate text-xs leading-5 text-zinc-600 dark:text-zinc-400">
-                        {ticket.description || "No description provided"}
-                    </p>
-
-                    {/* Metadata */}
-                    <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
-                        {/* Assignee */}
-                        {assignee && (
-                            <div className="flex items-center gap-2">
-                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-zinc-300 bg-zinc-100 text-[8px] font-semibold text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                                    {initials}
-                                </span>
-
-                                <div className="min-w-0">
-                                    <p className="max-w-36 truncate text-[10px] font-medium text-zinc-800 dark:text-zinc-200">
-                                        {assignee.name || assignee.email}
-                                    </p>
-
-                                    <p className="mt-0.5 text-[9px] uppercase tracking-[.08em] text-zinc-500 dark:text-zinc-400">
-                                        Assignee
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Hours */}
-                        {ticket.hours_logged !== undefined && (
-                            <TicketMeta
-                                label="Logged"
-                                value={`${ticket.hours_logged}h`}
-                            />
-                        )}
-
-                        {/* Difficulty */}
-                        {ticket.difficulty !== null &&
-                            ticket.difficulty !== undefined && (
-                                <TicketMeta
-                                    label="Difficulty"
-                                    value={`${ticket.difficulty}/100`}
-                                />
-                            )}
-
-                        {/* Due date */}
-                        {ticket.expected_end_date && (
-                            <TicketMeta
-                                label="Due"
-                                value={formatShortDate(
-                                    ticket.expected_end_date
-                                )}
-                            />
-                        )}
-
-                        {/* Milestone */}
-                        {ticket.milestone_id && (
-                            <TicketMeta
-                                label="Milestone"
-                                value="Linked"
-                            />
-                        )}
-
-                        {/* Demo */}
-                        {ticket.demo_link && (
-                            <div className="flex items-center gap-2">
-                                <Link2 className="h-3.5 w-3.5 text-zinc-500 dark:text-zinc-400" />
-
-                                <div>
-                                    <p className="text-[10px] font-medium text-zinc-800 dark:text-zinc-200">
-                                        Demo
-                                    </p>
-
-                                    <p className="mt-0.5 text-[9px] uppercase tracking-[.08em] text-zinc-500 dark:text-zinc-400">
-                                        Attached
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Delay */}
-                        {ticket.reason_for_delay && (
-                            <div
-                                className="flex items-center gap-2"
-                                title={ticket.reason_for_delay}
-                            >
-                                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
-
-                                <div>
-                                    <p className="text-[10px] font-medium text-amber-800 dark:text-amber-300">
-                                        Delayed
-                                    </p>
-
-                                    <p className="mt-0.5 text-[9px] uppercase tracking-[.08em] text-amber-700/70 dark:text-amber-400/70">
-                                        Reason available
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Status + navigation */}
-                <div className="flex shrink-0 flex-col items-end justify-between gap-4 pt-0.5">
-                    <span
-                        className={`inline-flex items-center gap-1.5 border px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[.1em] ${getStatusBadgeTone(
-                            ticket.status
-                        )}`}
-                    >
-                        <span
-                            className={`h-1.5 w-1.5 rounded-full ${statusTone.dot}`}
-                        />
-
-                        {ticket.status}
-                    </span>
-
-                    <ChevronRight className="h-4 w-4 text-zinc-400 transition-transform group-hover:translate-x-1 group-hover:text-zinc-900 dark:text-zinc-600 dark:group-hover:text-white" />
-                </div>
-            </div>
-        </button>
-    );
+    return <button className="pj-ticket-row group relative w-full border-b border-zinc-200 py-5 text-left transition-colors hover:bg-[var(--pj-hover-surface)] focus-visible:outline-none dark:border-zinc-800 dark:hover:bg-[var(--pj-hover-surface)]" onClick={() => navigate(`/organisations/${ticket.organization_id}/projects/${ticket.project_id}/tickets/${ticket.id}`)} style={{ animationDelay: `${index * 35}ms` }} type="button">
+        {isAttention && <span className="absolute inset-y-0 left-0 w-0.5 bg-pj-yellow" />}
+        <div className="grid gap-4 px-2 sm:grid-cols-[4.5rem_minmax(0,1fr)_auto] sm:items-center sm:px-3">
+            <div className="flex items-center gap-3"><span className={`text-[11px] font-bold tracking-[.12em] ${priority.text}`}>{ticket.priority}</span><span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} /></div>
+            <div className="min-w-0"><div className="flex flex-wrap items-center gap-2 text-[9px] uppercase tracking-[.16em] text-zinc-500"><span className="font-semibold text-zinc-700 dark:text-zinc-300">{ticket.ticket_number}</span><span>·</span><span>{ticket.type}</span>{parentTicket && <><span>·</span><span>Child of {parentTicket.ticket_number}</span></>}</div><h2 className="mt-1 truncate text-[15px] font-medium leading-6 text-zinc-900 dark:text-zinc-100">{ticket.title}</h2><p className="mt-1 truncate text-xs leading-5 text-zinc-500 dark:text-zinc-400">{ticket.description || "No description provided"}</p><div className="ticket-bottom-meta mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[9px] uppercase tracking-[.1em] text-zinc-500"><span className="meta-accent">{assignee ? `${assignee.name || assignee.email}` : "Unassigned"}</span>{ticket.hours_logged !== undefined && <span className="meta-accent">{ticket.hours_logged}h logged</span>}{ticket.expected_end_date && <span>Due {formatShortDate(ticket.expected_end_date)}</span>}{ticket.reason_for_delay && <span className="meta-warning">Delayed</span>}{ticket.demo_link && <span className="meta-accent inline-flex items-center gap-1"><Link2 className="h-3 w-3" /> Demo</span>}</div></div>
+            <div className="flex items-center justify-between gap-4 sm:justify-end"><span className={`inline-flex items-center gap-1.5 border px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[.1em] ${getStatusBadgeTone(ticket.status)}`}><span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />{ticket.status}</span><ChevronRight className="h-4 w-4 text-zinc-400 transition-transform group-hover:translate-x-1" /></div>
+        </div>
+    </button>;
 }
-
 function MetaChip({
     children,
 }: {
@@ -804,16 +367,16 @@ function getStatusFilterTone(
             return "border-zinc-500 bg-zinc-200 text-zinc-950 dark:border-zinc-500 dark:bg-zinc-800 dark:text-white";
 
         case "In Progress":
-            return "border-emerald-600 bg-emerald-100 text-emerald-900 dark:border-emerald-400 dark:bg-emerald-950/50 dark:text-emerald-200";
+            return "border-emerald-600 bg-[var(--pj-panel-muted)] text-emerald-900 dark:border-emerald-400 dark:bg-[var(--pj-panel-muted)] dark:text-emerald-200";
 
         case "In Review":
-            return "border-sky-600 bg-sky-100 text-sky-900 dark:border-sky-400 dark:bg-sky-950/50 dark:text-sky-200";
+            return "border-sky-600 bg-[var(--pj-panel-muted)] text-sky-900 dark:border-sky-400 dark:bg-[var(--pj-panel-muted)] dark:text-sky-200";
 
         case "Testing":
-            return "border-violet-600 bg-violet-100 text-violet-900 dark:border-violet-400 dark:bg-violet-950/50 dark:text-violet-200";
+            return "border-violet-600 bg-[var(--pj-panel-muted)] text-violet-900 dark:border-violet-400 dark:bg-[var(--pj-panel-muted)] dark:text-violet-200";
 
         case "Done":
-            return "border-green-600 bg-green-100 text-green-900 dark:border-green-400 dark:bg-green-950/50 dark:text-green-200";
+            return "border-green-600 bg-[var(--pj-panel-muted)] text-green-900 dark:border-green-400 dark:bg-[var(--pj-panel-muted)] dark:text-green-200";
 
         case "Closed":
             return "border-zinc-500 bg-zinc-200 text-zinc-800 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300";
@@ -868,8 +431,8 @@ function PriorityLegend({
 
             <button
                 className={`border px-3 py-1.5 text-[10px] uppercase tracking-[.1em] transition-colors ${!selectedPriority
-                    ? "border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-zinc-900"
-                    : "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-transparent dark:text-zinc-300 dark:hover:bg-zinc-900"
+                    ? "border-[var(--pj-border-strong)] bg-[var(--pj-panel-muted)] text-[var(--pj-text)]"
+                    : "border-[var(--pj-border)] bg-transparent text-[var(--pj-muted)] hover:border-[var(--pj-border-strong)] hover:bg-[var(--pj-hover-surface)]"
                     }`}
                 onClick={() => onSelect(null)}
                 type="button"
@@ -883,7 +446,7 @@ function PriorityLegend({
 
                 return (
                     <button
-                        className={`
+                        className={`pj-filter-priority ${active ? "pj-filter-priority-active" : ""}` + `
                             inline-flex items-center gap-2 border px-3 py-1.5
                             text-[10px] uppercase tracking-[.1em]
                             transition-all
@@ -894,6 +457,7 @@ function PriorityLegend({
                             }
                         `}
                         key={priority}
+                        data-priority={priority}
                         onClick={() => onSelect(priority)}
                         type="button"
                     >

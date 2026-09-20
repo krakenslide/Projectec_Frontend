@@ -60,7 +60,7 @@ export default function ProjectCard({
     return (
       <div
         className={[
-          "group flex cursor-pointer items-center gap-4 border",
+          "pj-project-card group flex cursor-pointer items-center gap-4 border",
           "border-[#a1a1aa] dark:border-[#71717a] bg-transparent p-4",
           "font-['Inter',ui-sans-serif,sans-serif]",
           "transition-all duration-200",
@@ -147,7 +147,7 @@ export default function ProjectCard({
   return (
     <div
       className={[
-        "group flex min-h-52 cursor-pointer flex-col border",
+        "pj-project-card group flex min-h-52 cursor-pointer flex-col border",
         "border-[#a1a1aa] dark:border-[#71717a] bg-transparent p-5",
         "font-['Inter',ui-sans-serif,sans-serif]",
         "transition-all duration-200",

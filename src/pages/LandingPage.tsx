@@ -8,102 +8,58 @@ import {
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import { Link } from "react-router-dom";
-import { ProjectecLogo } from "../components/ui/ProjectecLogo";
+import { WorkOrbitLogo } from "../components/ui/WorkOrbitLogo";
+import {
+    APP,
+    AppFrame,
+    BoardScreen,
+    DashboardScreen,
+    INK,
+    LIME,
+    MembersScreen,
+    MilestonesScreen,
+    PAPER_DEEP,
+    SettingsScreen,
+    StandupScreen,
+    TicketsScreen,
+    type TabId,
+} from "./landing/AppFrame";
+import { GiantOrbit } from "./landing/GiantOrbit";
 
-const FEATURES = [
-    {
-        index: "01",
-        eyebrow: "Planning",
-        title: "Turn work into momentum.",
-        description:
-            "Tickets, priorities, ownership and milestones live in one calm workspace. Less coordination, more shipping.",
-        visual: "issues",
-    },
-    {
-        index: "02",
-        eyebrow: "Execution",
-        title: "See the work move.",
-        description:
-            "Move tickets through your delivery workflow — from To Do and In Progress to Testing, Done and Closed.",
-        visual: "board",
-    },
-    {
-        index: "03",
-        eyebrow: "Collaboration",
-        title: "Keep context with the work.",
-        description:
-            "Comments, mentions, members and ticket activity keep decisions attached to the work instead of scattered across tools.",
-        visual: "collaboration",
-    },
-    {
-        index: "04",
-        eyebrow: "Visibility",
-        title: "Know what matters.",
-        description:
-            "Dashboards, milestones and standups make progress, workload and delivery signals visible without extra reporting work.",
-        visual: "metrics",
-    },
+/* Structural accent for anything sitting directly on the page's paper/cream
+   background — matches the app's light-theme --pj-lime exactly. LIME
+   (imported above) stays neon and is reserved for the dark-ink sections
+   below (Workflow, Intelligence, the giant orbit, the final CTA), where a
+   dark surface is what makes it read as an accent rather than as noise. */
+const CYPRESS = "#064e3b"; // Tailwind emerald-900
+const CYPRESS_VIVID = "#047857"; // Tailwind emerald-700
+
+const WORKFLOW_STATES: [string, string][] = [
+    ["To Do", "Ready to start"],
+    ["In Progress", "Currently moving"],
+    ["In Review", "Waiting for validation"],
+    ["Testing", "Being verified"],
+    ["Done", "Delivered"],
+    ["Closed", "Archived"],
 ];
 
-const STEPS = [
-    ["01", "Organise", "Create your organisation, projects and team structure."],
-    ["02", "Plan", "Turn requirements into tickets, owners, priorities and milestones."],
-    ["03", "Execute", "Move work through the board and keep delivery context together."],
-    ["04", "Understand", "Use dashboards and standups to see what changed and what matters next."],
+const STEPS: [string, string, string][] = [
+    ["01", "Organise", "Create your organisation, invite people, and open a project for each stream of work."],
+    ["02", "Plan", "Turn requirements into tickets with a type, a priority, an owner and a milestone."],
+    ["03", "Execute", "Drag work across six delivery states. Comments and mentions keep the decisions attached."],
+    ["04", "Understand", "Dashboard, milestones and standup answer what moved, what is stuck, and what ships next."],
 ];
 
-const AVAILABLE_FEATURES = [
-    "Projects and project search",
-    "Tickets with types, priorities and ownership",
-    "Kanban workflow with six delivery states",
-    "Milestones and progress tracking",
-    "Project dashboard and delivery signals",
-    "Daily standup summaries and Excel export",
-    "Team members and project roles",
-    "Comments, mentions and ticket activity",
-];
-
-const UPCOMING_FEATURES = [
-    "AI project assistant",
-    "Project-aware AI questions and summaries",
-    "Standup and project knowledge",
-    "Dedicated sprints and planning",
-    "Automation, webhooks and integrations",
-    "Enterprise security and governance",
-];
-
+/* --------------------------------------------------------------------------
+   Shared UI
+   -------------------------------------------------------------------------- */
 const Arrow = () => (
-    <svg
-        viewBox="0 0 20 20"
-        aria-hidden="true"
-        className="h-4 w-4 shrink-0"
-    >
-        <path
-            d="M3 10h13M11 5l5 5-5 5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-        />
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0">
+        <path d="M3 10h13M11 5l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="1.5" />
     </svg>
 );
 
-const Spark = () => (
-    <svg
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-        className="h-5 w-5 shrink-0"
-    >
-        <path
-            d="M12 2l1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2Zm7 13 .7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15Z"
-            fill="currentColor"
-        />
-    </svg>
-);
-
-const Button: FC<{
-    children: ReactNode;
-    dark?: boolean;
-}> = ({ children, dark = true }) => {
+const Button: FC<{ children: ReactNode }> = ({ children }) => {
     const [hovered, setHovered] = useState(false);
 
     return (
@@ -112,16 +68,11 @@ const Button: FC<{
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             className={[
-                "inline-flex min-h-11 items-center gap-3 rounded-xl border",
-                "px-5 text-xs font-semibold tracking-[-0.01em]",
-                "transition-all duration-300 ease-[cubic-bezier(.16,1,.3,1)]",
-                dark
-                    ? "border-[#11110f] bg-[#11110f] text-[#faf9f5] hover:bg-[#2a2a25]"
-                    : "border-[#11110f] bg-[#f3f1ea] text-[#11110f]",
+                "inline-flex min-h-11 items-center gap-3 rounded-none border",
+                "border-[#11110f] bg-[#11110f] px-5 text-xs font-semibold tracking-[-0.01em] text-[#faf9f5]",
+                "transition-all duration-300 ease-[cubic-bezier(.16,1,.3,1)] hover:bg-[#2a2a25]",
             ].join(" ")}
-            style={{
-                transform: hovered ? "translateY(-2px)" : "translateY(0)",
-            }}
+            style={{ transform: hovered ? "translateY(-2px)" : "translateY(0)" }}
         >
             <span>{children}</span>
             <Arrow />
@@ -129,11 +80,11 @@ const Button: FC<{
     );
 };
 
-const Reveal: FC<{
-    children: ReactNode;
-    className?: string;
-    delay?: number;
-}> = ({ children, className = "", delay = 0 }) => {
+const Reveal: FC<{ children: ReactNode; className?: string; delay?: number }> = ({
+    children,
+    className = "",
+    delay = 0,
+}) => {
     const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -143,7 +94,6 @@ const Reveal: FC<{
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (!entry.isIntersecting) return;
-
                 node.style.setProperty("--reveal-delay", `${delay}ms`);
                 node.classList.add("is-visible");
                 observer.disconnect();
@@ -152,7 +102,6 @@ const Reveal: FC<{
         );
 
         observer.observe(node);
-
         return () => observer.disconnect();
     }, [delay]);
 
@@ -160,263 +109,329 @@ const Reveal: FC<{
         <div
             ref={ref}
             className={`fb-reveal ${className}`}
-            style={
-                {
-                    "--reveal-delay": `${delay}ms`,
-                } as React.CSSProperties
-            }
+            style={{ "--reveal-delay": `${delay}ms` } as React.CSSProperties}
         >
             {children}
         </div>
     );
 };
 
-const ProductWindow: FC<{ compact?: boolean }> = ({
-    compact = false,
-}) => (
-    <div
-        className={[
-            "w-full overflow-hidden rounded-2xl border border-white/10",
-            "bg-[#171815] text-[#ecece6]",
-            compact
-                ? "shadow-[0_30px_100px_rgba(17,17,15,.12)]"
-                : "",
-        ].join(" ")}
-    >
-        <div className="flex h-[42px] items-center gap-3.5 border-b border-white/[0.09] bg-[#1d1f1a] px-[15px] font-mono text-[9px] text-[#777a70]">
-            <div className="flex gap-[5px]">
-                <span className="h-[7px] w-[7px] rounded-full bg-[#55584e]" />
-                <span className="h-[7px] w-[7px] rounded-full bg-[#55584e]" />
-                <span className="h-[7px] w-[7px] rounded-full bg-[#55584e]" />
+const SectionHead: FC<{
+    number: string;
+    kicker: string;
+    lead: string;
+    emphasis: string;
+    copy?: string;
+}> = ({ number, kicker, lead, emphasis, copy }) => (
+    <Reveal>
+        <div className="mb-[70px] grid grid-cols-2 items-end gap-[80px] max-[780px]:block">
+            <div>
+                <span className="mb-[25px] block font-mono text-[10px] uppercase tracking-[0.12em] text-[#77766f]">
+                    {number} / {kicker}
+                </span>
+
+                <h2 className="text-[clamp(52px,6.4vw,88px)] font-semibold leading-[.82] tracking-[-.065em] max-[780px]:text-[clamp(48px,15vw,76px)]">
+                    {lead}
+                    <br />
+                    <em className="font-serif font-normal not-italic text-[#77766e]">{emphasis}</em>
+                </h2>
             </div>
 
-            <span className="flex-1">projectec / engineering</span>
-
-            <span className="text-[#9dbd48]">LIVE</span>
+            {copy && (
+                <p className="max-w-[400px] pb-1 text-[15px] leading-[1.8] text-[#727169] max-[780px]:mt-8">
+                    {copy}
+                </p>
+            )}
         </div>
-
-        <div
-            className={[
-                "grid min-h-[510px]",
-                "grid-cols-[136px_minmax(0,1fr)_150px]",
-                "max-[780px]:grid-cols-[74px_minmax(0,1fr)]",
-                compact ? "min-h-[570px]" : "",
-                "max-[780px]:min-h-[440px]",
-            ].join(" ")}
-        >
-            <aside className="border-r border-white/[0.08] p-4 max-[780px]:px-1.5 max-[780px]:py-3">
-                <div className="mb-6 ml-1.5 grid h-[27px] w-[27px] place-items-center rounded-lg border border-[#44483f] font-mono text-[10px] text-[#d8ff58] max-[780px]:mb-5">
-                    FB
-                </div>
-
-                {["Overview", "Issues", "Board", "Milestones", "Standup"].map(
-                    (item, index) => (
-                        <div
-                            key={item}
-                            className={[
-                                "mb-1 rounded-md px-2 py-1.5 font-mono text-[8px]",
-                                index === 0
-                                    ? "bg-[#262921] text-[#d8ff58]"
-                                    : "text-[#676b62]",
-                            ].join(" ")}
-                        >
-                            {item}
-                        </div>
-                    )
-                )}
-            </aside>
-
-            <main className="min-w-0 p-6 max-[780px]:p-3.5">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <span className="font-mono text-[8px] uppercase tracking-[0.13em] text-[#62665d]">
-                            Engineering
-                        </span>
-
-                        <h3 className="mt-1 font-serif text-[30px] font-normal leading-none max-[780px]:text-[23px]">
-                            Overview
-                        </h3>
-                    </div>
-
-                    <button
-                        type="button"
-                        className="rounded-md border border-white/[0.12] bg-[#20221d] px-2.5 py-2 font-mono text-[9px] text-[#daddd3]"
-                    >
-                        + New ticket
-                    </button>
-                </div>
-
-                <div className="mt-5 rounded-lg border border-white/[0.09] bg-[#1d201b] p-[13px]">
-                    <div className="mb-2.5 flex justify-between font-mono text-[8px]">
-                        <span className="uppercase tracking-[0.12em] text-[#71756b]">
-                            Milestone / Release 1.4
-                        </span>
-
-                        <strong className="font-normal text-[#b8c0ae]">
-                            18 / 29 complete
-                        </strong>
-                    </div>
-
-                    <div className="h-[3px] overflow-hidden rounded-full bg-[#30342d]">
-                        <div className="h-full w-[65%] bg-[#d8ff58]" />
-                    </div>
-
-                    <span className="mt-2 block font-mono text-[8px] text-[#555a51]">
-                        Delivery progress
-                    </span>
-                </div>
-
-                <div className="mt-[17px]">
-                    {[
-                        [
-                            "FE-42",
-                            "Fix auth token refresh race condition",
-                            "Review",
-                            "high",
-                        ],
-                        [
-                            "FE-38",
-                            "Implement kanban drag-and-drop",
-                            "Progress",
-                            "green",
-                        ],
-                        [
-                            "FE-35",
-                            "Custom field renderer component",
-                            "Progress",
-                            "green",
-                        ],
-                        [
-                            "BE-14",
-                            "Webhook delivery retry queue",
-                            "Blocked",
-                            "red",
-                        ],
-                    ].map(([id, title, status, tone], index) => (
-                        <div
-                            key={id}
-                            className="flex min-h-12 items-center gap-2 border-b border-white/[0.07] font-mono text-[9px] max-[780px]:gap-1.5 max-[780px]:text-[8px]"
-                        >
-                            <span
-                                className={[
-                                    "w-2.5",
-                                    tone === "high"
-                                        ? "text-[#b4a7ff]"
-                                        : tone === "green"
-                                            ? "text-[#9dbd48]"
-                                            : tone === "red"
-                                                ? "text-[#ff8b79]"
-                                                : "text-[#888b82]",
-                                ].join(" ")}
-                            >
-                                {index === 3 ? "!" : "↑"}
-                            </span>
-
-                            <span className="w-[38px] text-[#575b53]">
-                                {id}
-                            </span>
-
-                            <span className="min-w-0 flex-1 truncate text-[#c9ccc4]">
-                                {title}
-                            </span>
-
-                            <span
-                                className={[
-                                    "max-[780px]:hidden",
-                                    tone === "green"
-                                        ? "text-[#9dbd48]"
-                                        : tone === "red"
-                                            ? "text-[#e47f70]"
-                                            : "text-[#656a61]",
-                                ].join(" ")}
-                            >
-                                {status}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="flex justify-between pt-3.5 font-mono text-[8px] text-[#50544c]">
-                    <span>29 open tickets</span>
-                    <span>Updated 2m ago</span>
-                </div>
-            </main>
-
-            <aside className="border-l border-white/[0.08] p-6 max-[780px]:hidden">
-                <span className="font-mono text-[8px] uppercase tracking-[0.13em] text-[#62665d]">
-                    Delivery
-                </span>
-
-                <div className="my-3.5 flex h-[66px] items-end gap-1">
-                    {[32, 48, 40, 67, 54, 80, 92].map(
-                        (height, index) => (
-                            <i
-                                key={index}
-                                className="block flex-1 rounded-t-[2px] bg-[#34382f]"
-                                style={{
-                                    height: `${height}%`,
-                                    background:
-                                        index === 6
-                                            ? "#d8ff58"
-                                            : undefined,
-                                }}
-                            />
-                        )
-                    )}
-                </div>
-
-                <div className="font-serif text-[32px]">42</div>
-
-                <span className="font-mono text-[8px] text-[#656960]">
-                    points / cycle
-                </span>
-
-                <div className="my-6 h-px bg-white/[0.08]" />
-
-                <span className="font-mono text-[8px] uppercase tracking-[0.13em] text-[#62665d]">
-                    Workload
-                </span>
-
-                {[
-                    ["AK", 72],
-                    ["ML", 44],
-                    ["JP", 86],
-                ].map(([name, value]) => (
-                    <div
-                        key={name}
-                        className="mt-3 flex items-center gap-2 font-mono text-[8px] text-[#686c63]"
-                    >
-                        <span>{name}</span>
-
-                        <div className="h-[3px] flex-1 bg-[#30342d]">
-                            <i
-                                className="block h-full bg-[#767e69]"
-                                style={{ width: `${value}%` }}
-                            />
-                        </div>
-                    </div>
-                ))}
-            </aside>
-        </div>
-    </div>
+    </Reveal>
 );
 
+/* ==========================================================================
+   02 / THE WORKSPACE TOUR
+   Every tab in a project, with the real screen, what it does today, and
+   what is coming to it next.
+   ========================================================================== */
+const TABS: {
+    id: TabId;
+    label: string;
+    breadcrumb: string;
+    eyebrow: string;
+    title: string;
+    description: string;
+    today: string[];
+    next: string[];
+    screen: ReactNode;
+}[] = [
+        {
+            id: "dashboard",
+            label: "Dashboard",
+            breadcrumb: "Dashboard",
+            eyebrow: "Project / Dashboard",
+            title: "The first screen of the day.",
+            description:
+                "One view that answers three questions before standup: how much is open, what is actually moving, and what is about to go wrong. Every number links straight through to the filtered queue behind it.",
+            today: [
+                "Open, active, in-review and attention counts across the project",
+                "Status distribution across all six delivery states",
+                "Attention list surfacing unowned P0 / P1 work",
+                "Closed-per-week trend and workload split by assignee",
+                "Click any figure to jump into the matching ticket filter",
+            ],
+            next: ["Cycle-time and throughput charts", "Saved dashboard views per role"],
+            screen: <DashboardScreen />,
+        },
+        {
+            id: "tickets",
+            label: "Tickets",
+            breadcrumb: "Tickets",
+            eyebrow: "Project / Tickets",
+            title: "The queue, and nothing but the queue.",
+            description:
+                "A dense, readable list rather than a wall of cards. Filter by priority, status or ownership, and open any row into a full ticket with description, work details, comments, mentions and a complete activity trail.",
+            today: [
+                "Ticket types, P0–P4 priorities, assignee and milestone on every item",
+                "Stacked filters for priority, status and unassigned work",
+                "Full ticket detail with editable description and work details",
+                "Comments with @mentions that notify the person immediately",
+                "Activity history recording every field change and status move",
+                "Demo links so reviewers can see the result, not just the ticket",
+            ],
+            next: [
+                "Saved filters and shared views",
+                "Bulk edit across a selection",
+                "Sub-tasks and blocking relationships",
+            ],
+            screen: <TicketsScreen />,
+        },
+        {
+            id: "board",
+            label: "Board",
+            breadcrumb: "Kanban board",
+            eyebrow: "Project / Board",
+            title: "Six columns, one honest picture.",
+            description:
+                "Drag a ticket and its status updates everywhere at once. WIP limits on the middle columns turn yellow the moment a stage carries more than it should, so overload is visible before it becomes a delay.",
+            today: [
+                "Six delivery states: To Do, In Progress, In Review, Testing, Done, Closed",
+                "Drag and drop with an optimistic update and rollback if the save fails",
+                "WIP limits on In Progress, In Review and Testing",
+                "The drop target lights up so you always know where a card lands",
+                "Quick chips for all work, my work, P1 / P2 and unassigned",
+            ],
+            next: ["Swimlanes by assignee or milestone", "Column-level automation rules"],
+            screen: <BoardScreen />,
+        },
+        {
+            id: "milestones",
+            label: "Milestones",
+            breadcrumb: "Milestones",
+            eyebrow: "Project / Milestones",
+            title: "Delivery, not vibes.",
+            description:
+                "Group tickets into what you are actually shipping. Each milestone tracks completion against its own expected curve, so a slip shows up as a widening gap days before the date is missed.",
+            today: [
+                "Milestones with target dates and ticket assignment",
+                "Live completion percentage and delivered / total ratio",
+                "On track, at risk and delivered health signals",
+                "Expected vs actual progress charted over time",
+                "Attention list of P0 / P1 tickets blocking the milestone",
+                "Drag tickets between milestones to rescope",
+            ],
+            next: [
+                "Dedicated sprints with capacity planning",
+                "Release notes generated from delivered tickets",
+            ],
+            screen: <MilestonesScreen />,
+        },
+        {
+            id: "standup",
+            label: "Standup",
+            breadcrumb: "Standup",
+            eyebrow: "Project / Standup",
+            title: "The meeting, already written.",
+            description:
+                "Standup reads the activity log instead of asking people to remember. Pick a teammate and see exactly what they touched, what changed state and what finished — then export the whole thing for whoever is not in the room.",
+            today: [
+                "Per-person view of assigned, moved, finished and attention work",
+                "Every status transition shown as the actual movement between states",
+                "Filter down to only what changed today",
+                "Project-wide summary across the whole team",
+                "One-click export to Excel for reporting",
+            ],
+            next: [
+                "Scheduled standup digests to Slack and email",
+                "AI-written summary of the day in plain prose",
+            ],
+            screen: <StandupScreen />,
+        },
+        {
+            id: "members",
+            label: "Members",
+            breadcrumb: "Members",
+            eyebrow: "Administration / Members",
+            title: "People, and what they can do.",
+            description:
+                "Members exist at two levels. The organisation holds everyone you work with; each project draws from that pool with its own roles, so a contractor on one project is not automatically on the rest.",
+            today: [
+                "Organisation directory with active and invited states",
+                "Per-project membership drawn from the organisation",
+                "Roles controlling who can edit, administer and delete",
+                "Assignee picker everywhere, scoped to project members",
+                "Invite by email with a verification flow",
+            ],
+            next: [
+                "Custom roles and granular permissions",
+                "SSO and SCIM provisioning",
+                "Guest access for clients and contractors",
+            ],
+            screen: <MembersScreen />,
+        },
+        {
+            id: "settings",
+            label: "Settings",
+            breadcrumb: "Project settings",
+            eyebrow: "Administration / Settings",
+            title: "Short, and deliberately boring.",
+            description:
+                "Settings should be somewhere you visit twice and then forget. Name, description, the ticket key prefix, and a clearly fenced destructive zone that always asks twice.",
+            today: [
+                "Rename a project and edit its description inline",
+                "Ticket key prefix driving every ticket number",
+                "Validation before anything is written",
+                "Isolated danger zone with a confirmation step for deletion",
+            ],
+            next: [
+                "Custom fields and ticket templates",
+                "Per-project workflow configuration",
+                "Webhooks and outbound integrations",
+            ],
+            screen: <SettingsScreen />,
+        },
+    ];
+
+const WorkspaceTour = () => {
+    const [active, setActive] = useState<TabId>("dashboard");
+    const tab = TABS.find((item) => item.id === active) ?? TABS[0];
+
+    return (
+        <section
+            id="tour"
+            className="mx-auto max-w-[1240px] px-8 pb-[150px] pt-[120px] max-[780px]:px-5 max-[780px]:py-[90px]"
+        >
+            <SectionHead
+                number="03"
+                kicker="Inside a project"
+                lead="Seven tabs."
+                emphasis="No dead ends."
+                copy="Every project opens with the same navigation. Pick a tab below to see the real screen, what it does today, and what is coming to it next."
+            />
+
+            {/* Tab bar — the product's own active-tab language */}
+            <Reveal>
+                <div className="flex flex-wrap border-b" style={{ borderColor: "rgba(17,17,15,.14)" }}>
+                    {TABS.map((item) => {
+                        const isActive = item.id === active;
+
+                        return (
+                            <button
+                                key={item.id}
+                                type="button"
+                                onClick={() => setActive(item.id)}
+                                className="relative min-h-[46px] border-0 bg-transparent px-4 font-mono text-[10px] uppercase tracking-[.14em] transition-colors duration-200"
+                                style={{ color: isActive ? INK : "#85847d" }}
+                            >
+                                {item.label}
+                                <span
+                                    aria-hidden="true"
+                                    className="absolute inset-x-0 bottom-[-1px] h-[2px] origin-left transition-transform duration-300 ease-[cubic-bezier(.16,1,.3,1)]"
+                                    style={{
+                                        background: isActive ? INK : CYPRESS,
+                                        transform: isActive ? "scaleX(1)" : "scaleX(0)",
+                                    }}
+                                />
+                            </button>
+                        );
+                    })}
+                </div>
+            </Reveal>
+
+            <div className="mt-10 grid grid-cols-[minmax(0,1.55fr)_minmax(300px,.95fr)] gap-10 max-[1050px]:grid-cols-1">
+                <div key={`${tab.id}-screen`} className="fb-reveal is-visible min-w-0">
+                    <AppFrame active={tab.id} breadcrumb={tab.breadcrumb} onNavigate={setActive}>
+                        {tab.screen}
+                    </AppFrame>
+                </div>
+
+                <div key={`${tab.id}-copy`} className="fb-reveal is-visible">
+                    <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-[#77766f]">
+                        {tab.eyebrow}
+                    </span>
+
+                    <h3 className="mt-4 font-serif text-[clamp(34px,3.4vw,46px)] font-normal leading-[.95] tracking-[-.035em]">
+                        {tab.title}
+                    </h3>
+
+                    <p className="mt-5 text-[14px] leading-[1.8] text-[#6a6961]">{tab.description}</p>
+
+                    <div className="mt-8">
+                        <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#8b8981]">
+                            In the product today
+                        </span>
+
+                        <div className="mt-3">
+                            {tab.today.map((entry) => (
+                                <div
+                                    key={entry}
+                                    className="flex items-start gap-3 border-t py-3 text-[12px] leading-[1.6] text-[#55544e]"
+                                    style={{ borderColor: "rgba(17,17,15,.1)" }}
+                                >
+                                    <span className="mt-[6px] h-[5px] w-[5px] shrink-0" style={{ background: "#8ba62a" }} />
+                                    {entry}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mt-8 p-5" style={{ background: INK }}>
+                        <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#71756d]">
+                            Coming to this tab
+                        </span>
+
+                        <div className="mt-3">
+                            {tab.next.map((entry, index) => (
+                                <div
+                                    key={entry}
+                                    className="flex items-start gap-3 py-2.5 text-[12px] leading-[1.6] text-[#9a9d93]"
+                                    style={{
+                                        borderTop: index === 0 ? "0" : "1px solid rgba(255,255,255,.1)",
+                                    }}
+                                >
+                                    <span className="mt-[6px] h-[5px] w-[5px] shrink-0" style={{ background: "#6e754f" }} />
+                                    {entry}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+/* ==========================================================================
+   PAGE SECTIONS
+   ========================================================================== */
 const Nav = () => {
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 24);
-
         window.addEventListener("scroll", onScroll, { passive: true });
-
-        return () =>
-            window.removeEventListener("scroll", onScroll);
+        return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
     const scrollTo = (id: string) => {
-        document.querySelector(id)?.scrollIntoView({
-            behavior: "smooth",
-        });
+        document.querySelector(id)?.scrollIntoView({ behavior: "smooth" });
     };
 
     return (
@@ -427,28 +442,22 @@ const Nav = () => {
                 "border border-black/10 bg-[#f3f1ea]/75 px-3.5 pl-5",
                 "backdrop-blur-xl transition-all duration-300",
                 "max-[780px]:top-2.5 max-[780px]:h-[58px] max-[780px]:w-[calc(100%-20px)] max-[780px]:rounded-[15px]",
-                scrolled
-                    ? "top-2.5 bg-[#faf9f5]/90 shadow-[0_18px_50px_rgba(17,17,15,.09)]"
-                    : "",
+                scrolled ? "top-2.5 bg-[#faf9f5]/90 shadow-[0_18px_50px_rgba(17,17,15,.09)]" : "",
             ].join(" ")}
         >
             <button
                 type="button"
                 onClick={() => scrollTo("#top")}
-                aria-label="Projectec home"
+                aria-label="WorkOrbit home"
                 className="border-0 bg-transparent p-0"
             >
-                <ProjectecLogo
-                    size={27}
-                    showWordmark
-                    animate
-                    enableHover
-                />
+                <WorkOrbitLogo size={27} showWordmark animate enableHover />
             </button>
 
-            <nav className="absolute left-1/2 flex -translate-x-1/2 gap-[34px] max-[780px]:hidden">
+            <nav className="absolute left-1/2 flex -translate-x-1/2 gap-[30px] max-[900px]:hidden">
                 {[
                     ["Product", "#product"],
+                    ["Tour", "#tour"],
                     ["Workflow", "#workflow"],
                     ["Roadmap", "#roadmap"],
                 ].map(([label, href]) => (
@@ -471,10 +480,7 @@ const Nav = () => {
                     Sign in
                 </Link>
 
-                <Link
-                    to="/register"
-                    className="inline-flex no-underline"
-                >
+                <Link to="/register" className="inline-flex no-underline">
                     <Button>Start free</Button>
                 </Link>
             </div>
@@ -486,19 +492,18 @@ const Hero = () => (
     <section
         id="top"
         className={[
-            "relative grid min-h-[900px] items-center gap-5 sm:gap-10 overflow-hidden",
+            "relative grid min-h-[900px] items-center gap-5 overflow-hidden sm:gap-10",
             "grid-cols-[minmax(0,.88fr)_minmax(540px,1.12fr)]",
-            "bg-[#f3f1ea]",
-            "px-[max(32px,calc((100vw-1240px)/2))] pb-10 pt-[190px]",
-            "max-[1050px]:grid-cols-1 max-[1050px]:min-h-0 max-[1050px]:pb-[100px] max-[1050px]:pt-[150px]",
+            "bg-[#f3f1ea] px-[max(32px,calc((100vw-1240px)/2))] pb-10 pt-[190px]",
+            "max-[1050px]:min-h-0 max-[1050px]:grid-cols-1 max-[1050px]:pb-[100px] max-[1050px]:pt-[150px]",
             "max-[780px]:px-5 max-[780px]:pb-[70px] max-[780px]:pt-[130px]",
         ].join(" ")}
         style={{
             backgroundImage:
-                "radial-gradient(circle at 73% 45%, rgba(216,255,88,.16), transparent 26%), radial-gradient(circle at 93% 12%, rgba(140,167,255,.13), transparent 24%)",
+                "radial-gradient(circle at 73% 45%, rgba(6,78,59,.13), transparent 26%), radial-gradient(circle at 93% 12%, rgba(140,167,255,.13), transparent 24%)",
         }}
     >
-        <div className="pointer-events-none absolute right-[8%] top-[25%] h-80 w-80 rounded-full bg-[#d8ff58]/15 blur-[60px]" />
+        <div className="pointer-events-none absolute right-[8%] top-[25%] h-80 w-80 rounded-full bg-[#064e3b]/12 blur-[60px]" />
         <div className="pointer-events-none absolute bottom-[10%] right-[34%] h-60 w-60 rounded-full bg-[#8ca7ff]/10 blur-[60px]" />
 
         <div className="relative z-10 pt-[30px]">
@@ -521,53 +526,40 @@ const Hero = () => (
 
             <Reveal delay={150}>
                 <p className="mt-[42px] max-w-[490px] text-base leading-[1.75] text-[#65645d] max-[780px]:mt-[30px] max-[780px]:text-sm">
-                    Plan projects, move work and understand delivery from one
-                    beautifully focused workspace. Projectec keeps engineering
-                    teams moving.
+                    Organisations, projects, tickets, a six-state board, milestones and an
+                    automatic standup. One workspace that holds the whole delivery story
+                    instead of five tools that each hold a third of it.
                 </p>
             </Reveal>
 
             <Reveal delay={220}>
                 <div className="mt-[34px] flex items-center gap-4 sm:gap-6 max-[780px]:flex-col max-[780px]:items-start max-[780px]:gap-[18px]">
-                    <Link
-                        to="/register"
-                        className="inline-flex no-underline"
-                    >
+                    <Link to="/register" className="inline-flex no-underline">
                         <Button>Start for free</Button>
                     </Link>
 
                     <button
                         type="button"
-                        onClick={() =>
-                            document
-                                .querySelector("#product")
-                                ?.scrollIntoView({
-                                    behavior: "smooth",
-                                })
-                        }
+                        onClick={() => document.querySelector("#tour")?.scrollIntoView({ behavior: "smooth" })}
                         className="inline-flex items-center gap-2 border-0 bg-transparent text-[13px] text-[#5d5c56]"
                     >
-                        Explore the product
+                        Take the tour
                         <Arrow />
                     </button>
                 </div>
             </Reveal>
 
             <Reveal delay={290}>
-                <div className="mt-[58px] flex max-w-[500px] gap-9 border-t border-black/[0.12] pt-[22px] max-[780px]:mt-[42px] max-[780px]:gap-[18px]">
+                <div className="mt-[58px] flex max-w-[520px] gap-9 border-t border-black/[0.12] pt-[22px] max-[780px]:mt-[42px] max-[780px]:gap-[18px]">
                     {[
-                        ["8", "core areas"],
+                        ["7", "project tabs"],
                         ["6", "workflow states"],
-                        ["1", "shared workspace"],
+                        ["5", "priority levels"],
                     ].map(([value, label]) => (
-                        <div
-                            key={label}
-                            className="flex flex-col gap-1"
-                        >
+                        <div key={label} className="flex flex-col gap-1">
                             <strong className="font-serif text-[28px] font-normal max-[780px]:text-[23px]">
                                 {value}
                             </strong>
-
                             <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#77766f]">
                                 {label}
                             </span>
@@ -577,16 +569,14 @@ const Hero = () => (
             </Reveal>
         </div>
 
-        <Reveal
-            className="relative z-10 min-w-0 [perspective:1600px] max-[1050px]:mt-[50px]"
-            delay={180}
-        >
+        <Reveal className="relative z-10 min-w-0 [perspective:1600px] max-[1050px]:mt-[50px]" delay={180}>
             <div className="absolute -right-[30px] -top-[90px] h-[520px] w-[520px] rounded-full border border-black/[0.09] max-[780px]:hidden" />
-
             <div className="absolute -right-[100px] top-[120px] h-[280px] w-full max-w-[700px] rotate-[-20deg] rounded-[50%] border border-black/[0.09] max-[780px]:hidden" />
 
             <div className="transition-transform duration-1000 ease-[cubic-bezier(.16,1,.3,1)] [transform:rotateY(-7deg)_rotateX(2deg)_rotateZ(1deg)] hover:[transform:rotateY(-2deg)_rotateX(0)_rotateZ(0)] max-[1050px]:[transform:none]">
-                <ProductWindow />
+                <AppFrame active="dashboard" breadcrumb="Dashboard" minHeight={520}>
+                    <DashboardScreen />
+                </AppFrame>
             </div>
         </Reveal>
 
@@ -595,7 +585,6 @@ const Hero = () => (
 
             <div className="flex items-center gap-3">
                 <span>Scroll to explore</span>
-
                 <span className="relative h-px w-20 bg-[#aaa8a0] after:absolute after:right-0 after:top-[-2px] after:h-[5px] after:w-[5px] after:rounded-full after:bg-[#11110f]" />
             </div>
         </div>
@@ -604,23 +593,13 @@ const Hero = () => (
 
 const LogoRail = () => (
     <section className="flex min-h-[126px] items-center gap-[60px] border-y border-black/[0.12] bg-[#eeece5] px-[max(32px,calc((100vw-1240px)/2))] py-[30px] max-[780px]:block max-[780px]:px-5 max-[780px]:py-7">
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#77766f]">
+        <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-[#77766f]">
             One workspace for
         </span>
 
         <div className="flex flex-1 items-center justify-between gap-7 max-[780px]:mt-[22px] max-[780px]:flex-wrap max-[780px]:justify-start">
-            {[
-                "PROJECTS",
-                "TICKETS",
-                "KANBAN",
-                "MILESTONES",
-                "DASHBOARD",
-                "STANDUP",
-            ].map((label) => (
-                <span
-                    key={label}
-                    className="font-mono text-[11px] font-medium tracking-[0.08em] text-[#8c8b84]"
-                >
+            {["ORGANISATIONS", "PROJECTS", "TICKETS", "BOARD", "MILESTONES", "STANDUP", "MEMBERS"].map((label) => (
+                <span key={label} className="font-mono text-[11px] font-medium tracking-[0.08em] text-[#8c8b84]">
                     {label}
                 </span>
             ))}
@@ -631,232 +610,36 @@ const LogoRail = () => (
 const ProductSection = () => (
     <section
         id="product"
-        className="mx-auto max-w-[1240px] px-8 pb-[150px] pt-[150px] max-[780px]:px-5 max-[780px]:py-[100px]"
+        className="mx-auto max-w-[1240px] px-8 pb-[130px] pt-[150px] max-[780px]:px-5 max-[780px]:py-[100px]"
     >
-        <Reveal>
-            <div className="grid grid-cols-2 items-end gap-[80px] max-[780px]:block">
-                <div>
-                    <span className="mb-[25px] block font-mono text-[10px] uppercase tracking-[0.12em] text-[#77766f]">
-                        01 / The workspace
-                    </span>
+        <SectionHead
+            number="02"
+            kicker="The workspace"
+            lead="Less project"
+            emphasis="management."
+            copy="The best project management software disappears into the way your team works. WorkOrbit gives you structure without asking for a full-time administrator to maintain it."
+        />
 
-                    <h2 className="text-[clamp(58px,7vw,96px)] font-semibold leading-[.82] tracking-[-.065em] max-[780px]:text-[clamp(53px,16vw,82px)]">
-                        Less project
-                        <br />
-                        <em className="font-serif font-normal not-italic text-[#77766e]">
-                            management.
-                        </em>
-                    </h2>
-                </div>
-
-                <p className="max-w-[390px] pb-1 text-[15px] leading-[1.8] text-[#727169]">
-                    The best project management software disappears into the
-                    way your team works. Projectec gives you structure without
-                    slowing you down.
-                </p>
-            </div>
+        <Reveal delay={80}>
+            <AppFrame active="tickets" breadcrumb="Tickets" minHeight={580}>
+                <TicketsScreen />
+            </AppFrame>
         </Reveal>
 
-        <Reveal delay={80} className="mt-[30px]">
-            <ProductWindow compact />
-        </Reveal>
-    </section>
-);
-
-const FeatureVisual: FC<{ type: string }> = ({ type }) => {
-    if (type === "issues") {
-        return (
-            <div className="absolute bottom-7 left-7 right-7 overflow-hidden rounded-xl border border-black/[0.12] bg-[#f7f5ee] p-[18px] shadow-[0_18px_40px_rgba(17,17,15,.06)]">
-                <div className="flex justify-between pb-2.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#89877f]">
-                    <span>Backlog</span>
-                    <span>24 items</span>
-                </div>
-
+        <Reveal delay={140}>
+            <div className="mt-4 grid grid-cols-3 gap-px bg-black/[0.1] max-[780px]:grid-cols-1">
                 {[
-                    ["P0", "Auth refresh edge case"],
-                    ["P1", "Keyboard navigation"],
-                    ["P2", "Release notes"],
-                    ["P1", "Webhook retries"],
-                ].map(([priority, text]) => (
-                    <div
-                        key={text}
-                        className="grid grid-cols-[28px_1fr_22px] items-center gap-2 border-t border-black/[0.12] py-3 text-[10px] text-[#5d5c55]"
-                    >
-                        <span
-                            className={
-                                priority === "P0"
-                                    ? "font-mono text-[#e56e5c]"
-                                    : "font-mono text-[#85847d]"
-                            }
-                        >
-                            {priority}
-                        </span>
-
-                        <span>{text}</span>
-
-                        <span>•••</span>
+                    ["Structure you already have", "Organisation, project, ticket, milestone. Nothing invented, nothing to learn."],
+                    ["One place for context", "Comments, mentions and a full activity trail live on the ticket, not in a thread somewhere else."],
+                    ["Reporting that writes itself", "Dashboard, milestone health and standup are generated from the work, not from status updates."],
+                ].map(([title, copy]) => (
+                    <div key={title} className="bg-[#f3f1ea] p-6">
+                        <h3 className="font-serif text-[22px] font-normal leading-tight">{title}</h3>
+                        <p className="mt-2.5 text-[12px] leading-[1.7] text-[#77766e]">{copy}</p>
                     </div>
                 ))}
-            </div>
-        );
-    }
-
-    if (type === "board") {
-        return (
-            <div className="absolute bottom-7 left-7 right-7 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-black/[0.12] bg-black/[0.12] p-px shadow-[0_18px_40px_rgba(17,17,15,.06)]">
-                {["TODO", "BUILDING", "DONE"].map((column, ci) => (
-                    <div
-                        key={column}
-                        className="min-h-[215px] bg-[#f7f5ee] p-3"
-                    >
-                        <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[#8d8b84]">
-                            {column}
-                        </span>
-
-                        {[0, 1, 2]
-                            .slice(0, ci === 1 ? 3 : 2)
-                            .map((_, index) => (
-                                <div
-                                    key={index}
-                                    className="mt-2.5 flex flex-col gap-1 rounded-[7px] border border-black/[0.1] bg-white p-2"
-                                >
-                                    <span className="font-mono text-[7px] text-[#99978f]">
-                                        {ci === 0
-                                            ? "FE-42"
-                                            : ci === 1
-                                                ? "BE-14"
-                                                : "FE-38"}
-                                    </span>
-
-                                    <span className="text-[9px] leading-[1.35] text-[#55544e]">
-                                        {ci === 0
-                                            ? "Auth token refresh"
-                                            : ci === 1
-                                                ? "Retry queue"
-                                                : "Kanban interactions"}
-                                    </span>
-                                </div>
-                            ))}
-                    </div>
-                ))}
-            </div>
-        );
-    }
-
-    if (type === "collaboration") {
-        return (
-            <div className="absolute bottom-7 left-7 right-7 overflow-hidden rounded-xl border border-white/10 bg-[#171815] p-[18px] text-[#efefe9] shadow-[0_18px_40px_rgba(17,17,15,.06)]">
-                <div className="flex items-center gap-2 font-mono text-[9px]">
-                    <Spark />
-                    <span>Projectec AI</span>
-
-                    <small className="ml-auto text-[7px] text-[#6f7569]">
-                        TICKET CONTEXT
-                    </small>
-                </div>
-
-                <div className="my-7 text-[11px] text-[#b0b3aa]">
-                    Ticket activity
-                </div>
-
-                <div className="rounded-lg border border-white/[0.09] bg-[#20221d] p-3.5">
-                    <strong className="text-xs font-medium">
-                        Recent activity
-                    </strong>
-
-                    <p className="my-2 text-[10px] leading-[1.6] text-[#7e8278]">
-                        BE-14 is on the critical path and has no owner. FE-38 is
-                        waiting on the dependency package.
-                    </p>
-
-                    <span className="font-mono text-[9px] text-[#d8ff58]">
-                        → View ticket activity
-                    </span>
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="absolute bottom-7 left-7 right-7 grid min-h-[180px] grid-cols-[1fr_1.4fr] items-end gap-5 overflow-hidden rounded-xl border border-black/[0.12] bg-[#f7f5ee] p-5 shadow-[0_18px_40px_rgba(17,17,15,.06)]">
-            <div>
-                <span className="block font-mono text-[8px] uppercase tracking-[0.1em] text-[#8b8981]">
-                    Delivery signal
-                </span>
-
-                <strong className="my-2 block font-serif text-[62px] font-normal leading-[.8]">
-                    42
-                </strong>
-
-                <small className="font-mono text-[8px] text-[#78912f]">
-                    milestone progress
-                </small>
-            </div>
-
-            <div className="flex h-[130px] items-end gap-[5px]">
-                {[30, 42, 35, 55, 48, 68, 74, 88].map(
-                    (height, index) => (
-                        <i
-                            key={index}
-                            className="block flex-1 rounded-t-[2px] bg-[#b5b5a9]"
-                            style={{ height: `${height}%` }}
-                        />
-                    )
-                )}
-            </div>
-        </div>
-    );
-};
-
-const Features = () => (
-    <section className="mx-auto max-w-[1240px] px-8 pb-[150px] pt-[120px] max-[780px]:px-5 max-[780px]:py-[100px]">
-        <Reveal>
-            <div className="mb-[76px]">
-                <span className="mb-[25px] block font-mono text-[10px] uppercase tracking-[0.12em] text-[#77766f]">
-                    02 / Capabilities
-                </span>
-
-                <h2 className="text-[clamp(58px,7vw,96px)] font-semibold leading-[.82] tracking-[-.065em] max-[780px]:text-[clamp(53px,16vw,82px)]">
-                    Everything you need.
-                    <br />
-                    <em className="font-serif font-normal not-italic text-[#77766e]">
-                        Nothing in the way.
-                    </em>
-                </h2>
             </div>
         </Reveal>
-
-        <div className="grid grid-cols-12 gap-3.5 max-[780px]:block">
-            {FEATURES.map((feature, index) => (
-                <Reveal
-                    key={feature.index}
-                    delay={index * 70}
-                    className={[
-                        "relative min-h-[500px] overflow-hidden rounded-[18px] border border-black/[0.12] bg-[#eeece5] p-7",
-                        index === 0 || index === 3
-                            ? "col-span-7"
-                            : "col-span-5",
-                        "max-[1050px]:min-h-[560px]",
-                        "max-[780px]:mb-3",
-                    ].join(" ")}
-                >
-                    <div className="flex justify-between font-mono text-[9px] uppercase tracking-[0.1em] text-[#929088]">
-                        <span>{feature.index}</span>
-                        <span>{feature.eyebrow}</span>
-                    </div>
-
-                    <h3 className="mt-[70px] max-w-[470px] font-serif text-[clamp(38px,4vw,58px)] font-normal leading-[.9] tracking-[-.04em] max-[780px]:mt-[50px]">
-                        {feature.title}
-                    </h3>
-
-                    <p className="mt-[17px] max-w-[420px] text-[13px] leading-[1.7] text-[#77766e]">
-                        {feature.description}
-                    </p>
-
-                    <FeatureVisual type={feature.visual} />
-                </Reveal>
-            ))}
-        </div>
     </section>
 );
 
@@ -869,47 +652,82 @@ const WorkflowSection = () => (
             <Reveal>
                 <div>
                     <span className="mb-[25px] block font-mono text-[10px] uppercase tracking-[0.12em] text-[#72756d]">
-                        03 / Workflow
+                        04 / Workflow
                     </span>
 
-                    <h2 className="max-w-[600px] text-[clamp(58px,7vw,96px)] font-semibold leading-[.82] tracking-[-.065em] max-[780px]:text-[clamp(53px,16vw,82px)]">
+                    <h2 className="max-w-[600px] text-[clamp(56px,6.6vw,92px)] font-semibold leading-[.82] tracking-[-.065em] max-[780px]:text-[clamp(50px,15vw,78px)]">
                         From idea
                         <br />
-                        <em className="font-serif font-normal not-italic text-[#777a72]">
-                            to shipped.
-                        </em>
+                        <em className="font-serif font-normal not-italic text-[#777a72]">to shipped.</em>
                     </h2>
 
                     <p className="mt-[35px] max-w-[450px] text-[14px] leading-[1.8] text-[#8b8e85]">
-                        Projectec keeps planning, execution and delivery context
-                        together so teams can spend less time coordinating and
-                        more time shipping.
+                        Four movements, and six states a ticket can be in. That is the
+                        entire model — small enough to hold in your head on day one.
                     </p>
+
+                    <div className="mt-10">
+                        <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#72756d]">
+                            The six states
+                        </span>
+
+                        <div className="mt-4 grid grid-cols-2 gap-x-6 max-[780px]:grid-cols-1">
+                            {WORKFLOW_STATES.map(([state, meaning], index) => (
+                                <div key={state} className="flex items-baseline gap-3 border-t border-white/[0.1] py-3">
+                                    <span className="font-mono text-[9px] text-[#656960]">
+                                        {String(index + 1).padStart(2, "0")}
+                                    </span>
+                                    <span
+                                        className="text-[12px] font-medium"
+                                        style={{ color: index === 4 ? LIME : "#c9ccc4" }}
+                                    >
+                                        {state}
+                                    </span>
+                                    <span className="ml-auto font-mono text-[9px] text-[#6d7168]">{meaning}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </Reveal>
 
             <Reveal delay={100}>
                 <div>
                     {STEPS.map(([number, title, description]) => (
-                        <div
-                            key={number}
-                            className="grid grid-cols-[45px_1fr] gap-5 border-t border-white/[0.1] py-6"
-                        >
-                            <span className="font-mono text-[9px] text-[#656960]">
-                                {number}
-                            </span>
+                        <div key={number} className="grid grid-cols-[45px_1fr] gap-5 border-t border-white/[0.1] py-6">
+                            <span className="font-mono text-[9px] text-[#656960]">{number}</span>
 
                             <div>
-                                <h3 className="font-serif text-[30px] font-normal">
-                                    {title}
-                                </h3>
-
-                                <p className="mt-2 text-[11px] leading-[1.7] text-[#777a72]">
-                                    {description}
-                                </p>
+                                <h3 className="font-serif text-[30px] font-normal">{title}</h3>
+                                <p className="mt-2 text-[11px] leading-[1.7] text-[#777a72]">{description}</p>
                             </div>
                         </div>
                     ))}
+
+                    <div className="mt-8 border border-white/[0.12] p-5">
+                        <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#72756d]">
+                            Priority scale
+                        </span>
+
+                        <div className="mt-3.5 flex flex-wrap gap-2">
+                            {([
+                                ["P0", "Critical", APP.red],
+                                ["P1", "High", APP.yellow],
+                                ["P2", "Medium", APP.yellow],
+                                ["P3", "Low", LIME],
+                                ["P4", "Trivial", "#8b8e85"],
+                            ] as [string, string, string][]).map(([code, label, tone]) => (
+                                <span
+                                    key={code}
+                                    className="inline-flex items-center gap-2 border px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[.12em]"
+                                    style={{ borderColor: "rgba(255,255,255,.14)", color: tone }}
+                                >
+                                    <i className="h-[4px] w-[4px]" style={{ background: tone }} />
+                                    {code} {label}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </Reveal>
         </div>
@@ -922,30 +740,55 @@ const AISection = () => (
             <div className="grid grid-cols-2 gap-[100px] max-[1050px]:grid-cols-1 max-[1050px]:gap-[60px]">
                 <div>
                     <span className="mb-[25px] block font-mono text-[10px] uppercase tracking-[0.12em] text-[#77766f]">
-                        04 / Intelligence
+                        05 / Intelligence
                     </span>
 
-                    <h2 className="text-[clamp(58px,7vw,96px)] font-semibold leading-[.82] tracking-[-.065em] max-[780px]:text-[clamp(53px,16vw,82px)]">
+                    <h2 className="text-[clamp(56px,6.6vw,92px)] font-semibold leading-[.82] tracking-[-.065em] max-[780px]:text-[clamp(50px,15vw,78px)]">
                         Context that
                         <br />
-                        <em className="font-serif font-normal not-italic text-[#77766e]">
-                            stays with work.
-                        </em>
+                        <em className="font-serif font-normal not-italic text-[#77766e]">stays with work.</em>
                     </h2>
 
                     <p className="mt-[35px] max-w-[450px] text-[14px] leading-[1.8] text-[#727169]">
-                        Projectec AI is designed to understand your projects,
-                        tickets, milestones and standups instead of forcing your
-                        team to rebuild context in another tool.
+                        WorkOrbit already holds the structured history of every project: who
+                        changed what, when a ticket stalled, which milestone slipped. The
+                        assistant is being built on top of that record, so it answers from
+                        your actual delivery data rather than from a chat transcript.
                     </p>
+
+                    <div className="mt-8 border-t border-black/[0.12] pt-5">
+                        <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#8b8981]">
+                            Planned capabilities
+                        </span>
+
+                        {[
+                            "Ask questions about a project in plain language",
+                            "Milestone risk explained with the tickets causing it",
+                            "Standup and weekly summaries written automatically",
+                            "Draft tickets from a paragraph of requirements",
+                        ].map((entry) => (
+                            <div
+                                key={entry}
+                                className="flex items-start gap-3 border-b border-black/[0.1] py-3 text-[12px] leading-[1.6] text-[#5d5c55]"
+                            >
+                                <span className="mt-[6px] h-[5px] w-[5px] shrink-0 bg-[#6e754f]" />
+                                {entry}
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
-                <div className="overflow-hidden rounded-2xl bg-[#171815] text-[#ecece6] shadow-[0_30px_100px_rgba(17,17,15,.12)]">
-                    <div className="flex justify-between border-b border-white/[0.08] px-[18px] py-[15px] font-mono text-[8px] uppercase tracking-[0.1em] text-[#73776e]">
-                        <span>Projectec AI</span>
-
-                        <span className="text-[#8da23b]">
-                            <i className="mr-1 inline-block h-[5px] w-[5px] rounded-full bg-[#a1c53d]" />
+                <div className="overflow-hidden" style={{ background: APP.raised, color: "#ecece6" }}>
+                    <div
+                        className="flex justify-between border-b px-[18px] py-[15px] font-mono text-[8px] uppercase tracking-[0.1em]"
+                        style={{ borderColor: "rgba(255,255,255,.08)", color: "#73776e" }}
+                    >
+                        <span>WorkOrbit AI</span>
+                        <span style={{ color: "#8da23b" }}>
+                            <i
+                                className="mr-1 inline-block h-[5px] w-[5px] rounded-full"
+                                style={{ background: "#a1c53d" }}
+                            />
                             COMING SOON
                         </span>
                     </div>
@@ -955,40 +798,42 @@ const AISection = () => (
                             <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[#555a51]">
                                 You
                             </span>
-
-                            <p className="mt-2 rounded-lg bg-[#22251f] px-3.5 py-3 font-mono text-[11px] text-[#9b9e96]">
-                                What is blocking this milestone?
+                            <p
+                                className="mt-2 px-3.5 py-3 font-mono text-[11px] text-[#9b9e96]"
+                                style={{ background: "#22251f" }}
+                            >
+                                What is blocking Release 1.4?
                             </p>
                         </div>
 
-                        <div className="max-w-[78%] self-start">
+                        <div className="max-w-[80%] self-start">
                             <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[#555a51]">
-                                Projectec AI
+                                WorkOrbit AI
                             </span>
 
-                            <h4 className="mt-2.5 font-serif text-[30px] font-normal leading-[.95] max-[780px]:text-[26px]">
-                                Milestone / Release 1.4 is 65% complete.
+                            <h4 className="mt-2.5 font-serif text-[28px] font-normal leading-[.95] max-[780px]:text-[24px]">
+                                18 of 29 done. Two blockers, one unowned.
                             </h4>
 
                             <p className="mt-3 text-[11px] leading-[1.7] text-[#7b8076]">
-                                3 blockers remain. BE-14 is the critical path.
-                                ML has the highest workload at 86%. You have 6
-                                days left.
+                                BE-14 is P0, sitting In Progress for nine days with no assignee
+                                — it is on the critical path. FE-42 has been In Review for four
+                                days. JP is at 86% workload. Six days left.
                             </p>
 
-                            <button
-                                type="button"
-                                className="mt-5 inline-flex items-center gap-2 border-0 bg-transparent p-0 font-mono text-[10px] text-[#d8ff58]"
-                            >
-                                AI project assistant
+                            <span className="mt-5 inline-flex items-center gap-2 font-mono text-[10px]" style={{ color: LIME }}>
+                                Open the attention list
                                 <Arrow />
-                            </button>
+                            </span>
                         </div>
                     </div>
 
-                    <div className="flex justify-between border-t border-white/[0.08] px-5 py-[17px] font-mono text-[10px] text-[#4f544c]">
+                    <div
+                        className="flex justify-between border-t px-5 py-[17px] font-mono text-[10px]"
+                        style={{ borderColor: "rgba(255,255,255,.08)", color: "#4f544c" }}
+                    >
                         <span>Ask about this project...</span>
-                        <span className="text-[#969a91]">↵</span>
+                        <span style={{ color: "#969a91" }}>↵</span>
                     </div>
                 </div>
             </div>
@@ -996,74 +841,146 @@ const AISection = () => (
     </section>
 );
 
+const ROADMAP: {
+    heading: string;
+    note: string;
+    tone: "now" | "next" | "later";
+    items: [string, string][];
+}[] = [
+        {
+            heading: "Available now",
+            note: "Shipped and in daily use.",
+            tone: "now",
+            items: [
+                ["Organisations & projects", "Multi-org workspaces with per-project membership"],
+                ["Tickets", "Types, P0–P4 priorities, owners, milestones, demo links"],
+                ["Kanban board", "Six states, drag and drop, WIP limits"],
+                ["Milestones", "Target dates, health signals, expected vs actual progress"],
+                ["Project dashboard", "Counts, distribution, attention list, workload"],
+                ["Standup", "Per-person daily movement with Excel export"],
+                ["Collaboration", "Comments, @mentions, notifications, activity history"],
+                ["Accounts", "Email verification, roles, light and dark themes"],
+            ],
+        },
+        {
+            heading: "Building next",
+            note: "In progress or scheduled.",
+            tone: "next",
+            items: [
+                ["Sprints", "Time-boxed iterations with capacity and burndown"],
+                ["Saved views", "Shareable filter sets per person and per team"],
+                ["Search", "Cross-project search across tickets, comments and activity"],
+                ["Bulk actions", "Edit priority, owner or milestone across a selection"],
+                ["Sub-tasks & blockers", "Ticket relationships and dependency warnings"],
+                ["Digests", "Scheduled standup and milestone summaries to Slack and email"],
+            ],
+        },
+        {
+            heading: "On the horizon",
+            note: "Designed, not yet started.",
+            tone: "later",
+            items: [
+                ["WorkOrbit AI", "Project-aware questions, summaries and drafted tickets"],
+                ["Automation", "Rules, triggers and webhooks on status transitions"],
+                ["Integrations", "GitHub, GitLab, Slack and calendar sync"],
+                ["Custom fields", "Per-project ticket schemas and templates"],
+                ["Time & capacity", "Estimates, logged effort and forecasting"],
+                ["Enterprise", "SSO, SCIM, audit logs and data residency"],
+            ],
+        },
+    ];
+
 const ProductStatus = () => (
     <section
         id="roadmap"
-        className="mx-auto max-w-[1240px] px-8 pb-[170px] pt-[150px] max-[780px]:px-5 max-[780px]:py-[100px]"
+        className="mx-auto max-w-[1240px] px-8 pb-[170px] pt-[130px] max-[780px]:px-5 max-[780px]:py-[100px]"
     >
-        <Reveal>
-            <div className="mb-[76px] grid grid-cols-2 items-end max-[780px]:block">
-                <div>
-                    <span className="mb-[25px] block font-mono text-[10px] uppercase tracking-[0.12em] text-[#77766f]">
-                        05 / Product status
-                    </span>
+        <SectionHead
+            number="06"
+            kicker="Product status"
+            lead="Built now."
+            emphasis="More ahead."
+            copy="An honest list. Everything in the first column is in the product you can sign up for today; the rest is where the next releases are going."
+        />
 
-                    <h2 className="text-[clamp(58px,7vw,96px)] font-semibold leading-[.82] tracking-[-.065em] max-[780px]:text-[clamp(53px,16vw,82px)]">
-                        Built now.
-                        <br />
-                        <em className="font-serif font-normal not-italic text-[#777a72]">
-                            More ahead.
-                        </em>
-                    </h2>
-                </div>
+        <div className="grid grid-cols-3 gap-3.5 max-[1050px]:grid-cols-1">
+            {ROADMAP.map((column, index) => {
+                const dark = column.tone !== "now";
 
-                <p className="max-w-[390px] pb-1 text-[15px] leading-[1.8] text-[#727169]">
-                    The core workspace is focused on helping teams organise,
-                    execute and understand delivery today.
-                </p>
-            </div>
-        </Reveal>
-
-        <div className="grid grid-cols-2 gap-3.5 max-[780px]:grid-cols-1">
-            <Reveal>
-                <div className="rounded-[18px] border border-black/[0.12] bg-[#eeece5] p-7">
-                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#77766f]">
-                        Available now
-                    </span>
-
-                    <div className="mt-6">
-                        {AVAILABLE_FEATURES.map((feature) => (
-                            <div
-                                key={feature}
-                                className="flex items-center gap-3 border-b border-black/[0.1] py-3.5 text-[11px] text-[#5d5c55]"
-                            >
-                                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9dbd48]" />
-                                {feature}
+                return (
+                    <Reveal key={column.heading} delay={index * 80}>
+                        <div
+                            className="h-full border p-7 max-[780px]:p-5"
+                            style={
+                                dark
+                                    ? { background: INK, borderColor: INK, color: "#f3f1ea" }
+                                    : { background: PAPER_DEEP, borderColor: "rgba(17,17,15,.12)" }
+                            }
+                        >
+                            <div className="flex items-baseline justify-between gap-3">
+                                <span
+                                    className="font-mono text-[9px] uppercase tracking-[0.13em]"
+                                    style={{ color: dark ? "#71756d" : "#77766f" }}
+                                >
+                                    {column.heading}
+                                </span>
+                                <span
+                                    className="font-mono text-[9px]"
+                                    style={{ color: column.tone === "now" ? "#6f8c1c" : "#6e754f" }}
+                                >
+                                    {column.items.length}
+                                </span>
                             </div>
-                        ))}
-                    </div>
-                </div>
-            </Reveal>
 
-            <Reveal delay={80}>
-                <div className="rounded-[18px] bg-[#11110f] p-7 text-[#f3f1ea]">
-                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#71756d]">
-                        Coming next
-                    </span>
-
-                    <div className="mt-6">
-                        {UPCOMING_FEATURES.map((feature) => (
-                            <div
-                                key={feature}
-                                className="flex items-center gap-3 border-b border-white/[0.1] py-3.5 text-[11px] text-[#8b8e85]"
+                            <p
+                                className="mt-2 text-[11px] leading-[1.6]"
+                                style={{ color: dark ? "#8b8e85" : "#77766e" }}
                             >
-                                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#6e754f]" />
-                                {feature}
+                                {column.note}
+                            </p>
+
+                            <div className="mt-5">
+                                {column.items.map(([title, copy]) => (
+                                    <div
+                                        key={title}
+                                        className="border-b py-3.5"
+                                        style={{ borderColor: dark ? "rgba(255,255,255,.1)" : "rgba(17,17,15,.1)" }}
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <span
+                                                className="mt-[6px] h-[5px] w-[5px] shrink-0"
+                                                style={{
+                                                    background:
+                                                        column.tone === "now"
+                                                            ? "#8ba62a"
+                                                            : column.tone === "next"
+                                                                ? "#6e754f"
+                                                                : "#4e5340",
+                                                }}
+                                            />
+
+                                            <div className="min-w-0">
+                                                <p
+                                                    className="text-[12px] font-medium"
+                                                    style={{ color: dark ? "#e2e3dc" : "#3f3e39" }}
+                                                >
+                                                    {title}
+                                                </p>
+                                                <p
+                                                    className="mt-1 text-[11px] leading-[1.6]"
+                                                    style={{ color: dark ? "#8b8e85" : "#77766e" }}
+                                                >
+                                                    {copy}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                </div>
-            </Reveal>
+                        </div>
+                    </Reveal>
+                );
+            })}
         </div>
     </section>
 );
@@ -1076,8 +993,7 @@ const FinalCTA = () => (
                 backgroundImage:
                     "linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px)",
                 backgroundSize: "72px 72px",
-                maskImage:
-                    "radial-gradient(circle at center, black 0, transparent 70%)",
+                maskImage: "radial-gradient(circle at center, black 0, transparent 70%)",
             }}
         />
 
@@ -1085,25 +1001,18 @@ const FinalCTA = () => (
 
         <Reveal className="relative z-10">
             <span className="mb-[25px] block font-mono text-[10px] uppercase tracking-[0.12em] text-[#71756d]">
-                06 / Get started
+                07 / Get started
             </span>
 
             <h2 className="text-[clamp(80px,12vw,170px)] font-semibold leading-[.82] tracking-[-.065em]">
                 Make work
                 <br />
-                <em className="font-serif font-normal not-italic text-[#777a72]">
-                    flow.
-                </em>
+                <em className="font-serif font-normal not-italic text-[#777a72]">flow.</em>
             </h2>
 
-            <p className="my-[35px] text-xs text-[#777a72]">
-                Start with the workflow you have today.
-            </p>
+            <p className="my-[35px] text-xs text-[#777a72]">Start with the workflow you have today.</p>
 
-            <Link
-                to="/register"
-                className="inline-flex no-underline"
-            >
+            <Link to="/register" className="inline-flex no-underline">
                 <Button>Start for free</Button>
             </Link>
         </Reveal>
@@ -1114,12 +1023,7 @@ const Footer = () => (
     <footer className="mx-auto max-w-[1240px] px-8 pb-[30px] pt-20 max-[780px]:px-5 max-[780px]:pb-6 max-[780px]:pt-[60px]">
         <div className="grid grid-cols-[2fr_repeat(3,1fr)] gap-[50px] pb-[70px] max-[780px]:grid-cols-2 max-[780px]:gap-[40px_25px]">
             <div className="max-[780px]:col-span-full">
-                <ProjectecLogo
-                    size={27}
-                    showWordmark
-                    animate={false}
-                    enableHover
-                />
+                <WorkOrbitLogo size={27} showWordmark animate={false} enableHover />
 
                 <p className="mt-[18px] max-w-[230px] text-xs leading-[1.7] text-[#7c7b74]">
                     Project management for teams who ship.
@@ -1127,7 +1031,7 @@ const Footer = () => (
             </div>
 
             {[
-                ["Product", "Issues", "Boards", "Milestones", "AI Assistant"],
+                ["Product", "Tickets", "Board", "Milestones", "Standup"],
                 ["Resources", "Documentation", "API", "Changelog", "Status"],
                 ["Company", "About", "Security", "Contact", "Privacy"],
             ].map(([title, ...links]) => (
@@ -1138,7 +1042,7 @@ const Footer = () => (
 
                     {links.map((link) => (
                         <a
-                            href="#"
+                            href="#tour"
                             key={link}
                             className="text-xs text-[#64635c] no-underline transition-colors hover:text-[#11110f]"
                         >
@@ -1150,7 +1054,7 @@ const Footer = () => (
         </div>
 
         <div className="flex justify-between border-t border-black/[0.12] pt-[25px] font-mono text-[9px] text-[#99978f] max-[780px]:flex-col max-[780px]:gap-2.5">
-            <span>© 2026 Projectec, Inc.</span>
+            <span>© 2026 WorkOrbit, Inc.</span>
             <span>React · FastAPI · PostgreSQL</span>
         </div>
     </footer>
@@ -1172,14 +1076,15 @@ export default function LandingPage() {
     }, []);
 
     return (
-        <div className="min-h-screen overflow-x-clip bg-[#f3f1ea] text-[#11110f]">
+        <div className="pj-landing min-h-screen overflow-x-clip bg-[#f3f1ea] text-[#11110f]">
             <Nav />
 
             <main>
                 <Hero />
                 <LogoRail />
+                <GiantOrbit />
                 <ProductSection />
-                <Features />
+                <WorkspaceTour />
                 <WorkflowSection />
                 <AISection />
                 <ProductStatus />
@@ -1191,47 +1096,24 @@ export default function LandingPage() {
             <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
 
-        :root {
+        .pj-landing {
           --fb-serif: "Instrument Serif", Georgia, serif;
           --fb-sans: "DM Sans", Arial, sans-serif;
           --fb-mono: "DM Mono", monospace;
-        }
-
-        html {
-          scroll-behavior: auto;
-        }
-
-        body {
-          margin: 0;
           font-family: var(--fb-sans);
-          overflow-x: hidden;
         }
 
-        button,
-        a {
-          font: inherit;
-        }
+        .pj-landing .font-serif { font-family: var(--fb-serif); }
+        .pj-landing .font-mono { font-family: var(--fb-mono); }
 
-        button {
-          cursor: pointer;
-        }
+        .pj-landing button,
+        .pj-landing a { font: inherit; }
 
-        ::selection {
-          background: #11110f;
-          color: #d8ff58;
-        }
+        .pj-landing button { cursor: pointer; }
 
-        .fb-reveal {
-          opacity: 0;
-          transform: translateY(35px);
-          transition:
-            opacity 0.9s cubic-bezier(.16,1,.3,1) var(--reveal-delay, 0ms),
-            transform 0.9s cubic-bezier(.16,1,.3,1) var(--reveal-delay, 0ms);
-        }
-
-        .fb-reveal.is-visible {
-          opacity: 1;
-          transform: translateY(0);
+        .pj-landing ::selection {
+          background: ${CYPRESS_VIVID};
+          color: #f5f4ec;
         }
       `}</style>
         </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { ProjectecLogo } from "../ui/ProjectecLogo";
+import { WorkOrbitLogo } from "../ui/WorkOrbitLogo";
 import ThemeToggle from "../ui/ThemeToggle";
 
 const FONTS =
@@ -37,7 +37,7 @@ export function AuthLayout({
     return (
         <main
             className={[
-                "flex min-h-screen bg-[var(--pj-bg)] text-[var(--pj-text)]",
+                "pj-auth-layout flex min-h-screen bg-[var(--pj-bg)] text-[var(--pj-text)]",
                 "font-['Inter',ui-sans-serif,sans-serif]",
                 "transition-opacity duration-[550ms] ease-in",
                 visible ? "opacity-100" : "opacity-0",
@@ -48,12 +48,12 @@ export function AuthLayout({
             </div>
 
             <div className="flex items-center gap-[11px] px-5 pt-7 min-[681px]:hidden">
-                <ProjectecLogo size={26} delay={100} animate enableHover />
+                <WorkOrbitLogo size={26} delay={100} animate enableHover />
             </div>
 
-            <aside className="hidden min-h-screen w-[44%] flex-col justify-between border-r border-[var(--pj-border)] px-5 py-[44px] min-[681px]:flex min-[681px]:px-[52px]">
+            <aside className="pj-auth-aside hidden min-h-screen w-[44%] flex-col justify-between border-r border-[var(--pj-border)] px-5 py-[44px] min-[681px]:flex min-[681px]:px-[52px]">
                 <div className="flex items-center gap-[11px]">
-                    <ProjectecLogo size={26} delay={100} animate enableHover />
+                    <WorkOrbitLogo size={26} delay={100} animate enableHover />
                 </div>
 
                 <div>
@@ -82,7 +82,7 @@ export function AuthLayout({
                 </div>
             </aside>
 
-            <section className="flex flex-1 items-center justify-center px-6 py-8 min-[681px]:px-14 min-[681px]:py-11">
+            <section className="pj-auth-section flex flex-1 items-center justify-center px-6 py-8 min-[681px]:px-14 min-[681px]:py-11">
                 <div className="w-full max-w-[352px]">{children}</div>
             </section>
         </main>

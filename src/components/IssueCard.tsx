@@ -262,7 +262,7 @@ export default function IssueCard({
       ref={setNodeRef}
       style={style}
       className={[
-        "group border bg-transparent p-4",
+        "pj-issue-card group border bg-transparent p-4",
         "font-['Inter',ui-sans-serif,sans-serif]",
         "transition-all duration-200",
         priorityMeta.borderClass,
