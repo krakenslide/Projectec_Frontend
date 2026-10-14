@@ -127,7 +127,23 @@ export default function LoginPage() {
                 "placeholder:text-[var(--pj-placeholder)]",
                 "focus:border-[var(--pj-text)]",
               ].join(" ")}
-            />
+            >
+              {loading ? (
+                <>
+                  <span className="inline-block h-[10px] w-[10px] animate-spin rounded-full border border-[var(--pj-input-border)] border-t-[var(--pj-muted)]" />
+                  Signing in
+                </>
+              ) : (
+                "Sign in →"
+              )}
+            </button>
+          </form>
+
+          {/* Register */}
+          <div className="mt-[52px] flex items-center justify-between gap-[18px] border-t border-[var(--pj-border)] pt-8">
+            <span className="text-[11px] text-[var(--pj-muted)]">
+              New to WorkOrbit?
+            </span>
 
             <button
               aria-label={showPassword ? "Hide password" : "Show password"}

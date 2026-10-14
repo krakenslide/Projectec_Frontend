@@ -137,13 +137,48 @@ function MilestoneDetail({ milestone, organizationId, projectId }: { milestone: 
     try { await updateTicket(ticket.id, { status }); } catch (err) { setTickets(previous); setError(`Could not move ${ticket.ticket_number}: ${getErrorMessage(err)}`); }
   };
 
-  return <div className="space-y-9">
-    {error && <p className="border-y border-red-400/50 py-3 text-sm text-red-500 dark:text-red-300">{error}</p>}
-    <div className="grid gap-8 lg:grid-cols-[1.15fr_.85fr]">
-      <section><p className="text-[9px] font-semibold uppercase tracking-[.18em] text-zinc-500">Milestone health</p><div className="mt-4 grid grid-cols-3 border-y border-zinc-200 py-5 dark:border-zinc-800"><DetailStat label="Tickets" value={tickets.length} /><DetailStat label="Active" value={active} accent="lime" /><DetailStat label="Attention" value={attention.length} accent={attention.length ? "yellow" : "lime"} /></div>
-        {attention.length > 0 && <div className="mt-6"><p className="text-[9px] font-semibold uppercase tracking-[.18em] text-pj-yellow">Attention</p><div className="mt-3 space-y-2">{attention.slice(0, 4).map((ticket) => <Link key={ticket.id} className="flex items-center justify-between border-l-2 border-pj-yellow bg-pj-panel px-4 py-3 hover:bg-pj-panel-raised" to={`/organisations/${organizationId}/projects/${projectId}/tickets/${ticket.id}`}><span><span className="mr-2 text-[9px] font-semibold text-pj-yellow">{ticket.priority}</span><span className="text-sm text-zinc-900 dark:text-white">{ticket.title}</span></span><ArrowUpRight className="h-3.5 w-3.5 text-zinc-500" /></Link>)}</div></div>}
-      </section>
-      <section><p className="text-[9px] font-semibold uppercase tracking-[.18em] text-zinc-500">Expected vs actual</p>{loadingProgress ? <WorkOrbitLoader /> : chartData.length ? <div className="mt-2 h-56"><ResponsiveContainer height="100%" width="100%"><LineChart data={chartData} margin={{ top: 8, right: 8, left: -22, bottom: 0 }}><CartesianGrid stroke="currentColor" strokeOpacity={.08} vertical={false} /><XAxis dataKey="date" fontSize={10} stroke="currentColor" strokeOpacity={.45} tickLine={false} /><YAxis domain={[0, 100]} fontSize={10} stroke="currentColor" strokeOpacity={.45} tickLine={false} tickFormatter={(v) => `${v}%`} /><Tooltip contentStyle={{ background: "var(--pj-tooltip-bg, #111)", border: "1px solid var(--pj-border)", fontSize: 11 }} /><Line dataKey="Expected" dot={false} stroke="currentColor" strokeOpacity={.3} strokeDasharray="4 4" strokeWidth={1.5} type="monotone" /><Line dataKey="Actual" dot={{ r: 2.5 }} stroke="var(--pj-lime)" strokeWidth={2} type="monotone" /></LineChart></ResponsiveContainer></div> : <p className="mt-4 text-sm text-zinc-500">No progress history yet.</p>}</section>
+  return (
+    <div className="space-y-8">
+      {error && <p className="border-y border-red-400/50 py-3 text-sm text-red-500 dark:text-red-300">{error}</p>}
+      <div>
+        <p className="text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400">
+          Expected vs actual progress
+        </p>
+        {loadingProgress ? (
+          <ProjectecLoader />
+        ) : chartData.length ? (
+          <div className="mt-4 h-64 w-full">
+            <ResponsiveContainer height="100%" width="100%">
+              <LineChart data={chartData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                <CartesianGrid stroke="currentColor" strokeOpacity={0.1} vertical={false} />
+                <XAxis dataKey="date" fontSize={11} stroke="currentColor" strokeOpacity={0.5} tickLine={false} />
+                <YAxis domain={[0, 100]} fontSize={11} stroke="currentColor" strokeOpacity={0.5} tickFormatter={(v) => `${v}%`} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ background: "var(--pj-tooltip-bg, #111)", border: "1px solid #333", fontSize: 12 }}
+                  formatter={(value) => `${value ?? 0}%`}
+                />
+                <Line dataKey="Expected" dot={false} stroke="#a1a1aa" strokeDasharray="4 4" strokeWidth={2} type="monotone" />
+                <Line dataKey="Actual" dot={{ r: 3 }} stroke="#10b981" strokeWidth={2} type="monotone" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">No progress history yet.</p>
+        )}
+      </div>
+
+      <div>
+        <p className="text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400">
+          Milestone tickets ({tickets.length})
+        </p>
+        {loadingTickets ? (
+          <ProjectecLoader />
+        ) : tickets.length ? (
+          <MilestoneKanban organizationId={organizationId} tickets={tickets} onMove={moveTicket} />
+        ) : (
+          <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">No tickets linked to this milestone yet.</p>
+        )}
+      </div>
     </div>
     <section><div className="flex items-end justify-between border-b border-zinc-200 pb-4 dark:border-zinc-800"><div><p className="text-[9px] font-semibold uppercase tracking-[.18em] text-zinc-500">Work contributing to this milestone</p><h3 className="mt-2 font-['Instrument_Serif',Georgia,serif] text-3xl text-zinc-900 dark:text-white">Delivery board</h3></div><span className="text-[10px] uppercase tracking-[.12em] text-zinc-500">{tickets.length} tickets</span></div>{loadingTickets ? <WorkOrbitLoader /> : tickets.length ? <MilestoneKanban tickets={tickets} onMove={moveTicket} /> : <p className="py-10 text-sm text-zinc-500">No tickets linked to this milestone yet.</p>}</section>
   </div>;

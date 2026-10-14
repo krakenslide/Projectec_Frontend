@@ -304,9 +304,20 @@ function StandupStat({ label, value, detail, accent = false }: { label: string; 
   return <div className="border-r border-[var(--pj-border)] px-4 py-4 last:border-r-0 sm:px-5"><p className="pj-dashboard-eyebrow">{label}</p><p className={`mt-1 font-[var(--font-serif)] text-3xl ${accent ? "text-[var(--pj-yellow)]" : "text-[var(--pj-text)]"}`}>{value}</p><p className="mt-1 text-[9px] uppercase tracking-[.1em] text-[var(--pj-dim)]">{detail}</p></div>;
 }
 
-function DetailPanel({ eyebrow, title, children }: { eyebrow: string; title: string; children: ReactNode }) {
-  return <section className="pj-standup-panel border border-[var(--pj-border-strong)] bg-[var(--pj-panel)] p-5 sm:p-6"><p className="pj-dashboard-eyebrow">{eyebrow}</p><h2 className="mt-1 font-[var(--font-serif)] text-2xl text-[var(--pj-text)]">{title}</h2><div className="mt-5">{children}</div></section>;
-}
+// function Avatar({ member }: { member: OrganisationMember }) {
+//   const initials = (member.name || member.email)
+//     .split(" ")
+//     .map((part) => part[0])
+//     .join("")
+//     .slice(0, 2)
+//     .toUpperCase();
+
+//   return (
+//     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-[10px] font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+//       {initials}
+//     </span>
+//   );
+// }
 
 function SignalCard({ label, value, text }: { label: string; value: number | string; text: string }) {
   return <div className="border border-[var(--pj-border)] p-4"><p className="text-[9px] uppercase tracking-[.12em] text-[var(--pj-muted)]">{label}</p><p className="mt-2 font-[var(--font-serif)] text-2xl text-[var(--pj-text)]">{value}</p><p className="mt-1 text-[10px] leading-4 text-[var(--pj-muted)]">{text}</p></div>;
