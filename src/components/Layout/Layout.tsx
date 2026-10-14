@@ -67,12 +67,33 @@ export default function Layout() {
   };
 
   const pageLabel = getPageLabel(location.pathname);
+  const designPage = location.pathname.includes("/board")
+    ? "board"
+    : location.pathname.includes("/tickets/")
+      ? "ticket-detail"
+      : location.pathname.includes("/tickets")
+        ? "tickets"
+        : location.pathname.includes("/dashboard")
+          ? "dashboard"
+          : location.pathname.includes("/milestones")
+            ? "milestones"
+            : location.pathname.includes("/standup")
+              ? "standup"
+              : location.pathname.includes("/settings")
+                ? "settings"
+                : location.pathname.includes("/members")
+                  ? "members"
+                  : location.pathname.includes("/projects")
+                    ? "projects"
+                    : location.pathname === "/organisations"
+                      ? "organisations"
+                      : "workspace";
 
   return (
     <ToastProvider>
       <div
         className={[
-          "min-h-screen bg-white text-zinc-900 dark:bg-[#080808] dark:text-[#f5f3ee]",
+          "pj-shell min-h-screen bg-white text-zinc-900 dark:bg-[#080808] dark:text-[#f5f3ee]",
           "font-['Inter',ui-sans-serif,sans-serif]",
           "animate-[pj-fade-in_220ms_ease_both]",
         ].join(" ")}
@@ -80,7 +101,7 @@ export default function Layout() {
         {sidebarOpen && isMobile ? (
           <button
             aria-label="Close navigation"
-            className="fixed inset-0 z-40 cursor-default bg-white dark:bg-black/70 transition-opacity duration-200"
+            className="fixed inset-0 z-40 cursor-default bg-black/45 backdrop-blur-sm transition-opacity duration-200 dark:bg-black/70"
             onClick={closeSidebar}
             type="button"
           />
@@ -105,7 +126,10 @@ export default function Layout() {
             />
 
             <main className="relative flex-1 px-4 py-6 sm:px-6 lg:px-8">
-              <div className={`mx-auto w-full ${location.pathname.includes("/standup") ? "max-w-none" : "max-w-7xl"}`}>
+              <div
+                className={`pj-route-content mx-auto w-full ${location.pathname.includes("/standup") ? "max-w-none" : "max-w-7xl"}`}
+                data-page={designPage}
+              >
                 <Outlet />
               </div>
             </main>

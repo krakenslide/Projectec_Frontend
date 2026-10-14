@@ -32,9 +32,9 @@ export default function ConfirmModal({ open, title, description, confirmLabel, b
     if (!open) return null;
 
     return <div
-        className="fixed inset-0 z-[110] flex items-center justify-center bg-white dark:bg-black/70 p-4"
+        className="pj-modal-backdrop fixed inset-0 z-[110] flex items-center justify-center bg-white dark:bg-black/70 p-4"
         role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onCancel(); }}>
-        <section aria-labelledby="confirm-modal-title" aria-modal="true" className="w-full max-w-md border border-zinc-300 dark:border-zinc-700 bg-[#f4f4f5] dark:bg-[#101010] p-5 shadow-[0_18px_60px_rgba(0,0,0,.5)]" role="dialog">
+        <section aria-labelledby="confirm-modal-title" aria-modal="true" className="pj-modal w-full max-w-md border border-zinc-300 dark:border-zinc-700 bg-[#f4f4f5] dark:bg-[#101010] p-5 shadow-[0_18px_60px_rgba(0,0,0,.5)]" role="dialog">
             <div className="flex items-start gap-3">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-red-400/50 text-red-700 dark:text-red-300"><AlertTriangle className="h-4 w-4" /></span>
                 <div className="min-w-0 flex-1"><h2 className="text-lg text-zinc-900 dark:text-white" id="confirm-modal-title">{title}</h2><p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{description}</p></div>

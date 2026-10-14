@@ -2,7 +2,7 @@ import { MailWarning } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthErrorStore } from "../store/authErrorStore";
 import { useOrgStore } from "../store/orgStore";
-import { ProjectecLogo } from "./ui/ProjectecLogo";
+import { WorkOrbitLogo } from "./ui/WorkOrbitLogo";
 
 /**
  * Full-page notice shown whenever any API call returns a 401.
@@ -36,7 +36,7 @@ export default function AuthErrorOverlay() {
     >
       <div className="w-full max-w-md rounded-panel border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-8 text-center shadow-popover">
         <div className="mb-5 flex justify-center">
-          <ProjectecLogo size={30} animate={false} showWordmark={false} />
+          <WorkOrbitLogo size={30} animate={false} showWordmark={false} />
         </div>
 
         <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-warning-soft text-warning">

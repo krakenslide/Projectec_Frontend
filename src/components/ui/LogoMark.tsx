@@ -9,7 +9,7 @@ interface LogoMarkProps {
     loader?: boolean;
 }
 
-const fills = ["#9a9a9a", "#9a9a9a", "#9a9a9a", "#5a5a5a"];
+const fills = ["#9a9a9a", "#9a9a9a", "#D8FF58", "#5a5a5a"];
 
 export function LogoMark({
     size = 26,
