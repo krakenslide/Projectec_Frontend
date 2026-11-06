@@ -114,7 +114,15 @@ function MilestoneRow({ milestone, open, organizationId, projectId, onToggle, in
   </section>;
 }
 
-function MilestoneDetail({ milestone, organizationId, projectId }: { milestone: Milestone; organizationId?: string; projectId?: string }) {
+function MilestoneDetail({
+  milestone,
+  organizationId,
+  projectId,
+}: {
+  milestone: Milestone;
+  organizationId?: string;
+  projectId?: string;
+}) {
   const [progress, setProgress] = useState<MilestoneProgressPoint[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(true);
@@ -123,65 +131,161 @@ function MilestoneDetail({ milestone, organizationId, projectId }: { milestone: 
 
   useEffect(() => {
     if (!projectId) return;
-    setLoadingProgress(true); setLoadingTickets(true); setError("");
-    void getMilestoneProgress(projectId, milestone.id).then(setProgress).catch((err) => setError(getErrorMessage(err))).finally(() => setLoadingProgress(false));
-    void listMilestoneTickets(projectId, milestone.id).then(setTickets).catch((err) => setError(getErrorMessage(err))).finally(() => setLoadingTickets(false));
+
+    setLoadingProgress(true);
+    setLoadingTickets(true);
+    setError("");
+
+    void getMilestoneProgress(projectId, milestone.id)
+      .then(setProgress)
+      .catch((err) => setError(getErrorMessage(err)))
+      .finally(() => setLoadingProgress(false));
+
+    void listMilestoneTickets(projectId, milestone.id)
+      .then(setTickets)
+      .catch((err) => setError(getErrorMessage(err)))
+      .finally(() => setLoadingTickets(false));
   }, [projectId, milestone.id]);
 
-  const chartData = useMemo(() => progress.map((point) => ({ date: new Date(point.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }), Expected: point.expected_percentage, Actual: point.actual_percentage })), [progress]);
-  const attention = tickets.filter((ticket) => !["Done", "Closed"].includes(ticket.status) && ["P0", "P1"].includes(ticket.priority));
-  const active = tickets.filter((ticket) => ["In Progress", "In Review", "Testing"].includes(ticket.status)).length;
+  const chartData = useMemo(
+    () =>
+      progress.map((point) => ({
+        date: new Date(point.date).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        }),
+        Expected: point.expected_percentage,
+        Actual: point.actual_percentage,
+      })),
+    [progress]
+  );
+
   const moveTicket = async (ticket: Ticket, status: TicketStatus) => {
     if (ticket.status === status) return;
-    const previous = tickets; setTickets((items) => items.map((item) => item.id === ticket.id ? { ...item, status } : item));
-    try { await updateTicket(ticket.id, { status }); } catch (err) { setTickets(previous); setError(`Could not move ${ticket.ticket_number}: ${getErrorMessage(err)}`); }
+
+    const previous = tickets;
+
+    setTickets((items) =>
+      items.map((item) =>
+        item.id === ticket.id ? { ...item, status } : item
+      )
+    );
+
+    try {
+      await updateTicket(ticket.id, { status });
+    } catch (err) {
+      setTickets(previous);
+      setError(
+        `Could not move ${ticket.ticket_number}: ${getErrorMessage(err)}`
+      );
+    }
   };
 
   return (
     <div className="space-y-8">
-      {error && <p className="border-y border-red-400/50 py-3 text-sm text-red-500 dark:text-red-300">{error}</p>}
+      {error && (
+        <p className="border-y border-red-400/50 py-3 text-sm text-red-500 dark:text-red-300">
+          {error}
+        </p>
+      )}
+
+      {/* Progress Chart */}
       <div>
         <p className="text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400">
           Expected vs actual progress
         </p>
+
         {loadingProgress ? (
-          <ProjectecLoader />
+          <WorkOrbitLoader />
         ) : chartData.length ? (
           <div className="mt-4 h-64 w-full">
             <ResponsiveContainer height="100%" width="100%">
-              <LineChart data={chartData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-                <CartesianGrid stroke="currentColor" strokeOpacity={0.1} vertical={false} />
-                <XAxis dataKey="date" fontSize={11} stroke="currentColor" strokeOpacity={0.5} tickLine={false} />
-                <YAxis domain={[0, 100]} fontSize={11} stroke="currentColor" strokeOpacity={0.5} tickFormatter={(v) => `${v}%`} tickLine={false} />
+              <LineChart
+                data={chartData}
+                margin={{ top: 5, right: 20, left: -20, bottom: 5 }}
+              >
+                <CartesianGrid
+                  stroke="currentColor"
+                  strokeOpacity={0.1}
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="date"
+                  fontSize={11}
+                  stroke="currentColor"
+                  strokeOpacity={0.5}
+                  tickLine={false}
+                />
+                <YAxis
+                  domain={[0, 100]}
+                  fontSize={11}
+                  stroke="currentColor"
+                  strokeOpacity={0.5}
+                  tickFormatter={(v) => `${v}%`}
+                  tickLine={false}
+                />
                 <Tooltip
-                  contentStyle={{ background: "var(--pj-tooltip-bg, #111)", border: "1px solid #333", fontSize: 12 }}
+                  contentStyle={{
+                    background: "var(--pj-tooltip-bg, #111)",
+                    border: "1px solid #333",
+                    fontSize: 12,
+                  }}
                   formatter={(value) => `${value ?? 0}%`}
                 />
-                <Line dataKey="Expected" dot={false} stroke="#a1a1aa" strokeDasharray="4 4" strokeWidth={2} type="monotone" />
-                <Line dataKey="Actual" dot={{ r: 3 }} stroke="#10b981" strokeWidth={2} type="monotone" />
+                <Line
+                  dataKey="Expected"
+                  dot={false}
+                  stroke="#a1a1aa"
+                  strokeDasharray="4 4"
+                  strokeWidth={2}
+                  type="monotone"
+                />
+                <Line
+                  dataKey="Actual"
+                  dot={{ r: 3 }}
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  type="monotone"
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
         ) : (
-          <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">No progress history yet.</p>
+          <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
+            No progress history yet.
+          </p>
         )}
       </div>
 
-      <div>
-        <p className="text-[10px] uppercase tracking-[.16em] text-zinc-600 dark:text-zinc-400">
-          Milestone tickets ({tickets.length})
-        </p>
+      {/* Delivery Board */}
+      <section>
+        <div className="flex items-end justify-between border-b border-zinc-200 pb-4 dark:border-zinc-800">
+          <div>
+            <p className="text-[9px] font-semibold uppercase tracking-[.18em] text-zinc-500">
+              Work contributing to this milestone
+            </p>
+            <h3 className="mt-2 font-['Instrument_Serif',Georgia,serif] text-3xl text-zinc-900 dark:text-white">
+              Delivery board
+            </h3>
+          </div>
+
+          <span className="text-[10px] uppercase tracking-[.12em] text-zinc-500">
+            {tickets.length} tickets
+          </span>
+        </div>
+
         {loadingTickets ? (
-          <ProjectecLoader />
+          <WorkOrbitLoader />
         ) : tickets.length ? (
-          <MilestoneKanban organizationId={organizationId} tickets={tickets} onMove={moveTicket} />
+          <MilestoneKanban tickets={tickets} onMove={moveTicket} />
         ) : (
-          <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">No tickets linked to this milestone yet.</p>
+          <p className="py-10 text-sm text-zinc-500">
+            No tickets linked to this milestone yet.
+          </p>
         )}
-      </div>
+      </section>
     </div>
-    <section><div className="flex items-end justify-between border-b border-zinc-200 pb-4 dark:border-zinc-800"><div><p className="text-[9px] font-semibold uppercase tracking-[.18em] text-zinc-500">Work contributing to this milestone</p><h3 className="mt-2 font-['Instrument_Serif',Georgia,serif] text-3xl text-zinc-900 dark:text-white">Delivery board</h3></div><span className="text-[10px] uppercase tracking-[.12em] text-zinc-500">{tickets.length} tickets</span></div>{loadingTickets ? <WorkOrbitLoader /> : tickets.length ? <MilestoneKanban tickets={tickets} onMove={moveTicket} /> : <p className="py-10 text-sm text-zinc-500">No tickets linked to this milestone yet.</p>}</section>
-  </div>;
+  );
 }
 
 function DetailStat({ label, value, accent = "neutral" }: { label: string; value: number; accent?: "lime" | "yellow" | "neutral" }) { return <div><p className="text-[9px] uppercase tracking-[.14em] text-zinc-500">{label}</p><p className={`mt-1 text-xl tabular-nums ${accent === "lime" ? "text-pj-lime" : accent === "yellow" ? "text-pj-yellow" : "text-zinc-900 dark:text-white"}`}>{value}</p></div>; }
