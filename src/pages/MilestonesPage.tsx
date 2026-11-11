@@ -296,7 +296,7 @@ function MilestoneDetail({ milestone, projectId }: { milestone: Milestone; organ
         </p>
 
         {loadingProgress ? (
-          <ProjectecLoader />
+          <WorkOrbitLoader />
         ) : chartData.length ? (
           <div className="mt-4 h-64 w-full">
             <ResponsiveContainer height="100%" width="100%">
@@ -312,20 +312,40 @@ function MilestoneDetail({ milestone, projectId }: { milestone: Milestone; organ
                   tickLine={false}
                 />
                 <Tooltip
-                  contentStyle={{ background: "var(--pj-tooltip-bg, #111)", border: "1px solid #333", fontSize: 12 }}
+                  contentStyle={{
+                    background: "var(--pj-tooltip-bg, #111)",
+                    border: "1px solid #333",
+                    fontSize: 12,
+                  }}
                   formatter={(value) => `${value ?? 0}%`}
                 />
-                <Line dataKey="Expected" dot={false} stroke="#a1a1aa" strokeDasharray="4 4" strokeWidth={2} type="monotone" />
-                <Line dataKey="Actual" dot={{ r: 3 }} stroke="#10b981" strokeWidth={2} type="monotone" />
+                <Line
+                  dataKey="Expected"
+                  dot={false}
+                  stroke="#a1a1aa"
+                  strokeDasharray="4 4"
+                  strokeWidth={2}
+                  type="monotone"
+                />
+                <Line
+                  dataKey="Actual"
+                  dot={{ r: 3 }}
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  type="monotone"
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
         ) : (
-          <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">No progress history yet.</p>
+          <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
+            No progress history yet.
+          </p>
         )}
       </div>
 
-      <div>
+      {/* Delivery Board */}
+      <section>
         <div className="flex items-end justify-between border-b border-zinc-200 pb-4 dark:border-zinc-800">
           <div>
             <p className="text-[9px] font-semibold uppercase tracking-[.18em] text-zinc-500">
@@ -339,13 +359,13 @@ function MilestoneDetail({ milestone, projectId }: { milestone: Milestone; organ
         </div>
 
         {loadingTickets ? (
-          <ProjectecLoader />
+          <WorkOrbitLoader />
         ) : tickets.length ? (
           <MilestoneKanban tickets={tickets} onMove={moveTicket} />
         ) : (
           <p className="py-10 text-sm text-zinc-500">No tickets linked to this milestone yet.</p>
         )}
-      </div>
+      </section>
     </div>
   );
 }
