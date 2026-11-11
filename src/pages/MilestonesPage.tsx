@@ -9,6 +9,7 @@ import { updateTicket } from "../api/tickets";
 import ProjectecLoader from "../components/ui/ProjectecLoader";
 import type { Milestone, MilestoneProgressPoint } from "../types/milestone";
 import type { Ticket, TicketPriority, TicketStatus } from "../types/ticket";
+import WorkOrbitLoader from "../components/ui/WorkOrbitLoader";
 
 const statuses: TicketStatus[] = ["To Do", "In Progress", "In Review", "Testing", "Done", "Closed"];
 
