@@ -363,31 +363,10 @@ function QueueStat({ label, value, accent }: { label: string; value: number; acc
     return <div className="border-r border-zinc-200 px-4 first:pl-0 last:border-r-0 dark:border-zinc-800"><p className={`text-2xl font-semibold tracking-tight ${accent === "yellow" ? "text-pj-yellow" : accent === "lime" ? "text-pj-lime" : "text-zinc-900 dark:text-white"}`}>{value}</p><p className="mt-1 text-[9px] uppercase tracking-[.16em] text-zinc-500">{label}</p></div>;
 }
 
-function TicketMeta({
-    label,
-    value,
-}: {
-    label: string;
-    value: string;
-}) {
-    return (
-        <div className="min-w-[58px]">
-            <p className="text-[10px] font-medium text-zinc-800 dark:text-zinc-200">
-                {value}
-            </p>
-
-            <p className="mt-0.5 text-[9px] uppercase tracking-[.08em] text-zinc-500 dark:text-zinc-400">
-                {label}
-            </p>
-        </div>
-    );
-}
-
 function TicketRow({ index, members, navigate, parentTicket, ticket }: { index: number; members: ProjectMember[]; navigate: ReturnType<typeof useNavigate>; parentTicket?: Ticket; ticket: Ticket }) {
     const priority = priorityConfig[ticket.priority];
     const status = statusConfig[ticket.status];
     const assignee = members.find((member) => member.user_id === ticket.assigned_to);
-    const initials = assignee ? (assignee.name || assignee.email || "?").split(/\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase() : null;
     const isAttention = ["P0", "P1"].includes(ticket.priority) && !["Done", "Closed"].includes(ticket.status);
 
     return <button className="pj-ticket-row group relative w-full border-b border-zinc-200 py-5 text-left transition-colors hover:bg-[var(--pj-hover-surface)] focus-visible:outline-none dark:border-zinc-800 dark:hover:bg-[var(--pj-hover-surface)]" onClick={() => navigate(`/organisations/${ticket.organization_id}/projects/${ticket.project_id}/tickets/${ticket.id}`)} style={{ animationDelay: `${index * 35}ms` }} type="button">
@@ -411,35 +390,6 @@ function TicketRow({ index, members, navigate, parentTicket, ticket }: { index: 
 //         </span>
 //     );
 // }
-
-function getStatusFilterTone(
-    status: TicketStatus,
-    active: boolean
-) {
-    if (!active) {
-        return "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-transparent dark:text-zinc-300 dark:hover:bg-zinc-900";
-    }
-
-    switch (status) {
-        case "To Do":
-            return "border-zinc-500 bg-zinc-200 text-zinc-950 dark:border-zinc-500 dark:bg-zinc-800 dark:text-white";
-
-        case "In Progress":
-            return "border-emerald-600 bg-[var(--pj-panel-muted)] text-emerald-900 dark:border-emerald-400 dark:bg-[var(--pj-panel-muted)] dark:text-emerald-200";
-
-        case "In Review":
-            return "border-sky-600 bg-[var(--pj-panel-muted)] text-sky-900 dark:border-sky-400 dark:bg-[var(--pj-panel-muted)] dark:text-sky-200";
-
-        case "Testing":
-            return "border-violet-600 bg-[var(--pj-panel-muted)] text-violet-900 dark:border-violet-400 dark:bg-[var(--pj-panel-muted)] dark:text-violet-200";
-
-        case "Done":
-            return "border-green-600 bg-[var(--pj-panel-muted)] text-green-900 dark:border-green-400 dark:bg-[var(--pj-panel-muted)] dark:text-green-200";
-
-        case "Closed":
-            return "border-zinc-500 bg-zinc-200 text-zinc-800 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300";
-    }
-}
 
 function getStatusBadgeTone(status: TicketStatus) {
     switch (status) {

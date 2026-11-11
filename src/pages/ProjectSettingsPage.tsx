@@ -87,25 +87,25 @@ export default function ProjectSettingsPage() {
 
       {error && <p className="border-y border-[color:var(--pj-red)]/45 py-3 text-sm text-[var(--pj-red)]">{error}</p>}
 
-      <form className="pj-settings-surface" onSubmit={saveProject}>
+      <form className="pj-settings-surface overflow-hidden shadow-[var(--shadow-panel)]" onSubmit={saveProject}>
         <div className="border-b border-[var(--pj-border)] px-5 py-4 sm:px-6">
           <p className="pj-dashboard-eyebrow">Identity</p>
           <p className="mt-1 text-sm text-[var(--pj-muted)]">The information shown throughout the project workspace.</p>
         </div>
         <div className="space-y-7 p-5 sm:p-6">
-          <label className="pj-settings-field" htmlFor="project-name">
-            <span>Project name</span>
-            <input id="project-name" maxLength={127} minLength={3} onChange={(event) => setName(event.target.value)} required value={name} />
+          <label className="pj-settings-field block" htmlFor="project-name">
+            <span className="mb-[10px] block font-[var(--font-mono)] text-[9px] leading-none font-medium tracking-[.16em] text-[var(--pj-muted)] uppercase">Project name</span>
+            <input className="w-full rounded-none border border-[var(--pj-input-border)] bg-[var(--pj-panel-raised)] px-[14px] py-[13px] text-sm leading-[1.6] text-[var(--pj-text)] outline-none focus:border-[var(--pj-lime)] focus:shadow-[inset_0_0_0_1px_var(--pj-lime)]" id="project-name" maxLength={127} minLength={3} onChange={(event) => setName(event.target.value)} required value={name} />
           </label>
-          <label className="pj-settings-field" htmlFor="project-description">
-            <span>Description</span>
-            <textarea id="project-description" maxLength={500} onChange={(event) => setDescription(event.target.value)} value={description} />
-            <small>{description.length}/500</small>
+          <label className="pj-settings-field block" htmlFor="project-description">
+            <span className="mb-[10px] block font-[var(--font-mono)] text-[9px] leading-none font-medium tracking-[.16em] text-[var(--pj-muted)] uppercase">Description</span>
+            <textarea className="min-h-[130px] w-full resize-y rounded-none border border-[var(--pj-input-border)] bg-[var(--pj-panel-raised)] px-[14px] py-[13px] text-sm leading-[1.6] text-[var(--pj-text)] outline-none focus:border-[var(--pj-lime)] focus:shadow-[inset_0_0_0_1px_var(--pj-lime)]" id="project-description" maxLength={500} onChange={(event) => setDescription(event.target.value)} value={description} />
+            <small className="mt-1.5 block font-[var(--font-mono)] text-[10px] text-[var(--pj-dim)]">{description.length}/500</small>
           </label>
-          {validationMessage && <p className="pj-settings-validation">{validationMessage}</p>}
+          {validationMessage && <p className="text-xs text-[var(--pj-red)]">{validationMessage}</p>}
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--pj-border)] pt-5">
             <p className="text-[10px] uppercase tracking-[.13em] text-[var(--pj-dim)]">Unsaved changes are kept local until saved.</p>
-            <button className="pj-settings-primary" disabled={!hasChanges || Boolean(validationMessage) || saving} type="submit">
+            <button className="pj-settings-primary inline-flex min-h-[42px] items-center gap-[9px] rounded-none border border-[var(--pj-lime-vivid)] bg-[var(--pj-lime-vivid)] px-[17px] text-[10px] font-bold tracking-[.14em] text-[var(--pj-on-lime)] uppercase transition-[background-color,box-shadow] duration-[160ms] ease-[var(--ease-pj)] enabled:hover:bg-[var(--pj-lime-vivid-strong)] enabled:hover:shadow-[0_8px_28px_var(--pj-lime-glow)] disabled:cursor-not-allowed disabled:opacity-40" disabled={!hasChanges || Boolean(validationMessage) || saving} type="submit">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? "Saving" : "Save changes"}
             </button>
@@ -113,7 +113,7 @@ export default function ProjectSettingsPage() {
         </div>
       </form>
 
-      <section className="pj-danger-surface">
+      <section className="pj-danger-surface border border-[color-mix(in_srgb,var(--pj-red)_42%,var(--pj-border))] bg-[color-mix(in_srgb,var(--pj-red)_4%,var(--pj-panel))] px-6 py-5">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-3">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[var(--pj-red)]" />
@@ -123,7 +123,7 @@ export default function ProjectSettingsPage() {
               <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--pj-muted)]">This action is permanent. The existing API may also remove associated tickets.</p>
             </div>
           </div>
-          <button className="pj-settings-danger" disabled={deleting || !project} onClick={() => setDeleteModalOpen(true)} type="button">
+          <button className="pj-settings-danger inline-flex min-h-10 shrink-0 items-center gap-2 rounded-none border border-[color-mix(in_srgb,var(--pj-red)_58%,var(--pj-border))] bg-transparent px-[14px] text-[10px] font-semibold tracking-[.13em] text-[var(--pj-red)] uppercase transition-colors duration-[160ms] ease-[var(--ease-pj)] enabled:hover:bg-[color-mix(in_srgb,var(--pj-red)_9%,transparent)] disabled:cursor-not-allowed" disabled={deleting || !project} onClick={() => setDeleteModalOpen(true)} type="button">
             {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             {deleting ? "Deleting" : "Delete project"}
           </button>
