@@ -16,7 +16,7 @@ export function Alert({
 }: AlertProps) {
   return (
     <div
-      className={`pj-alert ui-alert ${tone === "error" ? "ui-alert-error" : ""} ${className}`}
+      className={`flex gap-[11px] border border-[var(--pj-border)] bg-[var(--pj-panel)] px-[14px] py-[13px] text-xs leading-[1.6] text-[var(--pj-muted)] ${tone === "error" ? "ui-alert-error border-0 border-l-2 border-l-[var(--pj-red)] bg-[var(--pj-red-soft)] pl-3 text-[var(--pj-red)]" : ""} ${className}`}
       role={tone === "error" ? "alert" : "status"}
       {...props}
     >

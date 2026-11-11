@@ -13,13 +13,15 @@ interface FieldShellProps {
 
 export function FieldShell({ children, error, helpText, label }: FieldShellProps) {
   return (
-    <label className="ui-field">
-      <span className="ui-label">{label}</span>
+    <label className="block">
+      <span className="mb-[9px] block font-[var(--font-mono)] text-[9px] font-medium tracking-[.22em] text-[var(--pj-muted)] uppercase">
+        {label}
+      </span>
       {children}
       {error ? (
-        <span className="text-xs text-danger">{error}</span>
+        <span className="text-xs text-[var(--pj-red)]">{error}</span>
       ) : helpText ? (
-        <span className="text-xs text-ink-subtle">{helpText}</span>
+        <span className="text-xs text-[var(--pj-dim)]">{helpText}</span>
       ) : null}
     </label>
   );
@@ -40,7 +42,10 @@ export function InputField({
 }: InputFieldProps) {
   return (
     <FieldShell error={error} helpText={helpText} label={label}>
-      <input className={`ui-input ${className}`} {...props} />
+      <input
+        className={`ui-input min-h-[42px] w-full rounded-none border border-[var(--pj-input-border)] bg-[var(--pj-panel)] px-3 py-2.5 text-[13px] text-[var(--pj-text)] outline-none transition-[border-color,box-shadow] duration-[160ms] ease-[var(--ease-pj)] hover:border-[var(--pj-border-strong)] focus:border-[var(--pj-lime)] focus:shadow-[0_1px_0_var(--pj-lime)] ${className}`}
+        {...props}
+      />
     </FieldShell>
   );
 }
@@ -61,7 +66,10 @@ export function TextareaField({
 }: TextareaFieldProps) {
   return (
     <FieldShell error={error} helpText={helpText} label={label}>
-      <textarea className={`ui-input min-h-24 resize-y ${className}`} {...props} />
+      <textarea
+        className={`ui-input min-h-[110px] w-full resize-y rounded-none border border-[var(--pj-input-border)] bg-[var(--pj-panel)] px-3 py-2.5 text-[13px] text-[var(--pj-text)] outline-none transition-[border-color,box-shadow] duration-[160ms] ease-[var(--ease-pj)] hover:border-[var(--pj-border-strong)] focus:border-[var(--pj-lime)] focus:shadow-[0_1px_0_var(--pj-lime)] ${className}`}
+        {...props}
+      />
     </FieldShell>
   );
 }

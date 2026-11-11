@@ -43,7 +43,6 @@ export default function LoginPage() {
       }
       description="A workspace for teams who ship. Manage projects, track issues, and deliver without friction."
     >
-      {/* Heading */}
       <div className="mb-[52px]">
         <p className="mb-[18px] text-[10px] uppercase tracking-[0.22em] text-[var(--pj-muted)]">
           Sign in
@@ -56,7 +55,6 @@ export default function LoginPage() {
         </h2>
       </div>
 
-      {/* Error */}
       {error ? (
         <div className="mb-8 border-y border-[var(--pj-error)] py-3">
           <p className="m-0 font-['Inter',ui-sans-serif,sans-serif] text-[11px] leading-[1.6] tracking-[0.05em] text-[var(--pj-error)]">
@@ -66,7 +64,6 @@ export default function LoginPage() {
       ) : null}
 
       <form className="flex flex-col gap-9" onSubmit={handleSubmit}>
-        {/* Email */}
         <div>
           <label
             htmlFor="email"
@@ -93,7 +90,6 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* Password */}
         <div>
           <div className="mb-[11px] flex items-baseline justify-between">
             <label
@@ -127,23 +123,7 @@ export default function LoginPage() {
                 "placeholder:text-[var(--pj-placeholder)]",
                 "focus:border-[var(--pj-text)]",
               ].join(" ")}
-            >
-              {loading ? (
-                <>
-                  <span className="inline-block h-[10px] w-[10px] animate-spin rounded-full border border-[var(--pj-input-border)] border-t-[var(--pj-muted)]" />
-                  Signing in
-                </>
-              ) : (
-                "Sign in →"
-              )}
-            </button>
-          </form>
-
-          {/* Register */}
-          <div className="mt-[52px] flex items-center justify-between gap-[18px] border-t border-[var(--pj-border)] pt-8">
-            <span className="text-[11px] text-[var(--pj-muted)]">
-              New to WorkOrbit?
-            </span>
+            />
 
             <button
               aria-label={showPassword ? "Hide password" : "Show password"}
@@ -161,7 +141,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Submit */}
         <button
           disabled={loading}
           type="submit"
@@ -186,11 +165,8 @@ export default function LoginPage() {
         </button>
       </form>
 
-      {/* Register */}
       <div className="mt-[52px] flex items-center justify-between gap-[18px] border-t border-[var(--pj-border)] pt-8">
-        <span className="text-[11px] text-[var(--pj-muted)]">
-          New to WorkOrbit?
-        </span>
+        <span className="text-[11px] text-[var(--pj-muted)]">New to WorkOrbit?</span>
 
         <Link
           to="/register"

@@ -32,12 +32,12 @@ export default function ConfirmModal({ open, title, description, confirmLabel, b
     if (!open) return null;
 
     return <div
-        className="pj-modal-backdrop fixed inset-0 z-[110] flex items-center justify-center bg-white dark:bg-black/70 p-4"
+        className="fixed inset-0 z-[110] flex items-center justify-center bg-[var(--pj-scrim)] p-4 backdrop-blur-[10px]"
         role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onCancel(); }}>
-        <section aria-labelledby="confirm-modal-title" aria-modal="true" className="pj-modal w-full max-w-md border border-zinc-300 dark:border-zinc-700 bg-[#f4f4f5] dark:bg-[#101010] p-5 shadow-[0_18px_60px_rgba(0,0,0,.5)]" role="dialog">
+        <section aria-labelledby="confirm-modal-title" aria-modal="true" className="pj-modal w-full max-w-md rounded-none border border-[var(--pj-border-strong)] bg-[var(--pj-panel)] p-5 shadow-[var(--shadow-popover)]" role="dialog">
             <div className="flex items-start gap-3">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-red-400/50 text-red-700 dark:text-red-300"><AlertTriangle className="h-4 w-4" /></span>
-                <div className="min-w-0 flex-1"><h2 className="text-lg text-zinc-900 dark:text-white" id="confirm-modal-title">{title}</h2><p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{description}</p></div>
+                <div className="min-w-0 flex-1"><h2 className="font-[var(--font-serif)] text-[30px] font-normal tracking-[-.02em] text-zinc-900 dark:text-white" id="confirm-modal-title">{title}</h2><p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{description}</p></div>
                 <button aria-label="Close confirmation" className="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white" disabled={busy} onClick={onCancel} type="button"><X className="h-4 w-4" /></button>
             </div>
             {requiredText && <label className="mt-5 block text-[10px] uppercase tracking-[.14em] text-zinc-600 dark:text-zinc-400">Type <span className="text-zinc-700 dark:text-zinc-200">{requiredText}</span> to confirm<input autoFocus className="mt-2 w-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 p-3 text-sm normal-case tracking-normal text-zinc-900 dark:text-white outline-none focus:border-zinc-900 dark:focus:border-white" disabled={busy} value={confirmation} onChange={(event) => setConfirmation(event.target.value)} /></label>}

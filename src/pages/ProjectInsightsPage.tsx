@@ -317,15 +317,6 @@ function DashboardMetric({ label, value, detail, accent, onClick }: { label: str
     );
 }
 
-function HealthRow({ label, value, tone }: { label: string; value: number; tone: "lime" | "yellow" | "neutral" }) {
-    return (
-        <div className="flex items-center justify-between border-b border-pj pb-3 text-[10px] uppercase tracking-[.12em] last:border-b-0 last:pb-0">
-            <span className="text-pj-muted">{label}</span>
-            <span className={tone === "lime" ? "text-pj-lime" : tone === "yellow" ? "text-pj-yellow" : "text-pj"}>{value}</span>
-        </div>
-    );
-}
-
 function SignalCard({ index, title, value, description, tone, onClick }: { index: string; title: string; value: number | string; description: string; tone: "lime" | "yellow" | "neutral"; onClick: () => void }) {
     return (
         <button type="button" onClick={onClick} className="group bg-pj-panel p-6 text-left transition-colors hover:bg-pj-panel-raised sm:p-7">
@@ -383,14 +374,6 @@ const statusBar: Record<TicketStatus, string> = {
     Testing: "bg-pj-yellow",
     Done: "bg-pj-lime",
     Closed: "bg-zinc-300 dark:bg-zinc-700",
-};
-
-const priorityTone: Record<TicketPriority, { label: string; text: string; border: string; bg: string; dot: string }> = {
-    P0: { label: "Critical", text: "pj-priority-p0", border: "pj-priority-p0", bg: "pj-priority-p0", dot: "bg-red-600 dark:bg-red-400" },
-    P1: { label: "Urgent", text: "pj-priority-p1", border: "pj-priority-p1", bg: "pj-priority-p1", dot: "bg-orange-600 dark:bg-orange-300" },
-    P2: { label: "High", text: "pj-priority-p2", border: "pj-priority-p2", bg: "pj-priority-p2", dot: "bg-amber-600 dark:bg-amber-300" },
-    P3: { label: "Normal", text: "pj-priority-p3", border: "pj-priority-p3", bg: "pj-priority-p3", dot: "bg-sky-600 dark:bg-sky-300" },
-    P4: { label: "Low", text: "pj-priority-p4", border: "pj-priority-p4", bg: "pj-priority-p4", dot: "bg-zinc-500" },
 };
 
 function formatUpdated(value: string) {

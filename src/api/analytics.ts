@@ -1,7 +1,17 @@
 import { apiBlobRequest, apiRequest, responseData, type ApiResponse } from "./client";
 
 export interface DailySummaryComment { id: string; description: string; created_at: string; }
-export interface DailySummaryTicket { project_name: string; ticket_name: string; status_changed: boolean; previous_status?: string; current_status: string; finished: boolean; hours_logged: number; comments: DailySummaryComment[]; }
+export interface DailySummaryTicket {
+  project_name: string;
+  ticket_name: string;
+  status_changed: boolean;
+  previous_status?: string;
+  current_status: string;
+  finished: boolean;
+  hours_logged: number;
+  priority?: string;
+  comments: DailySummaryComment[];
+}
 export interface DeveloperDailySummary { user_id: string; developer_name: string; organization_id: string; report_start: string; report_end: string; tickets: DailySummaryTicket[]; total_tickets: number; tickets_finished: number; total_hours_logged: number; total_comments: number; }
 
 export const getDeveloperDailySummary = (organizationId: string, userId: string) =>

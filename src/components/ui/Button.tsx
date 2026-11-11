@@ -10,10 +10,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClass: Record<ButtonVariant, string> = {
-  primary: "ui-btn-primary",
-  secondary: "ui-btn-secondary",
-  ghost: "ui-btn-ghost",
-  danger: "ui-btn-danger",
+  primary:
+    "ui-btn-primary border-[var(--pj-lime-vivid)] bg-[var(--pj-lime-vivid)] text-[var(--pj-on-lime)] enabled:hover:border-[var(--pj-lime-vivid-strong)] enabled:hover:bg-[var(--pj-lime-vivid-strong)] enabled:hover:text-[var(--pj-on-lime)] enabled:hover:shadow-[0_8px_28px_var(--pj-lime-glow)]",
+  secondary:
+    "ui-btn-secondary border-[var(--pj-border-strong)] bg-transparent text-[var(--pj-text)] enabled:hover:border-[var(--pj-lime)] enabled:hover:bg-[var(--pj-lime-soft)]",
+  ghost:
+    "ui-btn-ghost border-transparent bg-transparent text-[var(--pj-muted)] enabled:hover:bg-[var(--pj-lime-soft)] enabled:hover:text-[var(--pj-accent-text)]",
+  danger:
+    "ui-btn-danger border-[var(--pj-red-line)] bg-[var(--pj-red-soft)] text-[var(--pj-red)] enabled:hover:bg-[color-mix(in_srgb,var(--pj-red)_12%,transparent)]",
 };
 
 export function Button({
@@ -30,7 +34,7 @@ export function Button({
   return (
     <button
       onClick={onClick}
-      className={`ui-btn ${variantClass[variant]} ${className}`}
+      className={`inline-flex min-h-[42px] items-center justify-center gap-[9px] rounded-[var(--radius-panel)] border px-[17px] text-[10px] font-semibold leading-none tracking-[.12em] uppercase transition-[transform,background-color,border-color,color,box-shadow] duration-[160ms] ease-[var(--ease-pj)] enabled:hover:-translate-y-px enabled:active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-[.42] ${variantClass[variant]} ${className}`}
       disabled={disabled || isLoading}
       type={type}
       {...props}

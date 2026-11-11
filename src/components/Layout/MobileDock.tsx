@@ -1,13 +1,5 @@
 import { NavLink, useLocation, useParams } from "react-router-dom";
 import {
-  LayoutDashboard,
-  FolderKanban,
-  Ticket,
-  MoreHorizontal,
-  X,
-  Milestone,
-  Users,
-  Settings,
   Building2,
   ClipboardCheck,
   FolderKanban,

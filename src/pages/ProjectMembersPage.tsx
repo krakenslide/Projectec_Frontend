@@ -41,7 +41,6 @@ export default function ProjectMembersPage() {
         const needle = query.trim().toLowerCase();
         return members.filter((member) => `${member.name} ${member.email} ${member.role}`.toLowerCase().includes(needle));
     }, [members, query]);
-    const roleCounts = useMemo(() => roles.map((item) => [item, members.filter((member) => member.role === item).length] as const), [members]);
     const teamMetrics = useMemo(() => ({
         open: tickets.filter((ticket) => !["Done", "Closed"].includes(ticket.status)).length,
         active: tickets.filter((ticket) => ticket.status === "In Progress").length,
@@ -53,7 +52,6 @@ export default function ProjectMembersPage() {
         active: tickets.filter((ticket) => ticket.assigned_to === member.user_id && ticket.status === "In Progress").length,
         done: tickets.filter((ticket) => ticket.assigned_to === member.user_id && ["Done", "Closed"].includes(ticket.status)).length,
     }])), [members, tickets]);
-    const unassignedCount = teamMetrics.unassigned;
 
     const addMember = async (event: React.FormEvent) => {
         event.preventDefault();

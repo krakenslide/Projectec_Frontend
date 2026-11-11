@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
   ChevronRight,
@@ -108,7 +108,7 @@ export default function StandupPage() {
   const changedCount = scopedTickets.filter((ticket) => ticket.status_changed).length;
   const finishedCount = scopedTickets.filter((ticket) => ticket.finished).length;
   const activeCount = scopedTickets.filter((ticket) => ticket.current_status === "In Progress").length;
-  const attentionCount = scopedTickets.filter((ticket) => ["P0", "P1"].includes(ticket.priority) && ticket.current_status !== "Done" && ticket.current_status !== "Closed").length;
+  const attentionCount = scopedTickets.filter((ticket) => ["P0", "P1"].includes(ticket.priority ?? "P3") && ticket.current_status !== "Done" && ticket.current_status !== "Closed").length;
   const filtersActive = query.trim() !== "" || selectedStatus !== "All statuses" || selectedProject !== "All projects" || changedOnly;
   const statusBreakdown = useMemo(() => Object.entries(statusCounts).sort((a, b) => b[1] - a[1]), [statusCounts]);
   const projectBreakdown = useMemo(() => {
@@ -302,6 +302,16 @@ export default function StandupPage() {
 
 function StandupStat({ label, value, detail, accent = false }: { label: string; value: number; detail: string; accent?: boolean }) {
   return <div className="border-r border-[var(--pj-border)] px-4 py-4 last:border-r-0 sm:px-5"><p className="pj-dashboard-eyebrow">{label}</p><p className={`mt-1 font-[var(--font-serif)] text-3xl ${accent ? "text-[var(--pj-yellow)]" : "text-[var(--pj-text)]"}`}>{value}</p><p className="mt-1 text-[9px] uppercase tracking-[.1em] text-[var(--pj-dim)]">{detail}</p></div>;
+}
+
+function DetailPanel({ title, eyebrow, children }: { title: string; eyebrow: string; children: React.ReactNode }) {
+  return (
+    <section className="pj-standup-panel border border-[var(--pj-border-strong)] bg-[var(--pj-panel)] p-6">
+      <p className="pj-dashboard-eyebrow">{eyebrow}</p>
+      <h3 className="mt-3 font-[var(--font-serif)] text-2xl text-[var(--pj-text)]">{title}</h3>
+      <div className="mt-5">{children}</div>
+    </section>
+  );
 }
 
 // function Avatar({ member }: { member: OrganisationMember }) {
